@@ -1,13 +1,14 @@
 "use client"
-import { getCompaniesQueryOptions } from "@/queries/company.query"
+import { getEmployeesQueryOptions } from "@/queries/employee.query"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 
-export function useCompanies(getAll = false) {
+export function useEmployees() {
   const searchParams = useSearchParams()
-  const page = Number(searchParams?.get("page") ?? 1)
+  const page = Number(searchParams.get("page")) || 1
   const emailFilter = searchParams?.get("email") ?? ""
-  const nameFilter = searchParams?.get("name") ?? ""
+  const usernameFilter = searchParams?.get("username") ?? ""
+  const companyFilter = searchParams?.get("company") ?? ""
 
   const {
     data,
@@ -16,7 +17,12 @@ export function useCompanies(getAll = false) {
     refetch,
     isRefetching,
   } = useSuspenseQuery(
-    getCompaniesQueryOptions({ emailFilter, nameFilter, page, getAll })
+    getEmployeesQueryOptions({
+      page,
+      emailFilter,
+      usernameFilter,
+      companyFilter,
+    })
   )
 
   return {

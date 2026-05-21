@@ -1,21 +1,19 @@
-export interface UserType {
+export interface EmployeeType {
   id: string
-  name: string
+  username: string
   email: string
-  companyName: string
-  companyId: string
-  age: number
-  isVerified: boolean
-  lastLoginAt: string
+  avatar?: string
+  company: CompanyType
 }
 
-export interface addUserDTO {
-  name: string
+export interface AddEmployeeDTO {
+  username: string
   email: string
-  age: number
   companyId: string
-  companyName?: string
+  avatar?: string
 }
+
+export type updateEmployeeDto = Omit<AddEmployeeDTO, "companyId">
 
 export interface CompanyType {
   id: string
@@ -25,7 +23,7 @@ export interface CompanyType {
   logo?: string
 }
 
-export interface addCompanyDTO {
+export interface AddCompanyDTO {
   name: string
   email: string
   address: string

@@ -3,24 +3,19 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 // import { useQueryClient } from "@tanstack/react-query"
 // import { getUser } from "@/lib/api"
-import type { UserType } from "@/types/dashboard.types"
+import type { EmployeeType } from "@/types/dashboard.types"
 import { UpdateEmployeeForm } from "./UpdateEmployeeForm"
 
-interface UpdateUserButtonProps {
-  user: UserType
+interface UpdateEmployeeButtonProps {
+  employee: EmployeeType
 }
 
-export const UpdateEmployeeButton = ({ user }: UpdateUserButtonProps) => {
+export const UpdateEmployeeButton = ({
+  employee,
+}: UpdateEmployeeButtonProps) => {
   // const queryClient = useQueryClient()
 
   const [open, setOpen] = useState(false)
-
-  // const prefetchUserData = () => {
-  //   queryClient.prefetchQuery({
-  //     queryKey: ["users", user.id],
-  //     queryFn: () => getUser(user.id),
-  //   })
-  // }
 
   const onSuccess = () => {
     console.log("User updated successfully")
@@ -46,8 +41,8 @@ export const UpdateEmployeeButton = ({ user }: UpdateUserButtonProps) => {
       </div>
       <DialogContent className="px-6 text-foreground/80">
         <UpdateEmployeeForm
-          user={user}
-          userId={user.id}
+          employee={employee}
+          employeeId={employee.id}
           onSuccess={onSuccess}
         />
       </DialogContent>

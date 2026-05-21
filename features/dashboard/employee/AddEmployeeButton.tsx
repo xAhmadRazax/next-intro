@@ -1,7 +1,8 @@
+"use client"
 import { Button } from "@/components/ui/button"
-import FormDialog from "../components/FormDialog"
 import { AddEmployeeForm } from "./AddEmployeeForm"
 import { Plus } from "lucide-react"
+import FormDialog from "../components/FormDialog"
 
 export const AddEmployeeButton = () => {
   return (
@@ -12,7 +13,8 @@ export const AddEmployeeButton = () => {
           size="sm" // ✅ Match other buttons
           className="mb-4 flex gap-1.5 xl:me-4"
         >
-          <Plus className="size-3.5" /> Add Employee
+          <Plus className="size-3.5" />
+          Add Employee
         </Button>
       </FormDialog.Trigger>
 

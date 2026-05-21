@@ -41,6 +41,7 @@ export const DeleteCompanyButton = ({ id, name }: DeleteCompanyButtonProps) => {
             data: old.data.filter((u) => u.id !== id),
           })
         )
+        queryClient.invalidateQueries({ queryKey: companyKeys.all })
         setOpen(false) // Close dialog on success
       },
     })

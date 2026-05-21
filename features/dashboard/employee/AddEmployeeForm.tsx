@@ -1,9 +1,12 @@
-import Form from "@/components/form/Form"
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import { uploadImage } from "@/lib/cloudinary.utils"
+import { useCreateEmployeeMutation } from "./hooks/useCreateEmployeeMutation"
+import { useQueryClient } from "@tanstack/react-query"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useCreateUserMutation } from "./hooks/useCreateUserMutation"
-import { useQueryClient } from "@tanstack/react-query"
-import { useCompanies } from "../company/hooks/useCompanies"
 import {
   Combobox,
   ComboboxContent,
@@ -13,13 +16,29 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import type { CompanyType } from "@/types/dashboard.types"
-import { useState } from "react"
+import Form from "@/components/form/Form"
+import { employeeKeys } from "@/lib/queryKeys"
+import { useAllCompanies } from "../company/hooks/useAllCompanies"
+
+interface EmployeeAvatarState {
+  previewUrl: string
+  imageFile: File | null
+}
 
 export const AddEmployeeForm = () => {
-  const { createUserMutation, isLoading: isCreatingUser } =
-    useCreateUserMutation()
+  const [employeeAvatar, setEmployeeAvatar] = useState<EmployeeAvatarState>({
+    imageFile: null,
+    previewUrl: "",
+  })
+  const [employeeAvatarError, setEmployeeAvatarError] = useState<string>("")
 
-  const { data, isLoading: isLoadingCompanies } = useCompanies(true)
+  const { createEmployeeMutation, isLoading: isCreatingEmployee } =
+    useCreateEmployeeMutation()
+
+  const { data: companiesData, isLoading: isLoadingCompanies } =
+    useAllCompanies()
+
+  const companies = companiesData?.data || []
 
   const queryClient = useQueryClient()
   const { onSuccess } = useFormDialog()
@@ -28,43 +47,70 @@ export const AddEmployeeForm = () => {
     null
   )
 
-  const handleCompanySelect = (company: string | null) => {
+  const handleCompanySelect = (company: CompanyType | null) => {
     if (!company) {
       return
     }
-    const selected = data?.data.find((c) => c.name === company) || null
-    setSelectedCompany(selected)
-
-    console.log("Selected company:", company)
+    setSelectedCompany(company)
   }
 
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): Promise<void> => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+      if (!validTypes.includes(file.type)) {
+        setEmployeeAvatarError(
+          "Please select a valid image file (JPEG, PNG, GIF, or WEBP)"
+        )
+        return
+      }
+
+      setEmployeeAvatarError("")
+      setEmployeeAvatar((prev) => ({
+        ...prev,
+        imageFile: file,
+        previewUrl: URL.createObjectURL(file),
+      }))
+    }
+  }
   const onSubmitHandler = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const formData = new FormData(e.currentTarget)
 
-    const name = formData.get("name") as string
+    const username = formData.get("username") as string
     const email = formData.get("email") as string
-    const age = formData.get("age") as string
+    let avatarUrl = ""
+    if (employeeAvatar.imageFile) {
+      const imageUrl = await uploadImage(employeeAvatar.imageFile)
+      avatarUrl = imageUrl
+    }
+
     if (!selectedCompany) {
       alert("Please select a company for the employee.")
       return
     }
 
-    createUserMutation(
+    createEmployeeMutation(
       {
-        name,
+        username,
         email,
-        age: +age,
         companyId: selectedCompany.id,
+        avatar: avatarUrl,
       },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ["users"],
+            queryKey: employeeKeys.all,
           })
 
           onSuccess()
+        },
+        onError(error) {
+          console.log(error)
         },
       }
     )
@@ -79,6 +125,7 @@ export const AddEmployeeForm = () => {
       </DialogHeader>
 
       <Form onSubmit={onSubmitHandler}>
+        {/* email input */}
         <Form.Field>
           <Form.Label>Email</Form.Label>
 
@@ -87,59 +134,75 @@ export const AddEmployeeForm = () => {
             type="email"
             placeholder="john@example.com"
             required
-            disabled={isCreatingUser}
+            disabled={isCreatingEmployee}
           />
         </Form.Field>
-
+        {/* end of email input */}
+        {/* name input */}
         <Form.Field>
           <Form.Label>Name</Form.Label>
 
           <Form.Input
-            name="name"
+            name="username"
             placeholder="John Doe"
             required
-            disabled={isCreatingUser}
+            disabled={isCreatingEmployee}
           />
         </Form.Field>
+        {/* end of name input */}
 
+        {/* company input */}
         <Form.Field>
-          <Form.Label>Age</Form.Label>
-
-          <Form.Input
-            name="age"
-            type="number"
-            placeholder="18"
-            required
-            min={0}
-            disabled={isCreatingUser}
-          />
-        </Form.Field>
-
-        <Form.Field>
-          <Form.Label>Company</Form.Label>
+          <Form.Label htmlFor="company">Company</Form.Label>
           <Combobox
-            required
-            items={data?.data ?? []}
-            onValueChange={handleCompanySelect}
-            disabled={isLoadingCompanies || isCreatingUser}
+            id="company"
+            disabled={isLoadingCompanies || isCreatingEmployee}
+            items={companies || []}
+            itemToStringLabel={(company: CompanyType) => company.name}
+            onValueChange={(company) => handleCompanySelect(company)}
           >
-            <ComboboxInput placeholder="Select a framework" />
+            <ComboboxInput placeholder="Search companies..." />
             <ComboboxContent>
-              <ComboboxEmpty>No items found.</ComboboxEmpty>
+              <ComboboxEmpty>No companies found.</ComboboxEmpty>
               <ComboboxList>
-                {(item: CompanyType) => (
-                  <ComboboxItem key={item.id} value={item.name}>
-                    {item.name}
+                {(company: CompanyType) => (
+                  <ComboboxItem key={company.id} value={company}>
+                    {company.name}
                   </ComboboxItem>
                 )}
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
         </Form.Field>
+        {/* end of company input */}
+        {/* avatar input */}
+        <Form.Field>
+          <Form.Label htmlFor="avatar">avatar</Form.Label>
+
+          <Form.Input
+            id={"avatar"}
+            name="avatar"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            disabled={isCreatingEmployee}
+          />
+
+          {/* image preview */}
+          {employeeAvatar.previewUrl && (
+            <Image
+              width={128}
+              height={128}
+              src={employeeAvatar.previewUrl}
+              alt="Preview"
+              className="mt-2 h-32 w-32 object-cover"
+            />
+          )}
+        </Form.Field>
 
         <Form.Actions>
-          <Form.Submit disabled={isCreatingUser}>
-            {isCreatingUser ? "Adding Employee..." : "Add Employee"}
+          <Form.Submit disabled={isCreatingEmployee}>
+            {isCreatingEmployee ? "Adding Employee..." : "Add Employee"}
           </Form.Submit>
         </Form.Actions>
       </Form>

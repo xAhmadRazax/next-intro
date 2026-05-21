@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "@/components/ui/table"
-import { DeleteUserButton } from "./DeleteUserButton"
+import { DeleteUserButton } from "./DeleteEmployeeButton"
 import { UpdateEmployeeButton } from "./UpdateEmployeeButton"
 
 interface EmployeeTableRowProps {

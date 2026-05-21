@@ -7,6 +7,7 @@ import { handlePostgresError } from "@/lib/drizzle-error-handler"
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
 
+  const getAll = Boolean(searchParams.get("getAll"))
   const page = Number(searchParams.get("page") || 1)
   const limit = Number(searchParams.get("limit") || 20)
   const emailFilter = searchParams.get("email") || ""
@@ -25,8 +26,8 @@ export async function GET(req: Request) {
 
   const [data, [{ total }]] = await Promise.all([
     db.query.companies.findMany({
-      limit,
-      offset,
+      limit: !getAll ? limit : undefined,
+      offset: !getAll ? offset : undefined,
       where: whereClause(companies),
       orderBy: (table, { asc, desc }) => [
         order === "asc" ? asc(table.createdAt) : desc(table.createdAt),

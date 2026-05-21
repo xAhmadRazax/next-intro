@@ -8,12 +8,15 @@ interface PostgresError {
 }
 
 export function handlePostgresError(err: unknown): Response | null {
-  // Check if it's a Postgres error
-  if (typeof err !== "object" || err === null || !("code" in err)) {
+  const target =
+    typeof err === "object" && err !== null && "cause" in err
+      ? (err as { cause: unknown }).cause
+      : err
+
+  if (typeof target !== "object" || target === null || !("code" in target)) {
     return null
   }
-
-  const error = err as PostgresError
+  const error = target as PostgresError
 
   switch (error.code) {
     case "23505": {

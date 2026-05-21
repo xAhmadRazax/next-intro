@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import { MainLayout } from "@/pages/MainLayout"
+import { MainLayout } from "@/components/MainLayout"
 import { ReactQueryProvider } from "@/components/ReactQueryProvider"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })

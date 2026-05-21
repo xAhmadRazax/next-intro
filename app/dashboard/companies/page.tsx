@@ -5,18 +5,12 @@ import {
 } from "@tanstack/react-query"
 
 import { getCompanies } from "@/lib/api"
-import { Company } from "@/pages/Company"
+import { Company } from "@/views/Company.view"
 import { companyKeys } from "@/lib/queryKeys"
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }> | { page?: string }
-}) {
+export default async function Page() {
   //  we are prefetching data on server
   const queryClient = new QueryClient()
-  const params = await searchParams
-  const page = Number(params?.page) || 1
 
   await queryClient.prefetchQuery({
     queryKey: companyKeys.page(),
@@ -25,7 +19,7 @@ export default async function Page({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Company initialPage={page} />
+      <Company />
     </HydrationBoundary>
   )
 }

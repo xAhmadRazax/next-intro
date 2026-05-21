@@ -1,4 +1,4 @@
-import { getUserQueryOptions } from "@/queries/user.query"
+import { getUserQueryOptions } from "@/queries/employee.query"
 import { useQuery } from "@tanstack/react-query"
 
 export function useUser(userId: string) {

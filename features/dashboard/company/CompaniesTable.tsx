@@ -9,12 +9,12 @@ import { TablePagination } from "@/components/TablePagination"
 import { usePrefetchCompany } from "./hooks/usePrefetchCompany"
 import { companyKeys } from "@/lib/queryKeys"
 import { getCompanies } from "@/lib/api"
-import { DataTableFiltration } from "../components/DataTableFiltration"
+import { CompaniesTableSkeleton } from "./CompaniesTableSkeleton"
 // import { usePrefetchCompany } from "./hooks/usePrefetchCompany"
 
 export const CompaniesTable = () => {
   const queryClient = useQueryClient()
-  const { data, meta, isLoading } = useCompanies()
+  const { data, meta, isLoading, isRefetching } = useCompanies()
   const companies = data?.data || []
 
   // const isFetching = useIsFetching({
@@ -48,10 +48,14 @@ export const CompaniesTable = () => {
       queryFn: () => getCompanies({ page: meta.currentPage - 1 }),
     })
 
+  if (isLoading || isRefetching) {
+    return <CompaniesTableSkeleton rows={10} />
+  }
+
   return (
     <>
       {/* Filter Section - filters by name AND email */}
-      <DataTableFiltration />
+      {/* <DataTableFiltration /> */}
       <DataTable
         columns={companyColumns(
           false,

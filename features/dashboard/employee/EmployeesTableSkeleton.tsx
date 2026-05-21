@@ -1,41 +1,31 @@
-import { TableCell, TableRow } from "@/components/ui/table"
-import DataTable from "../components/DataTable"
-import { EmployeesTableHeader } from "./EmployeesTableHeader"
+"use client"
+import { DataTable } from "../components/DataGridTable"
+import { employeeColumns } from "./employee-columns"
 
-interface CompaniesTableSkeletonProps {
+interface EmployeesTableSkeletonProps {
   rows: number
 }
 
 export const EmployeesTableSkeleton = ({
   rows = 1,
-}: CompaniesTableSkeletonProps) => {
-  return (
-    <DataTable>
-      <EmployeesTableHeader />
-      <DataTable.Body>
-        {Array.from({ length: rows }).map((_, index) => (
-          <TableRow
-            className="h-[44.6px] transition-colors hover:bg-muted/40"
-            key={index}
-          >
-            <TableCell className="animate-pulse bg-primary/40 ps-4 font-medium"></TableCell>
+}: EmployeesTableSkeletonProps) => {
+  const skeletonData = Array.from({ length: rows }).map((_, index) => ({
+    id: `skeleton-${index}`,
+    username: "",
+    email: "",
+    company: {
+      id: `skeleton-company-${index}`,
+      name: "",
+      email: "",
+      address: "",
+      logo: undefined,
+      createdAt: null,
+      updatedAt: null,
+    },
+    avatar: undefined,
+    createdAt: null,
+    updatedAt: null,
+  }))
 
-            <TableCell className="animate-pulse bg-primary/40"></TableCell>
-
-            <TableCell className="animate-pulse bg-primary/40"></TableCell>
-
-            <TableCell className="animate-pulse bg-primary/40"></TableCell>
-
-            <TableCell className="animate-pulse bg-primary/40"></TableCell>
-
-            <TableCell className="animate-pulse bg-primary/40 text-muted-foreground"></TableCell>
-
-            <TableCell className="animate-pulse bg-primary/40 pe-4" colSpan={2}>
-              <div className="flex animate-pulse justify-end gap-2 bg-primary/40"></div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </DataTable.Body>
-    </DataTable>
-  )
+  return <DataTable columns={employeeColumns(true)} data={skeletonData} />
 }

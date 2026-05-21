@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react"
 import {
   Dialog,
@@ -10,36 +11,40 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useQueryClient } from "@tanstack/react-query"
-import type { UserType } from "@/types/dashboard.types"
-import { useSearchParams } from "react-router"
-import { useDeleteUserMutation } from "./hooks/useDeleteUserMutation"
+import { useDeleteEmployeeMutation } from "./hooks/useDeleteEmployeeMutation"
+import { useSearchParams } from "next/navigation"
+import { employeeKeys } from "@/lib/queryKeys"
+import { Employee } from "@/db/schema"
 
-interface DeleteUserButtonProps {
+interface DeleteEmployeeButtonProps {
   id: string
   name?: string // Optional: show user name in confirmation
 }
 
-export const DeleteUserButton = ({ id, name }: DeleteUserButtonProps) => {
-  const [searchParams] = useSearchParams()
+export const DeleteEmployeeButton = ({
+  id,
+  name,
+}: DeleteEmployeeButtonProps) => {
+  const searchParams = useSearchParams()
   const page = Number(searchParams.get("page")) || 1
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const { deleteUserMutation, isLoading } = useDeleteUserMutation(id)
+  const { deleteEmployeeMutation, isLoading } = useDeleteEmployeeMutation(id)
 
   const handleDelete = () => {
-    deleteUserMutation(undefined, {
+    deleteEmployeeMutation(undefined, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ["users"],
-          refetchType: "all",
+          queryKey: employeeKeys.all,
         })
         queryClient.setQueryData(
-          ["users", page],
-          (old: { data: UserType[] }) => ({
+          employeeKeys.list(page),
+          (old: { data: Employee[] }) => ({
             ...old,
             data: old.data.filter((u) => u.id !== id),
           })
         )
+        queryClient.invalidateQueries({ queryKey: employeeKeys.all })
         setOpen(false) // Close dialog on success
       },
     })
@@ -53,11 +58,12 @@ export const DeleteUserButton = ({ id, name }: DeleteUserButtonProps) => {
 
       <DialogContent className="px-6 text-foreground/80">
         <DialogHeader>
-          <DialogTitle>Delete User</DialogTitle>
+          <DialogTitle>Delete Employee</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete {name ? `"${name}"` : "this user"}?
-            This action cannot be undone and will permanently remove the user's
-            data from the system.
+            Are you sure you want to delete{" "}
+            {name ? `"${name}"` : "this employee"}? This action cannot be undone
+            and will permanently remove the employee&apos;s data from the
+            system.
           </DialogDescription>
         </DialogHeader>
 

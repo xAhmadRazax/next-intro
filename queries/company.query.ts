@@ -6,8 +6,16 @@ import {
   deleteCompany,
 } from "@/lib/api"
 import { companyKeys } from "@/lib/queryKeys"
-import type { addCompanyDTO } from "@/types/dashboard.types"
+import type { AddCompanyDTO } from "@/types/dashboard.types"
 import { mutationOptions, queryOptions } from "@tanstack/react-query"
+
+export const getAllCompaniesQueryOptions = () =>
+  queryOptions({
+    queryKey: [...companyKeys.all, "all"],
+    queryFn: () => getCompanies({ getAll: true }),
+    staleTime: 0,
+    gcTime: 0,
+  })
 
 export const getCompaniesQueryOptions = ({
   page,
@@ -36,13 +44,13 @@ export const getCompanyQueryOptions = (id: string) =>
 
 export const createCompanyMutationOptions = mutationOptions({
   mutationKey: ["companies", "create"],
-  mutationFn: (company: addCompanyDTO) => addCompany(company),
+  mutationFn: (company: AddCompanyDTO) => addCompany(company),
 })
 
 export const updateCompanyMutationOptions = (id: string) =>
   mutationOptions({
     mutationKey: ["companies", "update", id],
-    mutationFn: (company: addCompanyDTO) => updateCompany(id, company),
+    mutationFn: (company: AddCompanyDTO) => updateCompany(id, company),
   })
 export const deleteCompanyMutationOptions = (id: string) =>
   mutationOptions({
