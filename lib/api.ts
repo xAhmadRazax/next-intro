@@ -1,3 +1,4 @@
+import { CreateCompanyDto } from "@/app/api/dashboard/companies/dtos/createCompanyDto"
 import { BASEURL } from "@/constants/constants"
 import { CompanyType } from "@/db/schema"
 import type {
@@ -254,5 +255,3 @@ export const deleteCompany = async (id: string) => {
 
   return res
 }
-
-//  auth api
