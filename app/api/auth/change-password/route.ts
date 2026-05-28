@@ -2,11 +2,12 @@ import { db } from "@/db"
 import { users } from "@/db/schema"
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { JWT } from "@/lib/JWT.server"
+import { RouteGuard } from "@/lib/routeGuard.server"
 import { TokenUtil } from "@/lib/token.server"
 import { eq } from "drizzle-orm"
 import { cookies } from "next/headers"
 
-export async function PATCH(req: Request) {
+export const PATCH = RouteGuard.requireAuth(async (req: Request) => {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get("token")?.value
@@ -89,4 +90,4 @@ export async function PATCH(req: Request) {
     console.error(err)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
-}
+})

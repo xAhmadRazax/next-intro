@@ -7,162 +7,169 @@ import { TokenUtil } from "@/lib/token.server"
 import { Mailer } from "@/lib/mailer.server"
 import { COMPANY_NAME, TEMP_PASSWORD_EXPIRY } from "@/constants/constants"
 import ms, { StringValue } from "ms"
+import { RouteGuard } from "@/lib/routeGuard.server"
 
-export async function POST(req: Request) {
-  const formData = await req.formData()
+export const POST = RouteGuard.requireAuthWithRole(
+  async (req: Request) => {
+    const formData = await req.formData()
 
-  const username = formData.get("username") as string
-  const email = formData.get("email") as string
-  const companyId = formData.get("companyId") as string
-  const avatar = formData.get("avatar") as File
+    const username = formData.get("username") as string
+    const email = formData.get("email") as string
+    const companyId = formData.get("companyId") as string
+    const avatar = formData.get("avatar") as File
 
-  let avatarObj: { url: string; publicId: string } | null = null
-  try {
-    const errorFields: string[] = []
-    if (!username) {
-      errorFields.push("username")
-    }
-    if (!email) {
-      errorFields.push("email")
-    }
-    if (!companyId) {
-      errorFields.push("companyId")
-    }
-
-    if (errorFields.length > 0) {
-      return Response.json(
-        { error: "missing required fields", fields: errorFields },
-        { status: 400 }
-      )
-    }
-
-    if (avatar instanceof File) {
-      const cloudinaryRes = await cloudinaryService.streamUpload(avatar)
-      avatarObj = {
-        url: cloudinaryRes.secure_url,
-        publicId: cloudinaryRes.public_id,
+    let avatarObj: { url: string; publicId: string } | null = null
+    try {
+      const errorFields: string[] = []
+      if (!username) {
+        errorFields.push("username")
       }
-    }
+      if (!email) {
+        errorFields.push("email")
+      }
+      if (!companyId) {
+        errorFields.push("companyId")
+      }
 
-    console.log(avatar, avatarObj)
+      if (errorFields.length > 0) {
+        return Response.json(
+          { error: "missing required fields", fields: errorFields },
+          { status: 400 }
+        )
+      }
 
-    const { raw, hashed } = await TokenUtil.generate({
-      bytesSize: 4,
-      bufferEncoding: "base64",
-      hashMethod: "bcrypt",
-    })
+      if (avatar instanceof File) {
+        const cloudinaryRes = await cloudinaryService.streamUpload(avatar)
+        avatarObj = {
+          url: cloudinaryRes.secure_url,
+          publicId: cloudinaryRes.public_id,
+        }
+      }
 
-    const [employee] = await db
-      .insert(users)
-      .values({
-        username,
-        email,
-        companyId,
-        password: hashed,
-        passwordExpiresAt: new Date(
-          Date.now() + ms(TEMP_PASSWORD_EXPIRY as StringValue)
-        ),
-        avatar: avatarObj?.url ?? null,
-        avatarPublicId: avatarObj?.publicId ?? null,
+      console.log(avatar, avatarObj)
+
+      const { raw, hashed } = await TokenUtil.generate({
+        bytesSize: 4,
+        bufferEncoding: "base64",
+        hashMethod: "bcrypt",
       })
-      .returning()
 
-    Mailer.sendInvite({
-      companyName: COMPANY_NAME,
-      email,
-      tempPassword: raw,
-      username,
-    })
+      const [employee] = await db
+        .insert(users)
+        .values({
+          username,
+          email,
+          companyId,
+          password: hashed,
+          passwordExpiresAt: new Date(
+            Date.now() + ms(TEMP_PASSWORD_EXPIRY as StringValue)
+          ),
+          avatar: avatarObj?.url ?? null,
+          avatarPublicId: avatarObj?.publicId ?? null,
+        })
+        .returning()
 
-    return Response.json({ employee }, { status: 201 })
-  } catch (error: unknown) {
-    if (avatarObj?.publicId)
-      cloudinaryService.deleteFromCloudinary(avatarObj.publicId)
+      Mailer.sendInvite({
+        companyName: COMPANY_NAME,
+        email,
+        tempPassword: raw,
+        username,
+      })
 
-    const postgresError = handlePostgresError(error)
-    if (postgresError) return postgresError
+      return Response.json({ employee }, { status: 201 })
+    } catch (error: unknown) {
+      if (avatarObj?.publicId)
+        cloudinaryService.deleteFromCloudinary(avatarObj.publicId)
 
-    // Handle JSON parsing error
-    if (error instanceof SyntaxError) {
-      return Response.json({ error: "Invalid JSON format" }, { status: 400 })
+      const postgresError = handlePostgresError(error)
+      if (postgresError) return postgresError
+
+      // Handle JSON parsing error
+      if (error instanceof SyntaxError) {
+        return Response.json({ error: "Invalid JSON format" }, { status: 400 })
+      }
+
+      console.log(error)
+      // Everything else
+      return Response.json({ error: "Internal server error" }, { status: 500 })
     }
+  },
+  ["admin"]
+)
 
-    console.log(error)
-    // Everything else
-    return Response.json({ error: "Internal server error" }, { status: 500 })
-  }
-}
+export const GET = RouteGuard.requireAuthWithRole(
+  async (req: Request) => {
+    console.log("im being hit")
+    const { searchParams } = new URL(req.url)
 
-export async function GET(req: Request) {
-  console.log("im being hit")
-  const { searchParams } = new URL(req.url)
+    const getAll = Boolean(searchParams.get("getAll"))
+    const page = Number(searchParams.get("page") || 1)
+    const limit = Number(searchParams.get("limit") || 20)
+    const emailFilter = searchParams.get("email") || ""
+    const nameFilter = searchParams.get("username") || ""
+    const companyFilter = searchParams.get("company") || ""
+    const order = searchParams.get("order") || "asc"
 
-  const getAll = Boolean(searchParams.get("getAll"))
-  const page = Number(searchParams.get("page") || 1)
-  const limit = Number(searchParams.get("limit") || 20)
-  const emailFilter = searchParams.get("email") || ""
-  const nameFilter = searchParams.get("username") || ""
-  const companyFilter = searchParams.get("company") || ""
-  const order = searchParams.get("order") || "asc"
+    console.log("filters", nameFilter, emailFilter)
 
-  console.log("filters", nameFilter, emailFilter)
+    const offset = (page - 1) * limit
 
-  const offset = (page - 1) * limit
+    const whereClause = () =>
+      and(
+        emailFilter ? ilike(users.email, `%${emailFilter}%`) : undefined,
+        nameFilter ? ilike(users.username, `%${nameFilter}%`) : undefined,
+        companyFilter ? eq(users.companyId, companyFilter) : undefined,
+        ne(users.role, "admin")
+      )
 
-  const whereClause = () =>
-    and(
-      emailFilter ? ilike(users.email, `%${emailFilter}%`) : undefined,
-      nameFilter ? ilike(users.username, `%${nameFilter}%`) : undefined,
-      companyFilter ? eq(users.companyId, companyFilter) : undefined,
-      ne(users.role, "admin")
-    )
+    // const [data, [{ total }]] = await Promise.all([
+    //   db.query.users.findMany({
+    //     limit: !getAll ? limit : undefined,
+    //     offset: !getAll ? offset : undefined,
+    //     where: whereClause(users),
+    //     with: { company: true },
+    //     orderBy: (table, { asc, desc }) => [
+    //       order === "asc" ? asc(table.createdAt) : desc(table.createdAt),
+    //     ],
+    //   }),
+    //   db.select({ total: count() }).from(users).where(whereClause(users)),
+    // ])
 
-  // const [data, [{ total }]] = await Promise.all([
-  //   db.query.users.findMany({
-  //     limit: !getAll ? limit : undefined,
-  //     offset: !getAll ? offset : undefined,
-  //     where: whereClause(users),
-  //     with: { company: true },
-  //     orderBy: (table, { asc, desc }) => [
-  //       order === "asc" ? asc(table.createdAt) : desc(table.createdAt),
-  //     ],
-  //   }),
-  //   db.select({ total: count() }).from(users).where(whereClause(users)),
-  // ])
+    const [data, [{ total }]] = await Promise.all([
+      db
+        .select()
+        .from(users)
+        .leftJoin(companies, eq(users.companyId, companies.id))
+        .where(whereClause)
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ total: count() })
+        .from(users)
+        .leftJoin(companies, eq(users.companyId, companies.id))
+        .where(whereClause),
+    ])
 
-  const [data, [{ total }]] = await Promise.all([
-    db
-      .select()
-      .from(users)
-      .leftJoin(companies, eq(users.companyId, companies.id))
-      .where(whereClause)
-      .limit(limit)
-      .offset(offset),
-    db
-      .select({ total: count() })
-      .from(users)
-      .leftJoin(companies, eq(users.companyId, companies.id))
-      .where(whereClause),
-  ])
+    const totalPages = Math.ceil(total / limit)
+    const mapped = data.map(({ users, companies }) => ({
+      ...users,
+      company: companies,
+    }))
 
-  const totalPages = Math.ceil(total / limit)
-  const mapped = data.map(({ users, companies }) => ({
-    ...users,
-    company: companies,
-  }))
+    // console.log("data", data, emailFilter, nameFilter)
 
-  // console.log("data", data, emailFilter, nameFilter)
-
-  return Response.json({
-    data: mapped,
-    meta: {
-      itemsPerPage: limit,
-      currentPage: page,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
-      nextPage: page < totalPages ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-      totalPages,
-    },
-  })
-}
+    return Response.json({
+      data: mapped,
+      meta: {
+        itemsPerPage: limit,
+        currentPage: page,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+        totalPages,
+      },
+    })
+  },
+  ["admin"]
+)

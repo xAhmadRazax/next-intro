@@ -2,10 +2,11 @@ import { db } from "@/db"
 import { companies, users } from "@/db/schema"
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { JWT } from "@/lib/JWT.server"
+import { RouteGuard } from "@/lib/routeGuard.server"
 import { eq } from "drizzle-orm"
 import { cookies } from "next/headers"
 
-export async function POST() {
+export const POST = RouteGuard.requireAuth(async () => {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get("token")?.value
@@ -46,4 +47,4 @@ export async function POST() {
     console.error(err)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
-}
+})

@@ -1,4 +1,3 @@
-import { CreateEmployeeDto } from "@/app/api/dashboard/employees/dtos/createEmployee.dto"
 import { BASEURL } from "@/constants/constants"
 import { CompanyType } from "@/db/schema"
 import type {
@@ -220,7 +219,10 @@ export const addCompany = async (body: AddCompanyDTO) => {
   return res
 }
 
-export const updateCompany = async (id: string, body: Partial<CompanyType>) => {
+export const updateCompany = async (
+  id: string,
+  body: Partial<AddCompanyDTO>
+) => {
   // remove undefined fields inline
   const cleanBody = Object.fromEntries(
     Object.entries(body).filter(([, value]) => value !== undefined)
