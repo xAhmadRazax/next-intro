@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { uploadImage } from "@/lib/cloudinary.utils"
+import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import { useCreateEmployeeMutation } from "./hooks/useCreateEmployeeMutation"
 import { useQueryClient } from "@tanstack/react-query"
 import { useFormDialog } from "../hooks/useFormDialog"
@@ -83,11 +83,11 @@ export const AddEmployeeForm = () => {
 
     const username = formData.get("username") as string
     const email = formData.get("email") as string
-    let avatarUrl = ""
-    if (employeeAvatar.imageFile) {
-      const imageUrl = await uploadImage(employeeAvatar.imageFile)
-      avatarUrl = imageUrl
-    }
+    // let avatarUrl = ""
+    // if (employeeAvatar.imageFile) {
+    //   const imageUrl = await uploadImage(employeeAvatar.imageFile)
+    //   avatarUrl = imageUrl
+    // }
 
     if (!selectedCompany) {
       alert("Please select a company for the employee.")
@@ -99,7 +99,7 @@ export const AddEmployeeForm = () => {
         username,
         email,
         companyId: selectedCompany.id,
-        avatar: avatarUrl,
+        avatar: employeeAvatar.imageFile || undefined,
       },
       {
         onSuccess: () => {

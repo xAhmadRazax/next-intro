@@ -14,7 +14,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useDeleteEmployeeMutation } from "./hooks/useDeleteEmployeeMutation"
 import { useSearchParams } from "next/navigation"
 import { employeeKeys } from "@/lib/queryKeys"
-import { Employee } from "@/db/schema"
+import { UserType } from "@/db/schema"
+import { Trash2 } from "lucide-react"
 
 interface DeleteEmployeeButtonProps {
   id: string
@@ -39,7 +40,7 @@ export const DeleteEmployeeButton = ({
         })
         queryClient.setQueryData(
           employeeKeys.list(page),
-          (old: { data: Employee[] }) => ({
+          (old: { data: UserType[] }) => ({
             ...old,
             data: old.data.filter((u) => u.id !== id),
           })
@@ -52,8 +53,17 @@ export const DeleteEmployeeButton = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="destructive" size="sm" />}>
-        Delete
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Delete"
+            className="text-destructive hover:text-destructive"
+          />
+        }
+      >
+        <Trash2 className="h-4 w-4" />
       </DialogTrigger>
 
       <DialogContent className="px-6 text-foreground/80">

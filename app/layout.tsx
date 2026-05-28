@@ -3,8 +3,8 @@ import { Geist, Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import { MainLayout } from "@/components/MainLayout"
 import { ReactQueryProvider } from "@/components/ReactQueryProvider"
+import { AuthProvider } from "@/context/auth.context"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -30,11 +30,11 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ReactQueryProvider>
-          <ThemeProvider>
-            <MainLayout>{children}</MainLayout>
-          </ThemeProvider>
-        </ReactQueryProvider>
+        <AuthProvider>
+          <ReactQueryProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </ReactQueryProvider>
+        </AuthProvider>
       </body>
     </html>
   )

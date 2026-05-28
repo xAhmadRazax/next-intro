@@ -3,18 +3,33 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { SidebarLink } from "./SidebarLink"
 import Link from "next/link"
+import { useAuthContext } from "@/context/auth.context"
 
 const navigationRoute = [
   {
+    href: "/auth/profile",
+    label: "Profile",
+    access: "all",
+  },
+  {
     href: "/dashboard/employees",
     label: "Employees",
+    access: "admin",
   },
   {
     href: "/dashboard/companies",
     label: "Companies",
+    access: "admin",
   },
 ]
-export const SideBar = () => {
+export const SideBar = ({ isAdmin }: { isAdmin: boolean }) => {
+  const { logout } = useAuthContext()
+
+  const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    await logout()
+  }
+
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -88,11 +103,21 @@ export const SideBar = () => {
           <div className="h-0.5 w-full rounded-full bg-accent-foreground/30"></div>
 
           <ul className="mt-4">
-            {navigationRoute.map((route) => (
-              <li key={route.label}>
-                <SidebarLink href={route.href} label={route.label} />
-              </li>
-            ))}
+            {navigationRoute
+              .filter((link) => link.access === "all" || isAdmin)
+              .map((route) => (
+                <li key={route.label}>
+                  <SidebarLink href={route.href} label={route.label} />
+                </li>
+              ))}
+
+            <li key={"logout"}>
+              <SidebarLink
+                href={"/auth/logout"}
+                label={"Logout"}
+                onClick={handleLogout}
+              />
+            </li>
           </ul>
         </div>
       </nav>

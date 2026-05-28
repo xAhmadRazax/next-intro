@@ -1,0 +1,1 @@
+ALTER TABLE "tokens" ADD COLUMN "token" text NOT NULL;

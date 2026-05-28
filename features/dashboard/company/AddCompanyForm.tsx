@@ -5,7 +5,7 @@ import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useState } from "react"
 // import { getImageDimensions, imageToBase64 } from "@/lib/imageUtils"
-import { uploadImage } from "@/lib/cloudinary.utils"
+import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import Image from "next/image"
 
 interface CompanyLogoState {
@@ -55,6 +55,7 @@ export const AddCompanyForm = () => {
         return
       }
 
+      console.log(file, "image file")
       setCompanyLogoError("")
       setCompanyLogo((prev) => ({
         ...prev,
@@ -84,12 +85,13 @@ export const AddCompanyForm = () => {
     const logo = companyLogo.url ?? ""
     // get the file upload
 
+    console.log(companyLogo?.image, "company logo file")
     createCompanyMutation(
       {
         name,
         email,
         address,
-        logo: logo,
+        logo: companyLogo?.image ?? undefined,
       },
       {
         onSuccess: () => {

@@ -4,14 +4,15 @@ import { ColumnDef } from "@tanstack/react-table"
 import Image from "next/image"
 import { TableCell } from "../components/TableCell"
 import { Skeleton } from "@/components/ui/skeleton"
-import { EmployeeType } from "@/types/dashboard.types"
+import { UserType } from "@/types/dashboard.types"
 import { UpdateEmployeeButton } from "./UpdateEmployeeButton"
 import { DeleteEmployeeButton } from "./DeleteEmployeeButton"
+import { ResetEmployeePasswordButton } from "./ResetEmployeePasswordButton"
 
 export const employeeColumns = (
   isLoading?: boolean,
   itemSkip?: number
-): ColumnDef<EmployeeType>[] => [
+): ColumnDef<UserType>[] => [
   {
     id: "index",
     header: "#",
@@ -47,7 +48,7 @@ export const employeeColumns = (
               alt="Employee Avatar"
               width={60}
               height={60}
-              className="h-15 w-15 rounded-full object-cover"
+              className="h-15 min-w-15 rounded-full object-cover"
             />
           )
         },
@@ -95,8 +96,9 @@ export const employeeColumns = (
     cell: isLoading
       ? () => (
           <div className="flex w-36 space-x-2">
-            <Skeleton className="h-8 w-14" />
-            <Skeleton className="h-8 w-14" />
+            <Skeleton className="h-8 w-8" />
+            <Skeleton className="h-8 w-8" />
+            <Skeleton className="h-8 w-8" />
           </div>
         )
       : ({ row }) => (
@@ -109,9 +111,14 @@ export const employeeColumns = (
                   email: row.original.email,
                   avatar: row.original.avatar ?? undefined,
                   company: row.original.company,
+                  role: row.original.role,
                 }}
               />
               <DeleteEmployeeButton
+                id={row.original.id}
+                name={row.original.username}
+              />
+              <ResetEmployeePasswordButton
                 id={row.original.id}
                 name={row.original.username}
               />

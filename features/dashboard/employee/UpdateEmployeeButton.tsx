@@ -3,11 +3,12 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 // import { useQueryClient } from "@tanstack/react-query"
 // import { getUser } from "@/lib/api"
-import type { EmployeeType } from "@/types/dashboard.types"
+import type { UserType } from "@/types/dashboard.types"
 import { UpdateEmployeeForm } from "./UpdateEmployeeForm"
+import { Pencil } from "lucide-react"
 
 interface UpdateEmployeeButtonProps {
-  employee: EmployeeType
+  employee: UserType
 }
 
 export const UpdateEmployeeButton = ({
@@ -30,13 +31,13 @@ export const UpdateEmployeeButton = ({
               // onMouseEnter={prefetchUserData}
               // onFocus={prefetchUserData} // ← Add for keyboard
               // onTouchStart={prefetchUserData} // ← Add for mobile
-              variant="secondary"
-              className="bg-secondary-foreground/10 hover:bg-secondary-foreground/20"
-              size="sm"
+              variant="ghost"
+              title="Update"
+              size="icon"
             />
           }
         >
-          Update
+          <Pencil className="h-4 w-4" />
         </DialogTrigger>
       </div>
       <DialogContent className="px-6 text-foreground/80">

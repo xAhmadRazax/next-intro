@@ -7,7 +7,7 @@ import type { EmployeeType } from "@/types/dashboard.types"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import Image from "next/image"
-import { uploadImage } from "@/lib/cloudinary.utils"
+import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import { employeeKeys } from "@/lib/queryKeys"
 
 interface UpdateEmployeeFormProps {

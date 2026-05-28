@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 type SidebarLinkProps = {
   href: string
   label: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void | Promise<void>
 }
 
 export const SidebarLink = ({ href, label, onClick }: SidebarLinkProps) => {

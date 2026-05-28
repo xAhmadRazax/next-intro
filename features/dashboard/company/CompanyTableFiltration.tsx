@@ -13,7 +13,7 @@ export const CompanyTableFiltration = () => {
   const router = useRouter()
   const pathName = usePathname()
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true)
   const [emailFilter, setEmailFilter] = useState(
     () => searchParams?.get("email") || ""
   )
@@ -86,7 +86,7 @@ export const CompanyTableFiltration = () => {
       </Button>
 
       {isOpen && (
-        <div className="my-4 max-w-150 flex-wrap space-y-4">
+        <div className="my-4 flex flex-wrap gap-2 space-y-4">
           <div className="flex grow space-x-2">
             <Field className="max-w-80">
               {/* <Label>By Email</Label> */}

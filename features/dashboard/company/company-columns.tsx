@@ -47,7 +47,7 @@ export const companyColumns = (
               alt="Company Logo"
               width={60}
               height={60}
-              className="h-15 w-15 rounded-full object-cover"
+              className="h-15 min-w-15 rounded-full object-cover"
             />
           )
         },

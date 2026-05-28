@@ -1,10 +1,10 @@
-import { CreateEmployeeDto } from "@/app/api/employees/dtos/createEmployee.dto"
+import { CreateEmployeeDto } from "@/app/api/dashboard/employees/dtos/createEmployee.dto"
 import { BASEURL } from "@/constants/constants"
 import { CompanyType } from "@/db/schema"
 import type {
   AddCompanyDTO,
   AddEmployeeDTO,
-  EmployeeType,
+  UserType,
   updateEmployeeDto,
 } from "@/types/dashboard.types"
 import type { PaginationMeta } from "@/types/pagination.types"
@@ -25,10 +25,10 @@ export const getEmployees = async ({
   companyFilter?: string
   order?: "asc" | "desc"
   sortBy?: string
-} = {}): Promise<{ data: EmployeeType[]; meta: PaginationMeta }> => {
+} = {}): Promise<{ data: UserType[]; meta: PaginationMeta }> => {
   // const sortString = order === "desc" ? `-${sortBy}` : sortBy
 
-  let baseUrl = `${BASEURL}/employees?`
+  let baseUrl = `${BASEURL}/dashboard/employees?`
 
   if (page) baseUrl = `${baseUrl}page=${page}&`
 
@@ -55,8 +55,8 @@ export const getEmployees = async ({
   return result
 }
 
-export const getEmployee = async (id: string): Promise<EmployeeType> => {
-  const res = await fetch(`${BASEURL}/users/${id}`, {
+export const getEmployee = async (id: string): Promise<UserType> => {
+  const res = await fetch(`${BASEURL}/dashboard/employee/${id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   })
@@ -69,10 +69,18 @@ export const getEmployee = async (id: string): Promise<EmployeeType> => {
 }
 
 export const addEmployee = async (body: AddEmployeeDTO) => {
-  const res = await fetch(`${BASEURL}/employees`, {
+  const formData = new FormData()
+
+  formData.append("username", body.username)
+  formData.append("email", body.email)
+  formData.append("companyId", body.companyId)
+  if (body.avatar) {
+    formData.append("avatar", body.avatar)
+  }
+
+  const res = await fetch(`${BASEURL}/dashboard/employees`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: formData,
   })
   if (!res.ok) {
     const data = await res.json()
@@ -88,7 +96,7 @@ export const updateEmployee = async (id: string, body: updateEmployeeDto) => {
     Object.entries(body).filter(([, value]) => value !== undefined)
   )
 
-  const res = await fetch(`${BASEURL}/employees/${id}`, {
+  const res = await fetch(`${BASEURL}/dashboard/employees/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(cleanBody),
@@ -101,8 +109,24 @@ export const updateEmployee = async (id: string, body: updateEmployeeDto) => {
   return await res.json()
 }
 
+export const resetEmployeePassword = async (id: string) => {
+  const res = await fetch(
+    `${BASEURL}/dashboard/employees/${id}/reset-password`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }
+  )
+  if (!res.ok) {
+    const data = await res.json()
+    throw data // throw the actual error object from the server
+  }
+
+  return await res.json()
+}
+
 export const deleteEmployee = async (id: string) => {
-  const res = await fetch(`${BASEURL}/employees/${id}`, {
+  const res = await fetch(`${BASEURL}/dashboard/employees/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   })
@@ -135,7 +159,7 @@ export const getCompanies = async ({
 } = {}): Promise<{ data: CompanyType[]; meta: PaginationMeta }> => {
   // const sortString = order === "desc" ? `-${sortBy}` : sortBy
 
-  let baseUrl = `${BASEURL}/companies?`
+  let baseUrl = `${BASEURL}/dashboard/companies?`
 
   if (!getAll) {
     if (page) baseUrl = `${baseUrl}page=${page}&`
@@ -165,7 +189,7 @@ export const getCompanies = async ({
 }
 
 export const getCompany = async (id: string): Promise<CompanyType> => {
-  const res = await fetch(`${BASEURL}/companies/${id}`, {
+  const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   })
@@ -178,10 +202,15 @@ export const getCompany = async (id: string): Promise<CompanyType> => {
 }
 
 export const addCompany = async (body: AddCompanyDTO) => {
-  const res = await fetch(`${BASEURL}/companies`, {
+  const formData = new FormData()
+  formData.append("name", body.name)
+  formData.append("email", body.email)
+  formData.append("address", body.address)
+  if (body.logo) formData.append("logo", body.logo)
+
+  const res = await fetch(`${BASEURL}/dashboard/companies`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: formData,
   })
   if (!res.ok) {
     const data = await res.json()
@@ -197,7 +226,7 @@ export const updateCompany = async (id: string, body: Partial<CompanyType>) => {
     Object.entries(body).filter(([, value]) => value !== undefined)
   )
 
-  const res = await fetch(`${BASEURL}/companies/${id}`, {
+  const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(cleanBody),
@@ -212,7 +241,7 @@ export const updateCompany = async (id: string, body: Partial<CompanyType>) => {
 }
 
 export const deleteCompany = async (id: string) => {
-  const res = await fetch(`${BASEURL}/companies/${id}`, {
+  const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   })
@@ -223,3 +252,5 @@ export const deleteCompany = async (id: string) => {
 
   return res
 }
+
+//  auth api

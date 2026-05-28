@@ -28,7 +28,7 @@ export const EmployeeTableFiltration = () => {
 
   const companies = companiesData?.data || []
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true)
   const [emailFilter, setEmailFilter] = useState(
     () => searchParams?.get("email") || ""
   )
@@ -111,7 +111,7 @@ export const EmployeeTableFiltration = () => {
       </Button>
 
       {isOpen && (
-        <div className="my-4 flex-wrap space-y-4">
+        <div className="my-4 flex flex-wrap gap-2 space-y-4">
           <div className="flex grow justify-around space-x-2">
             <Field className="max-w-80">
               {/* <Label>By Email</Label> */}

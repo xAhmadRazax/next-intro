@@ -1,6 +1,4 @@
-import { relations } from "drizzle-orm"
 import { uuid, varchar, text, timestamp, pgTable } from "drizzle-orm/pg-core"
-import { employees } from "./employee.schema"
 
 export const companies = pgTable("companies", {
   id: uuid(`id`).defaultRandom().primaryKey(),
@@ -8,6 +6,7 @@ export const companies = pgTable("companies", {
   name: varchar("name", { length: 254 }).notNull(),
   address: text("address").notNull(),
   logo: text("logo"),
+  logoPublicId: text("logo_public_id"),
 
   createdAt: timestamp("created_at", {
     withTimezone: true,
