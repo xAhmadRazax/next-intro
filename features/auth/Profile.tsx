@@ -77,7 +77,7 @@ export const Profile = () => {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Company</Label>
-              <Input value={user?.company.email ?? "N/A"} disabled />
+              <Input value={user?.company?.email ?? "N/A"} disabled />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Role</Label>

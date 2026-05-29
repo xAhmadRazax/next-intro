@@ -15,7 +15,7 @@ import {
 import { Search, SlidersHorizontal } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
-import { useAllCompanies } from "../company/hooks/useAllCompanies"
+import { useAllCompanies } from "../company/reactQueryHooks/useAllCompanies"
 import { CompanyType } from "@/db/schema"
 
 export const EmployeeTableFiltration = () => {

@@ -12,9 +12,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { useQueryClient } from "@tanstack/react-query"
 import type { CompanyType } from "@/types/dashboard.types"
-import { useDeleteCompanyMutation } from "./hooks/useDeleteCompanyMutation"
+import { useDeleteCompanyMutation } from "./reactQueryHooks/useDeleteCompanyMutation"
 import { companyKeys } from "@/lib/queryKeys"
 import { useSearchParams } from "next/navigation"
+import { Trash2 } from "lucide-react"
 
 interface DeleteCompanyButtonProps {
   id: string
@@ -49,8 +50,17 @@ export const DeleteCompanyButton = ({ id, name }: DeleteCompanyButtonProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="destructive" size="sm" />}>
-        Delete
+      <DialogTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Delete"
+            className="text-destructive hover:text-destructive"
+          />
+        }
+      >
+        <Trash2 className="h-4 w-4" />
       </DialogTrigger>
 
       <DialogContent className="px-6 text-foreground/80">

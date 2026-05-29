@@ -8,6 +8,7 @@ import { UserType } from "@/types/dashboard.types"
 import { UpdateEmployeeButton } from "./UpdateEmployeeButton"
 import { DeleteEmployeeButton } from "./DeleteEmployeeButton"
 import { ResetEmployeePasswordButton } from "./ResetEmployeePasswordButton"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export const employeeColumns = (
   isLoading?: boolean,
@@ -23,7 +24,7 @@ export const employeeColumns = (
           const pageSize = table.getState().pagination.pageSize
 
           return (
-            <div className="w-10 max-w-20">
+            <div className="min-w-10">
               {pageIndex * pageSize + row.index + 1 + (itemSkip || 0)}
             </div>
           )
@@ -34,22 +35,16 @@ export const employeeColumns = (
     accessorKey: "avatar",
     header: "Avatar",
     cell: isLoading
-      ? () => <Skeleton className="h-15 w-15 rounded-full" />
+      ? () => <Skeleton className="h-10 w-10 rounded-full" />
       : ({ row }) => {
           const avatar = row.getValue("avatar") as string
-
-          if (!avatar) {
-            return <div className="w-15">N/A</div>
-          }
+          const name = row.original.username
 
           return (
-            <Image
-              src={avatar}
-              alt="Employee Avatar"
-              width={60}
-              height={60}
-              className="h-15 min-w-15 rounded-full object-cover"
-            />
+            <Avatar>
+              <AvatarImage src={avatar} alt={name} />
+              <AvatarFallback>{name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
           )
         },
   },
@@ -58,7 +53,7 @@ export const employeeColumns = (
     accessorKey: "username",
     header: "Name",
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-75 min-w-38" />
+      ? () => <Skeleton className="h-8 w-full max-w-75 min-w-50" />
       : ({ row }) => (
           <TableCell className="w-full max-w-75 min-w-38 break-all whitespace-normal">
             {row.getValue("username")}
@@ -70,7 +65,7 @@ export const employeeColumns = (
     accessorKey: "email",
     header: "Email",
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-90 min-w-63" />
+      ? () => <Skeleton className="h-8 max-w-90 min-w-75" />
       : ({ row }) => (
           <TableCell className="w-full max-w-90 min-w-63 break-all whitespace-normal">
             {row.getValue("email")}
@@ -92,10 +87,11 @@ export const employeeColumns = (
   },
 
   {
-    header: "Actions",
+    id: "actions", // ← Add this! Required when not using accessorKey
+    header: () => <div className="text-center">Actions</div>,
     cell: isLoading
       ? () => (
-          <div className="flex w-36 space-x-2">
+          <div className="flex w-36 justify-center space-x-2">
             <Skeleton className="h-8 w-8" />
             <Skeleton className="h-8 w-8" />
             <Skeleton className="h-8 w-8" />

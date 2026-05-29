@@ -58,7 +58,7 @@ export const POST = RouteGuard.requireAuthWithRole(
         .insert(users)
         .values({
           username,
-          email,
+          email: email.toLowerCase(),
           companyId,
           password: hashed,
           passwordExpiresAt: new Date(

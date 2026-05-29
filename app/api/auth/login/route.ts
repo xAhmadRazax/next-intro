@@ -11,6 +11,8 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json()
 
+    console.log(email, password)
+
     const errorFields: string[] = []
 
     if (!email) errorFields.push("email")
@@ -26,7 +28,7 @@ export async function POST(req: Request) {
     const [employee] = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(eq(users.email, email.toLowerCase()))
       .leftJoin(companies, eq(users.companyId, companies.id))
 
     const hashedPassword = TokenUtil.hashPassword(password)

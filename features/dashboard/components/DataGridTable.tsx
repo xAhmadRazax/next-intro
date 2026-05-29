@@ -35,8 +35,8 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="max-w-screen table-fixed overflow-hidden rounded-sm border md:max-w-[calc(100vw-250px)]">
-      <Table>
+    <div className="max-w-[calc(100vw-15px)] overflow-x-auto rounded-sm border md:max-w-[calc(100vw-250px)]">
+      <Table className="min-w-150">
         <TableHeader className="bg-primary/20">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import type { CompanyType } from "@/types/dashboard.types"
 import { UpdateCompanyForm } from "./UpdateCompanyForm"
 import FormDialog from "../components/FormDialog"
+import { Pencil } from "lucide-react"
 
 interface UpdateCompanyButtonProps {
   company: CompanyType
@@ -24,11 +25,11 @@ export const UpdateCompanyButton = ({ company }: UpdateCompanyButtonProps) => {
           // onMouseEnter={prefetchUserData}
           // onFocus={prefetchUserData} // ← Add for keyboard
           // onTouchStart={prefetchUserData} // ← Add for mobile
-          variant="secondary"
-          className="bg-secondary-foreground/10 hover:bg-secondary-foreground/20"
-          size="sm"
+          variant="ghost"
+          title="Update"
+          size="icon"
         >
-          Update
+          <Pencil className="h-4 w-4" />
         </Button>
       </FormDialog.Trigger>
       <FormDialog.Content>

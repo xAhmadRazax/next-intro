@@ -11,6 +11,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "seed:companies": "bun scripts/seed-companies.ts",
+    "seed:admin": "bun scripts/seed-admin.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

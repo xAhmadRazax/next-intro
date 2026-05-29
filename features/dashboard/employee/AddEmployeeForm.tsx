@@ -18,7 +18,7 @@ import {
 import type { CompanyType } from "@/types/dashboard.types"
 import Form from "@/components/form/Form"
 import { employeeKeys } from "@/lib/queryKeys"
-import { useAllCompanies } from "../company/hooks/useAllCompanies"
+import { useAllCompanies } from "../company/reactQueryHooks/useAllCompanies"
 
 interface EmployeeAvatarState {
   previewUrl: string

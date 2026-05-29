@@ -1,7 +1,7 @@
 import Form from "@/components/form/Form"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useQueryClient } from "@tanstack/react-query"
-import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
+import { useCreateCompanyMutation } from "./reactQueryHooks/useCreateCompanyMutation"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useState } from "react"
 // import { getImageDimensions, imageToBase64 } from "@/lib/imageUtils"

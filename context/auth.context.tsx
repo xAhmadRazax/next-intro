@@ -86,6 +86,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setIsLoading(true)
     try {
       const res = await loginApi({ email, password })
+      console.log(res)
       setUser(res.user)
 
       router.replace("/dashboard/profile")

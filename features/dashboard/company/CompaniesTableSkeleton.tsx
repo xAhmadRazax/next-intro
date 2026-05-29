@@ -14,6 +14,7 @@ export const CompaniesTableSkeleton = ({
     name: "",
     email: "",
     address: "",
+    logoPublicId: "",
     logo: null,
     createdAt: null,
     updatedAt: null,

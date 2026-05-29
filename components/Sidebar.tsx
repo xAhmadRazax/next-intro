@@ -7,7 +7,7 @@ import { useAuthContext } from "@/context/auth.context"
 
 const navigationRoute = [
   {
-    href: "/auth/profile",
+    href: "/dashboard/profile",
     label: "Profile",
     access: "all",
   },
