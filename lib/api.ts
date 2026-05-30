@@ -196,23 +196,6 @@ export const getCompanies = async (
   return result
 }
 
-export const getCompany = async (
-  id: string,
-  signal?: AbortSignal
-): Promise<CompanyType> => {
-  const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    signal,
-  })
-  if (!res.ok) {
-    const data = await res.json()
-    throw new ApiError(data.error, data.status)
-  }
-  const result = await res.json()
-  return result
-}
-
 export const createCompany = async (body: AddCompanyDTO) => {
   const formData = new FormData()
   formData.append("name", body.name)
@@ -257,15 +240,14 @@ export const updateCompany = async (
   return await res.json()
 }
 
-export const deleteCompany = async (id: string, signal?: AbortSignal) => {
+export const deleteCompany = async (id: string) => {
   const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    signal,
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
 
   return res

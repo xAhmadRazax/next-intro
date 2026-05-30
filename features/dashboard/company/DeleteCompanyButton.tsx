@@ -1,21 +1,15 @@
 "use client"
-import { useState } from "react"
 import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { useQueryClient } from "@tanstack/react-query"
-import type { CompanyType } from "@/types/dashboard.types"
-import { useDeleteCompanyMutation } from "./reactQueryHooks/useDeleteCompanyMutation"
-import { companyKeys } from "@/lib/queryKeys"
-import { useSearchParams } from "next/navigation"
 import { Trash2 } from "lucide-react"
+import FormDialog from "../components/FormDialog"
+import { useDeleteCompanyMutation } from "./hooks/useDeleteCompamyMutation"
+import { useFormDialog } from "../hooks/useFormDialog"
 
 interface DeleteCompanyButtonProps {
   id: string
@@ -23,47 +17,26 @@ interface DeleteCompanyButtonProps {
 }
 
 export const DeleteCompanyButton = ({ id, name }: DeleteCompanyButtonProps) => {
-  const searchParams = useSearchParams()
-  const page = Number(searchParams?.get("page") ?? 1)
-  const queryClient = useQueryClient()
-  const [open, setOpen] = useState(false)
-  const { deleteCompanyMutation, isLoading } = useDeleteCompanyMutation(id)
-
+  const { deleteCompanyHandler, isLoading } = useDeleteCompanyMutation()
+  const { onSuccess, setOpen } = useFormDialog()
   const handleDelete = () => {
-    deleteCompanyMutation(undefined, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: companyKeys.all,
-        })
-        queryClient.setQueryData(
-          companyKeys.page(page),
-          (old: { data: CompanyType[] }) => ({
-            ...old,
-            data: old.data.filter((u) => u.id !== id),
-          })
-        )
-        queryClient.invalidateQueries({ queryKey: companyKeys.all })
-        setOpen(false) // Close dialog on success
-      },
-    })
+    deleteCompanyHandler(id, onSuccess)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Delete"
-            className="text-destructive hover:text-destructive"
-          />
-        }
-      >
-        <Trash2 className="h-4 w-4" />
-      </DialogTrigger>
+    <FormDialog>
+      <FormDialog.Trigger>
+        <Button
+          variant="ghost"
+          size="icon"
+          title="Delete"
+          className="text-destructive hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </FormDialog.Trigger>
 
-      <DialogContent className="px-6 text-foreground/80">
+      <FormDialog.Content>
         <DialogHeader>
           <DialogTitle>Delete Company</DialogTitle>
           <DialogDescription>
@@ -89,7 +62,7 @@ export const DeleteCompanyButton = ({ id, name }: DeleteCompanyButtonProps) => {
             {isLoading ? "Deleting..." : "Yes, Delete"}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </FormDialog.Content>
+    </FormDialog>
   )
 }
