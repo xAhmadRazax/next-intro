@@ -38,11 +38,8 @@ export const CompaniesTable = () => {
   // if (isLoading || isRefetching) {
   // return <CompaniesTableSkeleton rows={10} />
   // }
-  const {
-    companies: companiesDataWithPagMeta,
-    isLoading,
-    error,
-  } = useCompaniesQuery(page)
+  const { companies: companiesDataWithPagMeta, isLoading } =
+    useCompaniesQuery(page)
 
   const { companies, meta } = companiesDataWithPagMeta
 

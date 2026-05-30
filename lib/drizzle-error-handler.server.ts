@@ -20,69 +20,55 @@ export function handlePostgresError(err: unknown): Response | null {
 
   switch (error.code) {
     case "23505": {
-      // Unique violation
       const match = error.detail.match(/Key \((.+)\)=\((.+)\) already exists/)
+      const field = match?.[1] ?? error.constraint ?? "unknown"
+      const message = match
+        ? `${match[1]} "${match[2]}" is already used.`
+        : error.detail
 
       return Response.json(
         {
           error: "Duplicate entry",
-          details: {
-            field: match?.[1] ?? error.constraint ?? "unknown",
-            message: match
-              ? `"${match[2]}" is already used in the "${match[1]}" field`
-              : error.detail,
-            code: "DB_UNIQUE_CONSTRAINT_ERROR",
-          },
+          fields: { [field]: message }, // ← { email: "email already exists" }
         },
         { status: 409 }
       )
     }
 
     case "23503": {
-      // Foreign key violation
       const match = error.detail.match(
         /Key \((.+)\)=\((.+)\) is not present in table "(.+)"/
       )
+      const field = match?.[1] ?? "unknown"
+      const message = match
+        ? `Invalid reference: "${match[2]}" does not exist`
+        : error.detail
 
       return Response.json(
         {
           error: "Related record not found",
-          details: {
-            field: match?.[1] ?? "unknown",
-            message: match
-              ? `Invalid reference: "${match[2]}" does not exist`
-              : error.detail,
-            code: "DB_FOREIGN_KEY_ERROR",
-          },
+          fields: { [field]: message },
         },
         { status: 400 }
       )
     }
 
     case "23502": {
-      // Not null violation
+      const field = error.column ?? "unknown"
+
       return Response.json(
         {
           error: "Missing required field",
-          details: {
-            field: error.column ?? "unknown",
-            message: `Missing required value in "${error.column ?? "unknown"}" field`,
-            code: "DB_MISSING_REQUIRED_FIELD",
-          },
+          fields: { [field]: `${field} is required` },
         },
         { status: 400 }
       )
     }
 
     case "22P02": {
-      // Invalid data type
       return Response.json(
         {
           error: "Invalid data format",
-          details: {
-            message: error.detail ?? "Invalid value format provided",
-            code: "DB_INVALID_DATA_TYPE",
-          },
         },
         { status: 400 }
       )

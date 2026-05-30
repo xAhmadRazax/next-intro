@@ -65,34 +65,30 @@ export const POST = RouteGuard.requireAuthWithRole(
     const name = formData.get("name") as string
     const email = formData.get("email") as string
     const address = formData.get("address") as string
-    const logo = formData.get("logo") as File
+    const logo = formData.get("logo")
+    const logoFile = logo instanceof File ? logo : null
 
-    let logoObj: { url: string; public_Id: string } | null = null
+    let logoObj: { url: string; publicId: string } | null = null
 
-    const errorFields: string[] = []
-    if (!email) {
-      errorFields.push("email")
-    }
-    if (!name) {
-      errorFields.push("name")
-    }
-    if (!address) {
-      errorFields.push("address")
+    // validate fields
+    const fields: Record<string, string> = {}
+    if (!email) fields.email = "Email is required"
+    if (!name) fields.name = "Name is required"
+    if (!address) fields.address = "Address is required"
+
+    if (Object.keys(fields).length > 0) {
+      return Response.json(
+        { error: "Missing required fields", fields },
+        { status: 400 }
+      )
     }
 
     try {
-      if (errorFields.length > 0) {
-        return Response.json(
-          { error: "Missing required fields", fields: errorFields },
-          { status: 400 }
-        )
-      }
-
-      if (logo instanceof File) {
-        const cloudinaryRes = await cloudinaryService.streamUpload(logo)
+      if (logoFile) {
+        const cloudinaryRes = await cloudinaryService.streamUpload(logoFile)
         logoObj = {
-          url: cloudinaryRes.secure_url,
-          public_Id: cloudinaryRes.public_id,
+          url: cloudinaryRes.url,
+          publicId: cloudinaryRes.publicId,
         }
       }
 
@@ -103,19 +99,19 @@ export const POST = RouteGuard.requireAuthWithRole(
           email,
           address,
           logo: logoObj?.url ?? null,
-          logoPublicId: logoObj?.public_Id ?? null,
+          logoPublicId: logoObj?.publicId ?? null,
         })
         .returning()
 
       return Response.json(company, { status: 201 })
     } catch (err: unknown) {
-      if (logoObj?.public_Id)
-        cloudinaryService.deleteFromCloudinary(logoObj.public_Id)
+      if (logoObj?.publicId) {
+        await cloudinaryService.deleteFromCloudinary(logoObj.publicId)
+      }
 
       const postgresError = handlePostgresError(err)
       if (postgresError) return postgresError
 
-      // Everything else
       console.error(err)
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }

@@ -2,9 +2,10 @@ export class ApiError extends Error {
   constructor(
     public message: string,
     public status?: number,
-    public errorFields?: string[]
+    public fields?: Record<string, string>
   ) {
     super(message)
     this.name = "ApiError"
+    this.fields = fields
   }
 }

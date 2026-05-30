@@ -213,7 +213,7 @@ export const getCompany = async (
   return result
 }
 
-export const addCompany = async (body: AddCompanyDTO, signal?: AbortSignal) => {
+export const createCompany = async (body: AddCompanyDTO) => {
   const formData = new FormData()
   formData.append("name", body.name)
   formData.append("email", body.email)
@@ -226,7 +226,7 @@ export const addCompany = async (body: AddCompanyDTO, signal?: AbortSignal) => {
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status, data.fields)
   }
 
   return res

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { ReactQueryProvider } from "@/components/ReactQueryProvider"
 import { AuthProvider } from "@/context/auth.context"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <AuthProvider>
           <ReactQueryProvider>
             <ThemeProvider>{children}</ThemeProvider>
+            <Toaster />
           </ReactQueryProvider>
         </AuthProvider>
       </body>

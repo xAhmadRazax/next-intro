@@ -1,7 +1,7 @@
 import {
   getCompanies,
   getCompany,
-  addCompany,
+  createCompany,
   updateCompany,
   deleteCompany,
 } from "@/lib/api"
@@ -44,7 +44,7 @@ export const getCompanyQueryOptions = (id: string) =>
 
 export const createCompanyMutationOptions = mutationOptions({
   mutationKey: ["companies", "create"],
-  mutationFn: (company: AddCompanyDTO) => addCompany(company),
+  mutationFn: (company: AddCompanyDTO) => createCompany(company),
 })
 
 export const updateCompanyMutationOptions = (id: string) =>

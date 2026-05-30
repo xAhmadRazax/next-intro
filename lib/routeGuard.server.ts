@@ -1,5 +1,8 @@
 import { cookies } from "next/headers"
 import { JWT } from "./JWT.server"
+import { db } from "@/db"
+import { users } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
 type Handler<TContext = undefined> = (
   req: Request,
@@ -13,15 +16,29 @@ export class RouteGuard {
       const token = cookiesStore.get("token")?.value
 
       if (!token) {
+        cookiesStore.delete("token")
         return Response.json({ error: "Unauthorized access." }, { status: 401 })
       }
 
       const payload = await JWT.safeVerifyJWT(token)
 
       if (!payload) {
+        cookiesStore.delete("token")
         return Response.json({ error: "Unauthorized access." }, { status: 401 })
       }
 
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, payload.id))
+
+      if (!user) {
+        cookiesStore.delete("token")
+        return Response.json(
+          { error: "user with this id no longer exists." },
+          { status: 404 }
+        )
+      }
       return handler(req, context)
     }
   }
@@ -35,22 +52,31 @@ export class RouteGuard {
       const token = cookiesStore.get("token")?.value
 
       if (!token) {
-        return Response.json(
-          { error: "token not found Unauthorized access." },
-          { status: 401 }
-        )
+        cookiesStore.delete("token")
+        return Response.json({ error: "Unauthorized access." }, { status: 401 })
       }
 
       const payload = await JWT.safeVerifyJWT(token)
 
       if (!payload) {
+        cookiesStore.delete("token")
+        return Response.json({ error: "Unauthorized access." }, { status: 401 })
+      }
+
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, payload.id))
+
+      if (!user) {
+        cookiesStore.delete("token")
         return Response.json(
-          { error: "payload not found Unauthorized access." },
-          { status: 401 }
+          { error: "user with this id no longer exists." },
+          { status: 404 }
         )
       }
 
-      if (!payload.role || !roles.includes(payload.role)) {
+      if (!user.role || !roles.includes(user.role)) {
         return Response.json(
           {
             error: "You do not have permission to view this resource.",

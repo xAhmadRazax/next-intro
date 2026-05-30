@@ -5,6 +5,7 @@ import { getCompanies } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { PaginationMeta } from "@/types/pagination.types"
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 export const useCompaniesQuery = (page: number = 1) => {
   const [isLoading, setIsLoading] = useState(true)
@@ -52,9 +53,14 @@ export const useCompaniesQuery = (page: number = 1) => {
         const res = await getCompanies({ page }, signal)
         setCompanies({ companies: res.data, meta: res.meta })
       } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return
         if (error instanceof ApiError) {
+          toast.error(error.message)
           setIsError(error.message)
-        } else setIsError("Something went wrong while fetching data")
+        } else {
+          setIsError("Something went wrong while fetching data")
+          toast.error("Something went wrong while fetching data")
+        }
       } finally {
         setIsLoading(false)
       }
