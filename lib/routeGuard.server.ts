@@ -35,13 +35,19 @@ export class RouteGuard {
       const token = cookiesStore.get("token")?.value
 
       if (!token) {
-        return Response.json({ error: "Unauthorized access." }, { status: 401 })
+        return Response.json(
+          { error: "token not found Unauthorized access." },
+          { status: 401 }
+        )
       }
 
       const payload = await JWT.safeVerifyJWT(token)
 
       if (!payload) {
-        return Response.json({ error: "Unauthorized access." }, { status: 401 })
+        return Response.json(
+          { error: "payload not found Unauthorized access." },
+          { status: 401 }
+        )
       }
 
       if (!payload.role || !roles.includes(payload.role)) {

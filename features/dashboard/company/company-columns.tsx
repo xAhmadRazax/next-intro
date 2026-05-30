@@ -76,7 +76,7 @@ export const companyColumns = (
     accessorKey: "address",
     header: "Address",
     cell: isLoading
-      ? () => <Skeleton className="h-8 max-w-100 min-w-85" />
+      ? () => <Skeleton className="h-8 max-w-100 min-w-80" />
       : ({ row }) => (
           <TableCell className="w-full max-w-100 min-w-72 break-all whitespace-normal">
             {row.getValue("address")}
@@ -89,7 +89,7 @@ export const companyColumns = (
     header: () => <div className="text-center">Actions</div>,
     cell: isLoading
       ? () => (
-          <div className="flex w-36 justify-center space-x-2">
+          <div className="flex w-25 justify-center space-x-2">
             <Skeleton className="h-8 w-8" />
             <Skeleton className="h-8 w-8" />
           </div>

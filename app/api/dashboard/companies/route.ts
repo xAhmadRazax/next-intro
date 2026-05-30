@@ -43,10 +43,6 @@ export const GET = RouteGuard.requireAuthWithRole(
 
     const totalPages = Math.ceil(total / limit)
 
-    console.log("currentPage", page)
-    console.log("filters", emailFilter, nameFilter, "filters")
-    // console.log("data", data, emailFilter, nameFilter)
-
     return Response.json({
       data,
       meta: {

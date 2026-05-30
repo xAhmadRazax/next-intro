@@ -2,9 +2,14 @@ import { AddCompanyButton } from "@/features/dashboard/company/AddCompanyButton"
 import { CompaniesTable } from "@/features/dashboard/company/CompaniesTable"
 import { CompaniesTableSkeleton } from "@/features/dashboard/company/CompaniesTableSkeleton"
 import { CompanyTableFiltrationWrapper } from "@/features/dashboard/company/CompanyTableFiltrationWrapper"
+// import { getCompanies } from "@/lib/api"
+// import { cookies } from "next/headers"
 import { Suspense } from "react"
 
-export const Company = () => {
+export const Company = async () => {
+  // const cookiesStore = await cookies()
+  // const data = await getCompanies({}, cookiesStore.toString())
+  // console.log(data)
   return (
     <>
       <section className="mx-auto flex w-full max-w-[95%] min-w-0 flex-1 flex-col xl:max-w-350">

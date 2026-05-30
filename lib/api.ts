@@ -8,6 +8,7 @@ import type {
   updateEmployeeDto,
 } from "@/types/dashboard.types"
 import type { PaginationMeta } from "@/types/pagination.types"
+import { ApiError } from "./apiError"
 
 export const getEmployees = async ({
   page = 1,
@@ -140,23 +141,27 @@ export const deleteEmployee = async (id: string) => {
 
 // companies URL
 
-export const getCompanies = async ({
-  page = 1,
-  itemsPerPage = 20,
-  nameFilter,
-  emailFilter,
-  order = "desc",
-  sortBy = "id",
-  getAll = false,
-}: {
-  page?: number
-  nameFilter?: string
-  emailFilter?: string
-  itemsPerPage?: number
-  order?: "asc" | "desc"
-  sortBy?: string
-  getAll?: boolean
-} = {}): Promise<{ data: CompanyType[]; meta: PaginationMeta }> => {
+export const getCompanies = async (
+  {
+    page = 1,
+    itemsPerPage = 20,
+    nameFilter,
+    emailFilter,
+    order = "desc",
+    sortBy = "id",
+    getAll = false,
+  }: {
+    page?: number
+    nameFilter?: string
+    emailFilter?: string
+    itemsPerPage?: number
+    order?: "asc" | "desc"
+    sortBy?: string
+    getAll?: boolean
+  } = {},
+  // cookies: string,
+  signal?: AbortSignal
+): Promise<{ data: CompanyType[]; meta: PaginationMeta }> => {
   // const sortString = order === "desc" ? `-${sortBy}` : sortBy
 
   let baseUrl = `${BASEURL}/dashboard/companies?`
@@ -176,32 +181,39 @@ export const getCompanies = async ({
 
   const res = await fetch(baseUrl, {
     method: "GET",
-    headers: { "Content-Type": "application/json" },
-  })
-  if (!res.ok) {
-    throw new Error("Failed to fetch data")
-  }
-  const result = await res.json()
-
-  console.log(page)
-
-  return result
-}
-
-export const getCompany = async (id: string): Promise<CompanyType> => {
-  const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      //  Cookie: cookies
+    },
+    signal,
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
+  }
+  const result = await res.json()
+
+  return result
+}
+
+export const getCompany = async (
+  id: string,
+  signal?: AbortSignal
+): Promise<CompanyType> => {
+  const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    signal,
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new ApiError(data.error, data.status)
   }
   const result = await res.json()
   return result
 }
 
-export const addCompany = async (body: AddCompanyDTO) => {
+export const addCompany = async (body: AddCompanyDTO, signal?: AbortSignal) => {
   const formData = new FormData()
   formData.append("name", body.name)
   formData.append("email", body.email)
@@ -222,7 +234,8 @@ export const addCompany = async (body: AddCompanyDTO) => {
 
 export const updateCompany = async (
   id: string,
-  body: Partial<AddCompanyDTO>
+  body: Partial<AddCompanyDTO>,
+  signal?: AbortSignal
 ) => {
   // remove undefined fields inline
   const cleanBody = Object.fromEntries(
@@ -232,6 +245,7 @@ export const updateCompany = async (
   const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
+    signal,
     body: JSON.stringify(cleanBody),
   })
 
@@ -243,10 +257,11 @@ export const updateCompany = async (
   return await res.json()
 }
 
-export const deleteCompany = async (id: string) => {
+export const deleteCompany = async (id: string, signal?: AbortSignal) => {
   const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
+    signal,
   })
   if (!res.ok) {
     const data = await res.json()
