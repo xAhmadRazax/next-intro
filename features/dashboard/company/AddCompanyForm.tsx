@@ -11,11 +11,6 @@ import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
 interface CompanyLogoState {
   image: File | null
   previewUrl: string
-  // base64String?: string
-  // dimensions?: {
-  //   width: number
-  //   height: number
-  // }
   fileName: string
   url: string
 }

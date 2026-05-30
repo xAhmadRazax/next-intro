@@ -217,8 +217,7 @@ export const createCompany = async (body: AddCompanyDTO) => {
 
 export const updateCompany = async (
   id: string,
-  body: Partial<AddCompanyDTO>,
-  signal?: AbortSignal
+  body: Partial<AddCompanyDTO>
 ) => {
   // remove undefined fields inline
   const cleanBody = Object.fromEntries(
@@ -228,7 +227,6 @@ export const updateCompany = async (
   const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    signal,
     body: JSON.stringify(cleanBody),
   })
 

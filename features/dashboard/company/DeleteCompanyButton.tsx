@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
 import FormDialog from "../components/FormDialog"
-import { useDeleteCompanyMutation } from "./hooks/useDeleteCompamyMutation"
+import { useDeleteCompanyMutation } from "./hooks/useDeleteCompanyMutation"
 import { useFormDialog } from "../hooks/useFormDialog"
 
 interface DeleteCompanyButtonProps {

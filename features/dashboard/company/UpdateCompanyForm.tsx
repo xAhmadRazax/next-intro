@@ -1,24 +1,14 @@
 import Form from "@/components/form/Form"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useQueryClient } from "@tanstack/react-query"
 import type { CompanyType } from "@/types/dashboard.types"
-// import { useSearchParams } from "react-router"
-import { useUpdateCompanyMutation } from "./reactQueryHooks/useUpdateCompany"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useState } from "react"
-import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import Image from "next/image"
-import { companyKeys } from "@/lib/queryKeys"
-import { useSearchParams } from "next/navigation"
+import { useUpdateCompanyMutation } from "./hooks/useUpdateCompanyMutation"
 
 interface CompanyLogoState {
   image: File | null
   previewUrl: string
-  // base64String?: string
-  // dimensions?: {
-  //   width: number
-  //   height: number
-  // }
   fileName: string
   url: string
 }
@@ -32,32 +22,26 @@ export const UpdateCompanyForm = ({
   companyId,
   company,
 }: UpdateCompanyFormProps) => {
-  const queryClient = useQueryClient()
-  const searchParams = useSearchParams()
-
   const { onSuccess } = useFormDialog()
   const [companyLogoError, setCompanyLogoError] = useState<string>("")
 
-  console.log(companyLogoError)
+  const { clearFieldError, updateCompanyMutation, error, isLoading } =
+    useUpdateCompanyMutation()
 
   const [companyLogo, setCompanyLogo] = useState<CompanyLogoState>({
     image: null,
     previewUrl: "",
     fileName: "",
-    // base64String: "",
-    // dimensions: undefined,
     url: "",
   })
-
-  // const [searchParams] = useSearchParams()
-
-  const { updateCompanyMutation, isLoading: isUpdatingCompany } =
-    useUpdateCompanyMutation(companyId)
 
   const name = company?.name ?? ""
   const email = company?.email ?? ""
   const address = company?.address ?? ""
   const logo = company?.logo ?? ""
+  const emailError = error?.fields?.email
+  const nameError = error?.fields?.name
+  const addressError = error?.fields?.address
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -80,14 +64,6 @@ export const UpdateCompanyForm = ({
         previewUrl: URL.createObjectURL(file),
         fileName: file.name,
       }))
-
-      const imageUrl = await uploadImage(file)
-      if (imageUrl) {
-        setCompanyLogo((prev) => ({
-          ...prev,
-          url: imageUrl,
-        }))
-      }
     }
   }
 
@@ -96,38 +72,27 @@ export const UpdateCompanyForm = ({
 
     const formData = new FormData(e.currentTarget)
 
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string
-    const address = formData.get("address") as string
-    const logoUrl = companyLogo.url ?? logo ?? ""
+    const updatedName = formData.get("name") as string
+    const updatedEmail = formData.get("email") as string
+    const updatedAddress = formData.get("address") as string
 
-    updateCompanyMutation(
+    const fieldsToUpdates: Record<string, string> = {}
+    if (updatedName && updatedName !== name) {
+      fieldsToUpdates.name = updatedName
+    }
+    if (updatedAddress && updatedAddress !== address) {
+      fieldsToUpdates.address = updatedAddress
+    }
+    if (updatedEmail && updatedEmail !== email) {
+      fieldsToUpdates.email = updatedEmail
+    }
+    await updateCompanyMutation(
+      companyId,
       {
-        name,
-        email,
-        address,
-        logo: logoUrl,
+        ...fieldsToUpdates,
+        logo: companyLogo.image ?? undefined,
       },
-      {
-        onSuccess: (updated: CompanyType) => {
-          onSuccess?.()
-
-          // queryClient.setQueryData(["companies", companyId], updated)
-
-          const page = Number(searchParams?.get("page") ?? 1)
-
-          queryClient.setQueryData(
-            companyKeys.page(page),
-            (old: { data: CompanyType[] }) => ({
-              ...old,
-              data: old.data.map((u) => (u.id === updated.id ? updated : u)),
-            })
-          )
-          queryClient.invalidateQueries({
-            queryKey: companyKeys.all,
-          })
-        },
-      }
+      onSuccess
     )
   }
 
@@ -144,37 +109,62 @@ export const UpdateCompanyForm = ({
           <Form.Label>Email</Form.Label>
 
           <Form.Input
+            onFocus={() => {
+              if (emailError) {
+                clearFieldError("email")
+              }
+            }}
             name="email"
             type="email"
+            className={`${emailError ? "ring-1 ring-destructive" : ""}`}
             placeholder="company@example.com"
             defaultValue={email}
-            disabled={isUpdatingCompany}
+            disabled={isLoading}
           />
+          {emailError && (
+            <p className="text-sm text-destructive">{emailError}</p>
+          )}
         </Form.Field>
 
         <Form.Field>
           <Form.Label>Name</Form.Label>
 
           <Form.Input
+            onFocus={() => {
+              if (nameError) {
+                clearFieldError("name")
+              }
+            }}
             name="name"
             placeholder="John Doe"
             required
+            className={`${nameError ? "ring-1 ring-destructive" : ""}`}
             defaultValue={name}
-            disabled={isUpdatingCompany}
+            disabled={isLoading}
           />
+          {nameError && <p className="text-sm text-destructive">{nameError}</p>}
         </Form.Field>
 
         <Form.Field>
           <Form.Label>Address</Form.Label>
 
           <Form.Input
+            onFocus={() => {
+              if (addressError) {
+                clearFieldError("address")
+              }
+            }}
             name="address"
             type="text"
             placeholder="123 Main Street, Lahore"
             required
+            className={`${addressError ? "ring-1 ring-destructive" : ""}`}
             defaultValue={address}
-            disabled={isUpdatingCompany}
+            disabled={isLoading}
           />
+          {addressError && (
+            <p className="text-sm text-destructive">{addressError}</p>
+          )}
         </Form.Field>
 
         <Form.Field>
@@ -186,7 +176,7 @@ export const UpdateCompanyForm = ({
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            disabled={isUpdatingCompany}
+            disabled={isLoading}
           />
 
           {/* image preview */}
@@ -199,11 +189,14 @@ export const UpdateCompanyForm = ({
               className="mt-2 h-32 w-32 object-cover"
             />
           )}
+          {companyLogoError && (
+            <p className="text-sm text-destructive">{companyLogoError}</p>
+          )}
         </Form.Field>
 
         <Form.Actions>
-          <Form.Submit disabled={isUpdatingCompany}>
-            {isUpdatingCompany ? "Updating Company..." : "Update Company"}
+          <Form.Submit disabled={isLoading}>
+            {isLoading ? "Updating Company..." : "Update Company"}
           </Form.Submit>
         </Form.Actions>
       </Form>

@@ -1,10 +1,12 @@
 "use client"
 import { deleteCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export function useDeleteCompanyMutation() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -16,6 +18,7 @@ export function useDeleteCompanyMutation() {
     try {
       await deleteCompany(id)
       onSuccessCallback?.()
+      router.refresh()
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message)
