@@ -1,32 +1,33 @@
-import { CreateCompanyDto } from "@/app/api/dashboard/companies/dtos/createCompanyDto"
 import { BASEURL } from "@/constants/constants"
-import { CompanyType } from "@/db/schema"
+import { CompanyType, PublicUserType } from "@/db/schema"
 import type {
   AddCompanyDTO,
   AddEmployeeDTO,
-  UserType,
   updateEmployeeDto,
 } from "@/types/dashboard.types"
 import type { PaginationMeta } from "@/types/pagination.types"
 import { ApiError } from "./apiError"
 
-export const getEmployees = async ({
-  page = 1,
-  itemsPerPage = 20,
-  usernameFilter,
-  emailFilter,
-  companyFilter,
-  order = "desc",
-  sortBy = "id",
-}: {
-  page?: number
-  itemsPerPage?: number
-  usernameFilter?: string
-  emailFilter?: string
-  companyFilter?: string
-  order?: "asc" | "desc"
-  sortBy?: string
-} = {}): Promise<{ data: UserType[]; meta: PaginationMeta }> => {
+export const getEmployees = async (
+  {
+    page = 1,
+    itemsPerPage = 20,
+    usernameFilter,
+    emailFilter,
+    companyFilter,
+    order = "desc",
+    sortBy = "id",
+  }: {
+    page?: number
+    itemsPerPage?: number
+    usernameFilter?: string
+    emailFilter?: string
+    companyFilter?: string
+    order?: "asc" | "desc"
+    sortBy?: string
+  } = {},
+  signal?: AbortSignal
+): Promise<{ data: PublicUserType[]; meta: PaginationMeta }> => {
   // const sortString = order === "desc" ? `-${sortBy}` : sortBy
 
   let baseUrl = `${BASEURL}/dashboard/employees?`
@@ -45,10 +46,11 @@ export const getEmployees = async ({
   const res = await fetch(baseUrl, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
+    signal,
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
   const result = await res.json()
 
@@ -56,7 +58,7 @@ export const getEmployees = async ({
   return result
 }
 
-export const getEmployee = async (id: string): Promise<UserType> => {
+export const getEmployee = async (id: string): Promise<PublicUserType> => {
   const res = await fetch(`${BASEURL}/dashboard/employee/${id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -85,13 +87,16 @@ export const addEmployee = async (body: AddEmployeeDTO) => {
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status, data.fields)
   }
 
   return res
 }
 
-export const updateEmployee = async (id: string, body: updateEmployeeDto) => {
+export const updateEmployee = async (
+  id: string,
+  body: Partial<updateEmployeeDto>
+) => {
   // remove undefined fields inline
   const cleanBody = Object.fromEntries(
     Object.entries(body).filter(([, value]) => value !== undefined)
@@ -104,7 +109,7 @@ export const updateEmployee = async (id: string, body: updateEmployeeDto) => {
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status, data.fields)
   }
 
   return await res.json()
@@ -120,9 +125,8 @@ export const resetEmployeePassword = async (id: string) => {
   )
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
-
   return await res.json()
 }
 
@@ -133,9 +137,8 @@ export const deleteEmployee = async (id: string) => {
   })
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
-
   return res
 }
 
@@ -232,7 +235,7 @@ export const updateCompany = async (
 
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status, data.fields)
   }
 
   return await res.json()

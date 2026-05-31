@@ -16,6 +16,7 @@ export const SidebarLink = ({ href, label, onClick }: SidebarLinkProps) => {
     <Link
       href={href}
       onClick={onClick}
+      // prefetch={false}
       className={`flex items-center rounded-sm border px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 ${
         isActive
           ? "border-border bg-card text-primary shadow-sm hover:bg-muted hover:text-foreground"

@@ -20,20 +20,14 @@ export const POST = RouteGuard.requireAuthWithRole(
 
     let avatarObj: { url: string; publicId: string } | null = null
     try {
-      const errorFields: string[] = []
-      if (!username) {
-        errorFields.push("username")
-      }
-      if (!email) {
-        errorFields.push("email")
-      }
-      if (!companyId) {
-        errorFields.push("companyId")
-      }
+      const fields: Record<string, string> = {}
+      if (!email) fields.email = "Email is required"
+      if (!username) fields.name = "Username is required"
+      if (!companyId) fields.company = "company is required"
 
-      if (errorFields.length > 0) {
+      if (Object.keys(fields).length > 0) {
         return Response.json(
-          { error: "missing required fields", fields: errorFields },
+          { error: "Missing required fields", fields },
           { status: 400 }
         )
       }
@@ -45,8 +39,6 @@ export const POST = RouteGuard.requireAuthWithRole(
           publicId: cloudinaryRes.public_id,
         }
       }
-
-      console.log(avatar, avatarObj)
 
       const { raw, hashed } = await TokenUtil.generate({
         bytesSize: 4,
@@ -89,8 +81,6 @@ export const POST = RouteGuard.requireAuthWithRole(
         return Response.json({ error: "Invalid JSON format" }, { status: 400 })
       }
 
-      console.log(error)
-      // Everything else
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }
   },

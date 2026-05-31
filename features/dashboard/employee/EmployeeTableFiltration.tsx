@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Combobox,
   ComboboxContent,
@@ -15,18 +14,17 @@ import {
 import { Search, SlidersHorizontal } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
-import { useAllCompanies } from "../company/reactQueryHooks/useAllCompanies"
 import { CompanyType } from "@/db/schema"
+import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
 
 export const EmployeeTableFiltration = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathName = usePathname()
 
-  const { data: companiesData, isLoading: isLoadingCompanies } =
-    useAllCompanies()
-
-  const companies = companiesData?.data || []
+  const { companies: companiesWithPageMeta, isLoading: isLoadingCompanies } =
+    useCompaniesQuery()
+  const companies = companiesWithPageMeta?.companies || []
 
   const [isOpen, setIsOpen] = useState(true)
   const [emailFilter, setEmailFilter] = useState(

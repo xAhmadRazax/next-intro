@@ -1,6 +1,6 @@
 export type CreateEmployeeDto = {
   username: string
   email: string
-  avatar?: string
+  avatar?: File | undefined
   companyId: string
 }

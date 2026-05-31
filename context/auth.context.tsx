@@ -1,6 +1,6 @@
 "use client"
+import { PublicUserType } from "@/db/schema"
 import { changePasswordApi, loginApi, logoutApi, meApi } from "@/lib/auth-api"
-import { UserType } from "@/types/dashboard.types"
 import { useRouter } from "next/navigation"
 import {
   createContext,
@@ -11,8 +11,8 @@ import {
 } from "react"
 
 interface AuthContextType {
-  user: UserType | null
-  setUser: (user: UserType | null) => void
+  user: PublicUserType | null
+  setUser: (user: PublicUserType | null) => void
   isLoading: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -26,7 +26,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const router = useRouter()
-  const [user, setUser] = useState<UserType | null>(null)
+  const [user, setUser] = useState<PublicUserType | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {

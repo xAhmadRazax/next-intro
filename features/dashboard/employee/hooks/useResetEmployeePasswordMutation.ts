@@ -1,40 +1,35 @@
-"use client"
-import { deleteCompany } from "@/lib/api"
+import { resetEmployeePassword } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
-export function useDeleteCompanyMutation() {
+export function useResetEmployeePasswordMutation() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  async function deleteCompanyHandler(
+  async function resetEmployeePasswordMutationHandler(
     id: string,
-    onSuccessCallback?: () => void
+    onSuccessCallbackHandler?: () => void
   ) {
     setIsLoading(true)
     try {
-      await deleteCompany(id)
-      onSuccessCallback?.()
+      await resetEmployeePassword(id)
+      onSuccessCallbackHandler?.()
       router.refresh()
     } catch (error) {
       if (error instanceof ApiError) {
-        setError(error.message)
         toast.error(error.message)
+        setError(error.message)
       } else {
-        setError("something went wrong while deleting company.")
-        toast.error("something went wrong while deleting company.")
+        setError("Something went wrong while resetting employee password")
+        toast.error("Something went wrong while resetting employee password")
       }
     } finally {
       setIsLoading(false)
     }
   }
 
-  return {
-    isLoading,
-    error,
-    deleteCompanyHandler,
-  }
+  return { isLoading, resetEmployeePasswordMutationHandler, error }
 }

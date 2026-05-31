@@ -8,7 +8,7 @@ import {
   pgEnum,
   boolean,
 } from "drizzle-orm/pg-core"
-import { companies } from "./company.schema"
+import { companies, CompanyType } from "./company.schema"
 
 export const roleEnum = pgEnum("role", ["admin", "employee"])
 
@@ -39,6 +39,9 @@ export const users = pgTable("users", {
 })
 
 export type UserType = typeof users.$inferSelect
+export type PublicUserType = Omit<UserType, "password"> & {
+  company?: CompanyType | null
+}
 
 // where ever the FK lives that table will get one()
 //  employees table HAS a foreign key (companyId)

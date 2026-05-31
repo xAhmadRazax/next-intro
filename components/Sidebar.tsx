@@ -78,6 +78,14 @@ export const SideBar = ({ isAdmin }: { isAdmin: boolean }) => {
                 />
               </li>
             ))}
+
+            <li key={"logout"}>
+              <SidebarLink
+                href={"/auth/logout"}
+                label={"Logout"}
+                onClick={handleLogout}
+              />
+            </li>
           </ul>
         </div>
       </div>

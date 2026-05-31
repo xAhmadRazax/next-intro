@@ -51,7 +51,7 @@ export const Profile = () => {
           {/* Avatar */}
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={user?.avatar} />
+              <AvatarImage src={user?.avatar ?? undefined} />
               <AvatarFallback className="text-lg">
                 {user?.username?.slice(0, 2).toUpperCase()}
               </AvatarFallback>

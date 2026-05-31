@@ -112,7 +112,10 @@ export const POST = RouteGuard.requireAuthWithRole(
       const postgresError = handlePostgresError(err)
       if (postgresError) return postgresError
 
-      console.error(err)
+      if (err instanceof SyntaxError) {
+        return Response.json({ error: "Invalid JSON format" }, { status: 400 })
+      }
+
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }
   },

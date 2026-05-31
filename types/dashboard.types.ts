@@ -1,17 +1,8 @@
-export interface UserType {
-  id: string
-  username: string
-  email: string
-  avatar?: string
-  role: "employee" | "admin"
-  company: CompanyType
-}
-
 export interface AddEmployeeDTO {
   username: string
   email: string
   companyId: string
-  avatar?: File
+  avatar?: File | undefined
 }
 
 export type updateEmployeeDto = Omit<AddEmployeeDTO, "companyId">

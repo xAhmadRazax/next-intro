@@ -116,10 +116,10 @@ export const UpdateCompanyForm = ({
             }}
             name="email"
             type="email"
-            className={`${emailError ? "ring-1 ring-destructive" : ""}`}
             placeholder="company@example.com"
             defaultValue={email}
             disabled={isLoading}
+            className={`${addressError ? "ring-1 ring-destructive" : ""}`}
           />
           {emailError && (
             <p className="text-sm text-destructive">{emailError}</p>

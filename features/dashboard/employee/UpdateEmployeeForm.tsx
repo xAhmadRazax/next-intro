@@ -1,19 +1,15 @@
 "use client"
 import Form from "@/components/form/Form"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useUpdateEmployeeMutation } from "./hooks/useUpdateEmployeeMutation"
-import { useQueryClient } from "@tanstack/react-query"
-import type { EmployeeType } from "@/types/dashboard.types"
-import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import Image from "next/image"
-import { uploadImage } from "@/lib/cloudinaryv1.utils"
-import { employeeKeys } from "@/lib/queryKeys"
+import { PublicUserType } from "@/db/schema"
+import { useFormDialog } from "../hooks/useFormDialog"
+import { useUpdateEmployeeMutation } from "./hooks/useUpdateEmployeeMutation"
 
 interface UpdateEmployeeFormProps {
-  employee: EmployeeType
+  employee: PublicUserType
   employeeId: string
-  onSuccess: () => void
 }
 
 interface EmployeeAvatarState {
@@ -22,25 +18,29 @@ interface EmployeeAvatarState {
 }
 
 export const UpdateEmployeeForm = ({
-  onSuccess,
   employeeId,
   employee,
 }: UpdateEmployeeFormProps) => {
-  const searchParams = useSearchParams()
-  const queryClient = useQueryClient()
-
-  const { updateEmployeeMutation, isLoading: isUpdatingEmployee } =
-    useUpdateEmployeeMutation(employeeId)
-
+  const {
+    updateEmployeeMutation,
+    isLoading: isUpdatingEmployee,
+    clearFieldError,
+    error,
+  } = useUpdateEmployeeMutation()
   const [employeeAvatar, setEmployeeAvatar] = useState<EmployeeAvatarState>({
     imageFile: null,
     previewUrl: "",
   })
+
+  const { onSuccess } = useFormDialog()
   const [employeeAvatarError, setEmployeeAvatarError] = useState<string>("")
 
   const username = employee?.username ?? ""
   const email = employee?.email ?? ""
   const avatar = employee?.avatar ?? ""
+
+  const usernameError = error?.fields?.userName
+  const emailError = error?.fields?.email
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -69,40 +69,24 @@ export const UpdateEmployeeForm = ({
 
     const formData = new FormData(e.currentTarget)
 
-    const username = formData.get("username") as string
-    const email = formData.get("email") as string
+    const updatedUsername = formData.get("username") as string
+    const updatedEmail = formData.get("email") as string
 
-    let avatarUrl = ""
-    if (employeeAvatar.imageFile) {
-      const imageUrl = await uploadImage(employeeAvatar.imageFile)
-      avatarUrl = imageUrl
+    const fieldsToUpdate: Record<string, string> = {}
+    if (updatedUsername !== username) {
+      fieldsToUpdate.username = updatedUsername
+    }
+    if (updatedEmail !== email) {
+      fieldsToUpdate.email = updatedEmail
     }
 
-    updateEmployeeMutation(
+    await updateEmployeeMutation(
+      employeeId,
       {
-        username,
-        email,
-        avatar: avatarUrl,
+        ...fieldsToUpdate,
+        avatar: employeeAvatar?.imageFile ?? undefined,
       },
-      {
-        onSuccess: (updated: EmployeeType) => {
-          onSuccess?.()
-
-          // queryClient.setQueryData(["users", userId], updated)
-          const page = Number(searchParams?.get("page") ?? 1)
-
-          queryClient.setQueryData(
-            employeeKeys.list(page),
-            (old: { data: EmployeeType[] }) => ({
-              ...old,
-              data: old.data.map((u) => (u.id === updated.id ? updated : u)),
-            })
-          )
-          queryClient.invalidateQueries({
-            queryKey: employeeKeys.all,
-          })
-        },
-      }
+      onSuccess
     )
   }
 
@@ -125,7 +109,16 @@ export const UpdateEmployeeForm = ({
             placeholder="john@example.com"
             defaultValue={email}
             disabled={isUpdatingEmployee}
+            onFocus={() => {
+              if (emailError) {
+                clearFieldError("email")
+              }
+            }}
+            className={`${emailError ? "ring-1 ring-destructive" : ""}`}
           />
+          {emailError && (
+            <p className="text-sm text-destructive">{emailError}</p>
+          )}
         </Form.Field>
 
         <Form.Field>
@@ -138,7 +131,16 @@ export const UpdateEmployeeForm = ({
             required
             defaultValue={username}
             disabled={isUpdatingEmployee}
+            onFocus={() => {
+              if (usernameError) {
+                clearFieldError("username")
+              }
+            }}
+            className={`${usernameError ? "ring-1 ring-destructive" : ""}`}
           />
+          {usernameError && (
+            <p className="text-sm text-destructive">{usernameError}</p>
+          )}
         </Form.Field>
 
         <Form.Field>
@@ -147,7 +149,7 @@ export const UpdateEmployeeForm = ({
           <Form.Input
             id="company"
             name="company"
-            defaultValue={employee.company.name}
+            defaultValue={employee.company!.name ?? ""}
             disabled={true}
           />
         </Form.Field>
@@ -165,16 +167,19 @@ export const UpdateEmployeeForm = ({
           />
 
           {/* image preview */}
-          {employeeAvatar.previewUrl ||
-            (avatar && (
-              <Image
-                width={128}
-                height={128}
-                src={employeeAvatar.previewUrl || avatar}
-                alt="user avatar"
-                className="mt-2 h-32 w-32 object-cover"
-              />
-            ))}
+          {(employeeAvatar.previewUrl || avatar) && (
+            <Image
+              width={128}
+              height={128}
+              src={employeeAvatar.previewUrl || avatar}
+              alt="user avatar"
+              className="mt-2 h-32 w-32 object-cover"
+            />
+          )}
+
+          {employeeAvatarError && (
+            <p className="text-sm text-destructive">{employeeAvatarError}</p>
+          )}
         </Form.Field>
 
         <Form.Actions>

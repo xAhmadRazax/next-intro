@@ -2,10 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import { useCreateEmployeeMutation } from "./hooks/useCreateEmployeeMutation"
-import { useQueryClient } from "@tanstack/react-query"
-import { useFormDialog } from "../hooks/useFormDialog"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   Combobox,
@@ -15,10 +12,10 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import type { CompanyType } from "@/types/dashboard.types"
 import Form from "@/components/form/Form"
-import { employeeKeys } from "@/lib/queryKeys"
-import { useAllCompanies } from "../company/reactQueryHooks/useAllCompanies"
+import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
+import { CompanyType } from "@/db/schema"
+import { useFormDialog } from "../hooks/useFormDialog"
 
 interface EmployeeAvatarState {
   previewUrl: string
@@ -32,20 +29,27 @@ export const AddEmployeeForm = () => {
   })
   const [employeeAvatarError, setEmployeeAvatarError] = useState<string>("")
 
-  const { createEmployeeMutation, isLoading: isCreatingEmployee } =
-    useCreateEmployeeMutation()
-
-  const { data: companiesData, isLoading: isLoadingCompanies } =
-    useAllCompanies()
-
-  const companies = companiesData?.data || []
-
-  const queryClient = useQueryClient()
   const { onSuccess } = useFormDialog()
+
+  const {
+    createEmployeeHandler: createEmployeeMutation,
+    error,
+    isLoading: isCreatingEmployee,
+    clearFieldError,
+  } = useCreateEmployeeMutation()
+
+  const { companies: companiesData, isLoading: isLoadingCompanies } =
+    useCompaniesQuery()
+
+  const companies = companiesData?.companies || []
 
   const [selectedCompany, setSelectedCompany] = useState<CompanyType | null>(
     null
   )
+
+  const emailError = error?.fields?.email
+  const usernameError = error?.fields?.username
+  const companyError = error?.fields?.company
 
   const handleCompanySelect = (company: CompanyType | null) => {
     if (!company) {
@@ -83,36 +87,15 @@ export const AddEmployeeForm = () => {
 
     const username = formData.get("username") as string
     const email = formData.get("email") as string
-    // let avatarUrl = ""
-    // if (employeeAvatar.imageFile) {
-    //   const imageUrl = await uploadImage(employeeAvatar.imageFile)
-    //   avatarUrl = imageUrl
-    // }
-
-    if (!selectedCompany) {
-      alert("Please select a company for the employee.")
-      return
-    }
 
     createEmployeeMutation(
       {
-        username,
         email,
-        companyId: selectedCompany.id,
-        avatar: employeeAvatar.imageFile || undefined,
+        username,
+        companyId: selectedCompany!.id,
+        avatar: employeeAvatar.imageFile ?? undefined,
       },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: employeeKeys.all,
-          })
-
-          onSuccess()
-        },
-        onError(error) {
-          console.log(error)
-        },
-      }
+      onSuccess
     )
   }
 
@@ -135,7 +118,16 @@ export const AddEmployeeForm = () => {
             placeholder="john@example.com"
             required
             disabled={isCreatingEmployee}
+            className={`${emailError ? "ring-1 ring-destructive" : ""}`}
+            onFocus={() => {
+              if (emailError) {
+                clearFieldError("email")
+              }
+            }}
           />
+          {emailError && (
+            <p className="text-sm text-destructive">{emailError}</p>
+          )}
         </Form.Field>
         {/* end of email input */}
         {/* name input */}
@@ -147,7 +139,16 @@ export const AddEmployeeForm = () => {
             placeholder="John Doe"
             required
             disabled={isCreatingEmployee}
+            className={`${usernameError ? "ring-1 ring-destructive" : ""}`}
+            onFocus={() => {
+              if (usernameError) {
+                clearFieldError("username")
+              }
+            }}
           />
+          {emailError && (
+            <p className="text-sm text-destructive">{usernameError}</p>
+          )}
         </Form.Field>
         {/* end of name input */}
 
@@ -157,14 +158,22 @@ export const AddEmployeeForm = () => {
           <Combobox
             id="company"
             disabled={isLoadingCompanies || isCreatingEmployee}
-            items={companies || []}
+            items={companies ?? []}
             itemToStringLabel={(company: CompanyType) => company.name}
             onValueChange={(company) => handleCompanySelect(company)}
+            required
           >
             <ComboboxInput placeholder="Search companies..." />
             <ComboboxContent>
               <ComboboxEmpty>No companies found.</ComboboxEmpty>
-              <ComboboxList>
+              <ComboboxList
+                className={`${true ? "ring-1 ring-destructive" : ""}`}
+                onFocus={() => {
+                  if (companyError) {
+                    clearFieldError("company")
+                  }
+                }}
+              >
                 {(company: CompanyType) => (
                   <ComboboxItem key={company.id} value={company}>
                     {company.name}
@@ -173,6 +182,9 @@ export const AddEmployeeForm = () => {
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
+          {companyError && (
+            <p className="text-sm text-destructive">{companyError}</p>
+          )}
         </Form.Field>
         {/* end of company input */}
         {/* avatar input */}
@@ -197,6 +209,10 @@ export const AddEmployeeForm = () => {
               alt="Preview"
               className="mt-2 h-32 w-32 object-cover"
             />
+          )}
+
+          {employeeAvatarError && (
+            <p className="text-sm text-destructive">{employeeAvatarError}</p>
           )}
         </Form.Field>
 
