@@ -2,27 +2,29 @@
 import { CreateCompanyDto } from "@/app/api/dashboard/companies/dtos/createCompanyDto"
 import { createCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export function useCreateCompanyMutation() {
-  const router = useRouter()
   const [error, setError] = useState<{
     message: string
     fields?: Record<string, string>
   } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  async function createCompanyHandler(
-    { email, logo, name, address }: CreateCompanyDto,
-    onSuccessCallbackHandler?: () => void
-  ) {
+  async function createCompanyHandler({
+    email,
+    logo,
+    name,
+    address,
+  }: CreateCompanyDto) {
     setIsLoading(true)
     try {
-      await createCompany({ email, logo, name, address })
-      onSuccessCallbackHandler?.()
-      router.refresh()
+      // onSuccessCallbackHandler?.()
+      return await createCompany({ email, logo, name, address })
+
+      // const params = new URLSearchParams(searchParams)
+      // router.replace(`${pathname}`)
     } catch (error) {
       console.log(error instanceof ApiError)
       if (error instanceof ApiError) {

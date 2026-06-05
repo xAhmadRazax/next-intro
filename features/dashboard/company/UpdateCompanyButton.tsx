@@ -1,14 +1,18 @@
 import { Button } from "@/components/ui/button"
-import type { CompanyType } from "@/types/dashboard.types"
 import { UpdateCompanyForm } from "./UpdateCompanyForm"
 import FormDialog from "../components/FormDialog"
 import { Pencil } from "lucide-react"
+import { CompanyType } from "@/db/schema"
 
 interface UpdateCompanyButtonProps {
   company: CompanyType
+  updateItemSuccessCallback?: (company: CompanyType) => void
 }
 
-export const UpdateCompanyButton = ({ company }: UpdateCompanyButtonProps) => {
+export const UpdateCompanyButton = ({
+  company,
+  updateItemSuccessCallback,
+}: UpdateCompanyButtonProps) => {
   return (
     <FormDialog>
       <FormDialog.Trigger>
@@ -17,7 +21,11 @@ export const UpdateCompanyButton = ({ company }: UpdateCompanyButtonProps) => {
         </Button>
       </FormDialog.Trigger>
       <FormDialog.Content>
-        <UpdateCompanyForm company={company} companyId={company.id} />
+        <UpdateCompanyForm
+          company={company}
+          companyId={company.id}
+          updateItemSuccessCallback={updateItemSuccessCallback}
+        />
       </FormDialog.Content>
     </FormDialog>
   )

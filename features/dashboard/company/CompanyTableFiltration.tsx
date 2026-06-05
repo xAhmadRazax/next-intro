@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Search, SlidersHorizontal } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
@@ -68,7 +67,7 @@ export const CompanyTableFiltration = () => {
 
   return (
     <div
-      className={`my-4 grow rounded-sm px-2 py-4 ${isOpen ? "bg-muted/50" : ""}`}
+      className={`my-4 grow rounded-sm px-2 py-4 ${isOpen ? "bg-card" : ""}`}
     >
       <Button
         variant={isOpen ? "default" : "outline"}

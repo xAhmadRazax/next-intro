@@ -15,8 +15,6 @@ export const getEmployees = async (
     usernameFilter,
     emailFilter,
     companyFilter,
-    order = "desc",
-    sortBy = "id",
   }: {
     page?: number
     itemsPerPage?: number
@@ -89,8 +87,8 @@ export const addEmployee = async (body: AddEmployeeDTO) => {
     const data = await res.json()
     throw new ApiError(data.error, data.status, data.fields)
   }
-
-  return res
+  const data = await res.json()
+  return data.employee
 }
 
 export const updateEmployee = async (
@@ -199,7 +197,9 @@ export const getCompanies = async (
   return result
 }
 
-export const createCompany = async (body: AddCompanyDTO) => {
+export const createCompany = async (
+  body: AddCompanyDTO
+): Promise<CompanyType> => {
   const formData = new FormData()
   formData.append("name", body.name)
   formData.append("email", body.email)
@@ -215,22 +215,23 @@ export const createCompany = async (body: AddCompanyDTO) => {
     throw new ApiError(data.error, data.status, data.fields)
   }
 
-  return res
+  return await res.json()
 }
 
 export const updateCompany = async (
   id: string,
   body: Partial<AddCompanyDTO>
-) => {
-  // remove undefined fields inline
-  const cleanBody = Object.fromEntries(
-    Object.entries(body).filter(([, value]) => value !== undefined)
-  )
+): Promise<CompanyType> => {
+  const formData = new FormData()
+
+  if (body.name) formData.append("name", body.name)
+  if (body.email) formData.append("email", body.email)
+  if (body.address) formData.append("address", body.address)
+  if (body.logo) formData.append("logo", body.logo) // File object
 
   const res = await fetch(`${BASEURL}/dashboard/companies/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(cleanBody),
+    body: formData,
   })
 
   if (!res.ok) {

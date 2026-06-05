@@ -8,10 +8,7 @@ import { useEmployeesQuery } from "./hooks/useEmployeesQuery"
 import { useSearchParams } from "next/navigation"
 
 export const EmployeesTable = () => {
-  const searchParams = useSearchParams()
-  const page = Number(searchParams.get("page"))
-  const { employees: employeeDataWithPagMeta, isLoading } =
-    useEmployeesQuery(page)
+  const { employees: employeeDataWithPagMeta, isLoading } = useEmployeesQuery()
 
   if (isLoading || !employeeDataWithPagMeta) {
     return <EmployeesTableSkeleton rows={10} />

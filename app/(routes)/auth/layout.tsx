@@ -11,7 +11,7 @@ export default async function Layout({
   const token = cookiesStore.get("token")?.value
   if (token) {
     const payload = await JWT.safeVerifyJWT(token)
-    if (!payload) {
+    if (payload) {
       redirect("/dashboard/profile")
     }
   }

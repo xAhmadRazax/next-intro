@@ -1,11 +1,11 @@
 "use client"
 import { useState } from "react"
 
-export const useResetPassword = () => {
+export const useSetupPassword = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const resetPasswordHandler = async ({
+  const setupPasswordHandler = async ({
     token,
     password,
   }: {
@@ -15,8 +15,7 @@ export const useResetPassword = () => {
     setIsLoading(true)
     setError(null)
 
-    console.log(token)
-    const res = await fetch(`/api/auth/reset-password/${token}`, {
+    const res = await fetch(`/api/auth/set-password/${token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
@@ -33,5 +32,5 @@ export const useResetPassword = () => {
     return { isSuccess: false }
   }
 
-  return { resetPasswordHandler, isLoading, error }
+  return { setupPasswordHandler, isLoading, error }
 }

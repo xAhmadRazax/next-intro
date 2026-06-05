@@ -2,12 +2,16 @@
 import { addEmployee } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { AddEmployeeDTO } from "@/types/dashboard.types"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useState, useTransition } from "react"
 import { toast } from "sonner"
 
 export function useCreateEmployeeMutation() {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
+
   const [error, setError] = useState<{
     message: string
     fields?: Record<string, string>
@@ -20,9 +24,22 @@ export function useCreateEmployeeMutation() {
   ) {
     setIsLoading(true)
     try {
-      addEmployee({ email, username, avatar, companyId })
+      const newEmployee = await addEmployee({
+        email,
+        username,
+        avatar,
+        companyId,
+      })
+
+      // startTransition(() => {
+      // router.push("/dashboard/employees") // only if you need to navigate away
+      // router.refresh() // this re-runs server components & refetches data
+      // })
+
       onSuccessCallbackHandler?.()
       router.refresh()
+      // const params = new URLSearchParams(searchParams)
+      // router.push("/dashboard/employees")
     } catch (error) {
       console.log(error instanceof ApiError)
       if (error instanceof ApiError) {

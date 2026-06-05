@@ -91,7 +91,7 @@ export const EmployeeTableFiltration = () => {
 
   return (
     <div
-      className={`my-4 grow rounded-sm px-2 py-4 ${isOpen ? "bg-muted/50" : ""}`}
+      className={`my-4 grow rounded-sm px-2 py-4 ${isOpen ? "bg-card" : ""}`}
     >
       <Button
         variant={isOpen ? "default" : "outline"}

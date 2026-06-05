@@ -41,7 +41,7 @@ export const AddEmployeeForm = () => {
   const { companies: companiesData, isLoading: isLoadingCompanies } =
     useCompaniesQuery()
 
-  const companies = companiesData?.companies || []
+  const companies = companiesData?.items || []
 
   const [selectedCompany, setSelectedCompany] = useState<CompanyType | null>(
     null

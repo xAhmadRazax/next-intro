@@ -45,7 +45,7 @@ export const SideBar = ({ isAdmin }: { isAdmin: boolean }) => {
 
       {/* Mobile sidebar - slides in from left */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r bg-background px-4 pt-4 transition-transform duration-300 ease-in-out md:hidden ${isOpen ? "translate-x-0" : "-translate-x-full"} `}
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r bg-card px-4 pt-4 transition-transform duration-300 ease-in-out md:hidden ${isOpen ? "translate-x-0" : "-translate-x-full"} `}
       >
         {/* Close button inside sidebar */}
         <button
@@ -99,7 +99,7 @@ export const SideBar = ({ isAdmin }: { isAdmin: boolean }) => {
       )}
 
       {/* Desktop sidebar - always visible on larger screens */}
-      <nav className="hidden h-full border-r bg-background px-4 pt-4 md:block">
+      <nav className="hidden h-full border-r bg-card px-4 pt-4 md:block">
         <div className="sticky top-4">
           <Link
             href={"/dashboard"}

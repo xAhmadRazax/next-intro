@@ -1,10 +1,12 @@
-import { AddCompanyButton } from "@/features/dashboard/company/AddCompanyButton"
-import { CompaniesTable } from "@/features/dashboard/company/CompaniesTable"
-import { CompaniesTableSkeleton } from "@/features/dashboard/company/CompaniesTableSkeleton"
-import { CompanyTableFiltrationWrapper } from "@/features/dashboard/company/CompanyTableFiltrationWrapper"
+// import { AddCompanyButton } from "@/features/dashboard/company/AddCompanyButton"
+// import { CompaniesTable } from "@/features/dashboard/company/CompaniesTable"
+// import { CompaniesTableSkeleton } from "@/features/dashboard/company/CompaniesTableSkeleton"
+// import { CompanyTableFiltrationWrapper } from "@/features/dashboard/company/CompanyTableFiltrationWrapper"
 // import { getCompanies } from "@/lib/api"
 // import { cookies } from "next/headers"
-import { Suspense } from "react"
+// import { Suspense } from "react"
+
+import { CompanyTableWrapper } from "@/features/dashboard/company/CompanyTableWrapper"
 
 export const Company = async () => {
   // const cookiesStore = await cookies()
@@ -20,16 +22,7 @@ export const Company = async () => {
         </header>
         <div className="mx-auto -mt-2 h-0.5 w-1/12 rounded-full bg-accent-foreground/30"></div>
 
-        <div className="mt-4 flex flex-col lg:px-2">
-          <CompanyTableFiltrationWrapper />
-          <AddCompanyButton />
-        </div>
-
-        <div className="flex-1 lg:px-2">
-          <Suspense fallback={<CompaniesTableSkeleton rows={10} />}>
-            <CompaniesTable />
-          </Suspense>
-        </div>
+        <CompanyTableWrapper />
       </section>
     </>
   )

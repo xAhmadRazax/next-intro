@@ -1,11 +1,11 @@
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { db } from "@/db"
-import { companies, users } from "@/db/schema"
+import { companies, tokens, users } from "@/db/schema"
 import { and, count, eq, ilike, ne } from "drizzle-orm"
 import { cloudinaryService } from "@/lib/cloudinary.server"
 import { TokenUtil } from "@/lib/token.server"
 import { Mailer } from "@/lib/mailer.server"
-import { COMPANY_NAME, TEMP_PASSWORD_EXPIRY } from "@/constants/constants"
+import { COMPANY_NAME } from "@/constants/constants"
 import ms, { StringValue } from "ms"
 import { RouteGuard } from "@/lib/routeGuard.server"
 
@@ -40,31 +40,34 @@ export const POST = RouteGuard.requireAuthWithRole(
         }
       }
 
-      const { raw, hashed } = await TokenUtil.generate({
-        bytesSize: 4,
-        bufferEncoding: "base64",
-        hashMethod: "bcrypt",
-      })
-
       const [employee] = await db
         .insert(users)
         .values({
           username,
           email: email.toLowerCase(),
           companyId,
-          password: hashed,
-          passwordExpiresAt: new Date(
-            Date.now() + ms(TEMP_PASSWORD_EXPIRY as StringValue)
-          ),
           avatar: avatarObj?.url ?? null,
           avatarPublicId: avatarObj?.publicId ?? null,
         })
         .returning()
 
+      const { raw, hashed } = await TokenUtil.generate()
+
+      await db.insert(tokens).values({
+        token: hashed,
+        type: "invite",
+        userId: employee.id,
+        expiresAt: new Date(
+          Date.now() + ms(process.env.INVITE_TOKEN_EXPIRY as StringValue)
+        ),
+      })
+
+      const inviteLink = `${req.headers.get("origin")}/auth/set-password/${raw}`
+
       Mailer.sendInvite({
         companyName: COMPANY_NAME,
         email,
-        tempPassword: raw,
+        inviteLink: inviteLink,
         username,
       })
 

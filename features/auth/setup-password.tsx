@@ -8,19 +8,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { useResetPassword } from "./hooks/useResetPassword"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { useSetupPassword } from "./hooks/useSetupPassword"
 import { toast } from "sonner"
 
-export function ResetPassword({ token }: { token: string }) {
+export function SetUpPassword({ token }: { token: string }) {
   const router = useRouter()
-  const { resetPasswordHandler, isLoading, error } = useResetPassword()
+
+  const { setupPasswordHandler, isLoading, error } = useSetupPassword()
   const submitHandler = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     const data = new FormData(e.currentTarget)
-    const newPassword = data.get("new-password")?.toString()
+    const newPassword = data.get("password")?.toString()
     const confirmPassword = data.get("confirm-password")?.toString()
 
     if (!newPassword || !confirmPassword) {
@@ -31,15 +32,17 @@ export function ResetPassword({ token }: { token: string }) {
       return alert("Passwords do not match")
     }
 
-    const { isSuccess } = await resetPasswordHandler({
+    const { isSuccess } = await setupPasswordHandler({
       token,
       password: newPassword,
     })
 
+    console.log(isSuccess, "is success outer")
     if (isSuccess) {
-      router.replace("/auth/login")
+      console.log(isSuccess, "is success")
+      router.push("/auth/login")
     } else {
-      toast.error(error || "Failed to reset password. Please try again.")
+      toast.error(error || "Failed to set password. Please try again.")
     }
   }
   return (
@@ -48,7 +51,7 @@ export function ResetPassword({ token }: { token: string }) {
     >
       <CardHeader>
         <CardTitle className="text-center text-2xl font-bold">
-          <h1>Reset password</h1>
+          <h1>Setup password</h1>
         </CardTitle>
       </CardHeader>
 
@@ -60,22 +63,20 @@ export function ResetPassword({ token }: { token: string }) {
         )}
         <Form
           onSubmit={submitHandler}
-          id="reset-password-form"
+          id="setup-password-form"
           className="mt-8 space-y-6"
         >
           <Form.Field className="flex flex-col gap-1.5">
-            <Form.Label htmlFor="new-password">New password</Form.Label>
+            <Form.Label htmlFor="password">Password</Form.Label>
             <Form.Input
-              id="new-password"
-              name="new-password"
+              id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
             />
           </Form.Field>
           <Form.Field className="flex flex-col gap-1.5">
-            <Form.Label htmlFor="confirm-password">
-              Confirm new password
-            </Form.Label>
+            <Form.Label htmlFor="confirm-password">Confirm Password</Form.Label>
             <Form.Input
               id="confirm-password"
               name="confirm-password"
@@ -89,10 +90,10 @@ export function ResetPassword({ token }: { token: string }) {
         <Button
           disabled={isLoading}
           type="submit"
-          form="reset-password-form"
+          form="setup-password-form"
           className={"w-full text-center"}
         >
-          Reset Password
+          {isLoading ? "Setting up..." : "Setup Password"}
         </Button>
         <div className="mx-auto h-0.5 w-40 bg-accent"></div>
         <Link

@@ -18,16 +18,11 @@ export const users = pgTable("users", {
   username: varchar("username", { length: 254 }).notNull(),
   companyId: uuid("company_id").references(() => companies.id),
   role: roleEnum("role").notNull().default("employee"),
-  password: text("password").notNull(),
+  password: text("password"),
 
   avatar: text("avatar"),
   avatarPublicId: text("avatar_public_id"),
 
-  mustChangePassword: boolean("must_change_password").default(true),
-  passwordExpiresAt: timestamp("password_expires_at", {
-    withTimezone: true,
-    mode: "date",
-  }),
   createdAt: timestamp("created_at", {
     withTimezone: true,
     mode: "date",

@@ -4,10 +4,13 @@ import { PublicUserType } from "@/db/schema"
 import { getEmployees } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { PaginationMeta } from "@/types/pagination.types"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-export const useEmployeesQuery = (page: number = 1) => {
+export const useEmployeesQuery = () => {
+  const searchParams = useSearchParams()
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setIsError] = useState("")
   const [employees, setEmployees] = useState<{
@@ -48,17 +51,31 @@ export const useEmployeesQuery = (page: number = 1) => {
 
   useEffect(() => {
     const employeesQueryHandler = async ({
-      page = 1,
+      pageFilter = 1,
+      nameFilter = "",
+      emailFilter = "",
+      companyFilter = "",
       signal,
     }: {
       signal?: AbortSignal
-      page?: number
+      pageFilter?: number
+      nameFilter?: string
+      emailFilter?: string
+      companyFilter?: string
     }) => {
       // const isMounted = true
 
       setIsLoading(true)
       try {
-        const res = await getEmployees({ page }, signal)
+        const res = await getEmployees(
+          {
+            page: pageFilter,
+            usernameFilter: nameFilter,
+            emailFilter,
+            companyFilter,
+          },
+          signal
+        )
         setEmployees({ employees: res.data, meta: res.meta })
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return
@@ -76,10 +93,21 @@ export const useEmployeesQuery = (page: number = 1) => {
     }
 
     const controller = new AbortController()
-    employeesQueryHandler({ page, signal: controller.signal })
+    const pageFilter = Number(searchParams.get("page"))
+    const emailFilter = searchParams.get("email") ?? undefined
+    const nameFilter = searchParams.get("username") ?? undefined
+    const companyFilter = searchParams.get("company") ?? undefined
+
+    employeesQueryHandler({
+      pageFilter,
+      emailFilter,
+      companyFilter,
+      nameFilter,
+      signal: controller.signal,
+    })
 
     return () => controller.abort()
-  }, [page])
+  }, [searchParams])
 
   return { employeesQueryHandler, isLoading, error, employees }
 }

@@ -3,12 +3,10 @@
 import { updateCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { AddCompanyDTO } from "@/types/dashboard.types"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export function useUpdateCompanyMutation() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<{
     message: string
@@ -22,9 +20,8 @@ export function useUpdateCompanyMutation() {
   ) {
     setIsLoading(true)
     try {
-      await updateCompany(id, body)
       onSuccessCallback?.()
-      router.refresh()
+      return await updateCompany(id, body)
     } catch (error) {
       if (error instanceof ApiError) {
         setError({ message: error.message, fields: error?.fields })

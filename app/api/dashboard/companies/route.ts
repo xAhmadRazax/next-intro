@@ -14,7 +14,7 @@ export const GET = RouteGuard.requireAuthWithRole(
     const limit = Number(searchParams.get("limit") || 20)
     const emailFilter = searchParams.get("email") || ""
     const nameFilter = searchParams.get("name") || ""
-    const order = searchParams.get("order") || "asc"
+    // const order = searchParams.get("order") || "asc"
 
     const offset = (page - 1) * limit
 
@@ -28,12 +28,14 @@ export const GET = RouteGuard.requireAuthWithRole(
 
     const [data, [{ total }]] = await Promise.all([
       db.query.companies.findMany({
+        columns: getAll ? { name: true, id: true } : undefined,
         limit: !getAll ? limit : undefined,
         offset: !getAll ? offset : undefined,
         where: whereClause(companies),
-        orderBy: (table, { asc, desc }) => [
-          order === "asc" ? asc(table.createdAt) : desc(table.createdAt),
-        ],
+        // orderBy: (table, { asc, desc }) => [
+        //   order === "asc" ? asc(table.createdAt) : desc(table.createdAt),
+        // ],
+        orderBy: (companies, { asc }) => [asc(companies.createdAt)],
       }),
       db
         .select({ total: count() })

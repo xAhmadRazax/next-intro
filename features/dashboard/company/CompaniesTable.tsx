@@ -5,20 +5,38 @@ import { companyColumns } from "./company-columns"
 import { DataTablePaginationWrapper } from "../components/DataTablePaginationWrapper"
 import { TablePagination } from "@/components/TablePagination"
 import { useCompaniesQuery } from "./hooks/useCompaniesQuery"
-import { useSearchParams } from "next/navigation"
 import { CompaniesTableSkeleton } from "./CompaniesTableSkeleton"
+import { CompanyType } from "@/db/schema"
+import { PaginationMeta } from "@/types/pagination.types"
 
-export const CompaniesTable = () => {
-  const searchParams = useSearchParams()
-  const page = Number(searchParams.get("page"))
+export const CompaniesTable = ({
+  isLoading,
+  companiesDataWithPagMeta,
+  removeItemCallback,
+  mutateExistingCompanyCallback,
+}: {
+  isLoading: boolean
+  companiesDataWithPagMeta: {
+    items: CompanyType[]
+    meta: PaginationMeta
+  } | null
 
-  const { companies: companiesDataWithPagMeta, isLoading } =
-    useCompaniesQuery(page)
+  removeItemCallback: (id: string) => void
+  mutateExistingCompanyCallback: (company: CompanyType) => void
+}) => {
+  ;``
+  // const {
+  //   companies: companiesDataWithPagMeta,
+  //   isLoading,
+  //   removeItem,
+  // } = useCompaniesQuery()
 
   if (isLoading || !companiesDataWithPagMeta) {
     return <CompaniesTableSkeleton rows={10} />
   }
-  const { companies, meta } = companiesDataWithPagMeta
+  const { items: companies, meta } = companiesDataWithPagMeta
+  // const { companies, meta } = getCurrentPageCompanies()
+
   return (
     <>
       {/* Filter Section - filters by name AND email */}
@@ -26,7 +44,9 @@ export const CompaniesTable = () => {
       <DataTable
         columns={companyColumns(
           false,
-          (+meta.currentPage - 1) * +meta.itemsPerPage
+          (+meta.currentPage - 1) * +meta.itemsPerPage,
+          removeItemCallback,
+          mutateExistingCompanyCallback
         )}
         data={companies}
         headerRowStyle={

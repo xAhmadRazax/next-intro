@@ -6,6 +6,7 @@ import { useState } from "react"
 import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import Image from "next/image"
 import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
+import { CompanyType } from "@/db/schemas/company.schema"
 // import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
 
 interface CompanyLogoState {
@@ -15,7 +16,11 @@ interface CompanyLogoState {
   url: string
 }
 
-export const AddCompanyForm = () => {
+export const AddCompanyForm = ({
+  addCompanyCallbackHandler,
+}: {
+  addCompanyCallbackHandler: (company: CompanyType) => void
+}) => {
   const {
     isLoading: isCreatingCompany,
     error,
@@ -80,10 +85,17 @@ export const AddCompanyForm = () => {
     const address = formData.get("address") as string
     // get the file upload
 
-    await createCompanyHandler(
-      { email, name, address, logo: companyLogo?.image ?? undefined },
-      onSuccess
-    )
+    const newCompanyData = await createCompanyHandler({
+      email,
+      name,
+      address,
+      logo: companyLogo?.image ?? undefined,
+    })
+
+    if (newCompanyData) {
+      addCompanyCallbackHandler(newCompanyData)
+      onSuccess()
+    }
   }
 
   return (

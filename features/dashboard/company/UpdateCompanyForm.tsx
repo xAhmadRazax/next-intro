@@ -1,10 +1,10 @@
 import Form from "@/components/form/Form"
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import type { CompanyType } from "@/types/dashboard.types"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useState } from "react"
 import Image from "next/image"
 import { useUpdateCompanyMutation } from "./hooks/useUpdateCompanyMutation"
+import { CompanyType } from "@/db/schema"
 
 interface CompanyLogoState {
   image: File | null
@@ -16,11 +16,13 @@ interface CompanyLogoState {
 interface UpdateCompanyFormProps {
   company: CompanyType
   companyId: string
+  updateItemSuccessCallback?: (company: CompanyType) => void
 }
 
 export const UpdateCompanyForm = ({
   companyId,
   company,
+  updateItemSuccessCallback,
 }: UpdateCompanyFormProps) => {
   const { onSuccess } = useFormDialog()
   const [companyLogoError, setCompanyLogoError] = useState<string>("")
@@ -86,21 +88,26 @@ export const UpdateCompanyForm = ({
     if (updatedEmail && updatedEmail !== email) {
       fieldsToUpdates.email = updatedEmail
     }
-    await updateCompanyMutation(
+    const updatedCompany = await updateCompanyMutation(
       companyId,
       {
         ...fieldsToUpdates,
         logo: companyLogo.image ?? undefined,
-      },
-      onSuccess
+      }
+      // onSuccess
     )
+
+    if (updatedCompany) {
+      updateItemSuccessCallback?.(updatedCompany)
+      onSuccess()
+    }
   }
 
   return (
     <>
       <DialogHeader className="text-center">
         <DialogTitle className="mb-2 text-xl text-primary">
-          Update Employee
+          Update Company
         </DialogTitle>
       </DialogHeader>
 

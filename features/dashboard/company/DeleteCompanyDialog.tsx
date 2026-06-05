@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+"use client"
 import {
   DialogDescription,
   DialogFooter,
@@ -7,18 +7,24 @@ import {
 } from "@/components/ui/dialog"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useDeleteCompanyMutation } from "./hooks/useDeleteCompanyMutation"
+import { Button } from "@/components/ui/button"
 
 export const DeleteCompanyDialog = ({
   name,
   id,
+  deleteItemCallback,
 }: {
   name: string
   id: string
+  deleteItemCallback?: (id: string) => void
 }) => {
   const { deleteCompanyHandler, isLoading } = useDeleteCompanyMutation()
   const { onSuccess } = useFormDialog()
   const handleDelete = async () => {
-    await deleteCompanyHandler(id, onSuccess)
+    await deleteCompanyHandler(id, () => {
+      onSuccess?.()
+      deleteItemCallback?.(id)
+    })
   }
   return (
     <>
@@ -37,8 +43,8 @@ export const DeleteCompanyDialog = ({
         </Button>
         <Button
           variant="destructive"
-          onClick={() => handleDelete}
-          disabled={isLoading}
+          onClick={handleDelete}
+          // disabled={isLoading}
         >
           {isLoading ? "Deleting..." : "Yes, Delete"}
         </Button>

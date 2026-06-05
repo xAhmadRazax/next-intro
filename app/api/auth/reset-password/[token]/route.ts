@@ -56,13 +56,10 @@ export async function POST(
         { status: 404 }
       )
     }
-
-    await db.update(users).set({
-      password: hashedPassword,
-      mustChangePassword: false,
-      passwordExpiresAt: null,
+    db.transaction(async (tx) => {
+      await tx.update(users).set({ password: hashedPassword })
+      await tx.update(tokens).set({ usedAt: new Date() })
     })
-
     return Response.json(
       {
         message: "Password Reset successfully",

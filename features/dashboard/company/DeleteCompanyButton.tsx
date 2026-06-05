@@ -3,13 +3,19 @@
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
 import FormDialog from "../components/FormDialog"
+import { DeleteCompanyDialog } from "./DeleteCompanyDialog"
 
 interface DeleteCompanyButtonProps {
   id: string
-  name?: string // Optional: show company name in confirmation
+  name: string
+  deleteItemCallback?: (id: string) => void
 }
 
-export const DeleteCompanyButton = ({ id, name }: DeleteCompanyButtonProps) => {
+export const DeleteCompanyButton = ({
+  id,
+  name,
+  deleteItemCallback,
+}: DeleteCompanyButtonProps) => {
   return (
     <FormDialog>
       <FormDialog.Trigger>
@@ -23,7 +29,13 @@ export const DeleteCompanyButton = ({ id, name }: DeleteCompanyButtonProps) => {
         </Button>
       </FormDialog.Trigger>
 
-      <FormDialog.Content></FormDialog.Content>
+      <FormDialog.Content>
+        <DeleteCompanyDialog
+          id={id}
+          name={name}
+          deleteItemCallback={deleteItemCallback}
+        />
+      </FormDialog.Content>
     </FormDialog>
   )
 }

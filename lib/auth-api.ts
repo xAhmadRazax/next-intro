@@ -91,6 +91,23 @@ export async function isResetPasswordTokenValid(token: string) {
   return { isTokenValid: true }
 }
 
+export async function isSetupAccountPasswordTokenValid(token: string) {
+  const res = await fetch(`${BASEURL}/auth/set-password/${token}`, {
+    headers: {
+      "content-type": "application/json",
+    },
+    method: "GET",
+  })
+
+  // console.log(res, "response")
+  if (!res.ok) {
+    // const data = await res.json()
+    // throw data // throw the actual error object from the server
+    return { isTokenValid: false }
+  }
+  return { isTokenValid: true }
+}
+
 export async function meApi() {
   const res = await fetch(`${BASEURL}/users/me`, {
     headers: {

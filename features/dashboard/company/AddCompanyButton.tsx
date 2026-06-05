@@ -3,8 +3,13 @@ import { Button } from "@/components/ui/button"
 import FormDialog from "../components/FormDialog"
 import { Plus } from "lucide-react"
 import { AddCompanyForm } from "./AddCompanyForm"
+import { CompanyType } from "@/db/schema"
 
-export const AddCompanyButton = () => {
+export const AddCompanyButton = ({
+  addCompanyCallbackHandler,
+}: {
+  addCompanyCallbackHandler: (company: CompanyType) => void
+}) => {
   return (
     <FormDialog>
       <FormDialog.Trigger>
@@ -19,7 +24,7 @@ export const AddCompanyButton = () => {
       </FormDialog.Trigger>
 
       <FormDialog.Content>
-        <AddCompanyForm />
+        <AddCompanyForm addCompanyCallbackHandler={addCompanyCallbackHandler} />
       </FormDialog.Content>
     </FormDialog>
   )

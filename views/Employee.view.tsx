@@ -19,7 +19,7 @@ export const Employee = () => {
           <AddEmployeeButton />
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 lg:px-2">
           <Suspense fallback={<EmployeesTableSkeleton rows={10} />}>
             <EmployeesTable />
           </Suspense>

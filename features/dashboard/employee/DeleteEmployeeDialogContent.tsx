@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dialog"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useDeleteEmployeeMutation } from "./hooks/useDeleteEmployeeMutation"
-import { useRouter } from "next/navigation"
 
 export function DeleteEmployeeDialogContent({
   id,

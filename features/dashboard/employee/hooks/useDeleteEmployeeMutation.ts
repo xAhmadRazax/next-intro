@@ -1,12 +1,15 @@
 "use client"
 import { deleteEmployee } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export function useDeleteEmployeeMutation() {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -18,7 +21,9 @@ export function useDeleteEmployeeMutation() {
     try {
       await deleteEmployee(id)
       onSuccessCallback?.()
-      router.refresh()
+      const params = new URLSearchParams(searchParams)
+
+      router.push(`${pathname}?${params.toString()}`)
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message)

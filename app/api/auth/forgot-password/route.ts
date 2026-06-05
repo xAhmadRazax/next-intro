@@ -24,18 +24,6 @@ export async function POST(req: Request) {
       .where(eq(users.email, email))
 
     if (employee) {
-      if (
-        employee.mustChangePassword &&
-        employee.passwordExpiresAt &&
-        Date.now() > employee.passwordExpiresAt.getTime()
-      ) {
-        return Response.json(
-          {
-            error: "Temporary password expired, please contact HR",
-          },
-          { status: 403 }
-        )
-      }
       const { raw, hashed } = await TokenUtil.generate({})
 
       console.log(raw, hashed)

@@ -22,7 +22,7 @@ export const PATCH = RouteGuard.requireAuthWithRole(
 
     try {
       if (!name && !email && !address && !logo) {
-        return Response.json({ error: "No fields to update" }, { status: 400 })
+        return Response.json({ status: 200 })
       }
 
       const [companyToUpdate] = await db
@@ -43,16 +43,23 @@ export const PATCH = RouteGuard.requireAuthWithRole(
       }
 
       const companyUpdateData: {
-        name: string
-        email: string
-        address: string
+        name?: string
+        email?: string
+        address?: string
         logo?: string
         logoPublicId?: string
-      } = {
-        name,
-        email,
-        address,
+      } = {}
+
+      if (name) {
+        companyUpdateData.name = name
       }
+      if (email) {
+        companyUpdateData.email = email
+      }
+      if (address) {
+        companyUpdateData.address = address
+      }
+
       if (logoObj?.public_Id && logoObj.url) {
         companyUpdateData.logo = logoObj.url
         companyUpdateData.logoPublicId = logoObj.public_Id
