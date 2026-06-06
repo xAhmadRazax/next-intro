@@ -88,19 +88,17 @@ export const UpdateCompanyForm = ({
     if (updatedEmail && updatedEmail !== email) {
       fieldsToUpdates.email = updatedEmail
     }
-    const updatedCompany = await updateCompanyMutation(
+    await updateCompanyMutation(
       companyId,
       {
         ...fieldsToUpdates,
         logo: companyLogo.image ?? undefined,
+      },
+      (updatedCompany) => {
+        updateItemSuccessCallback?.(updatedCompany)
+        onSuccess()
       }
-      // onSuccess
     )
-
-    if (updatedCompany) {
-      updateItemSuccessCallback?.(updatedCompany)
-      onSuccess()
-    }
   }
 
   return (

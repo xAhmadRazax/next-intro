@@ -1,5 +1,6 @@
 "use client"
 
+import { CompanyType } from "@/db/schema"
 import { updateCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { AddCompanyDTO } from "@/types/dashboard.types"
@@ -16,12 +17,12 @@ export function useUpdateCompanyMutation() {
   async function updateCompanyMutation(
     id: string,
     body: Partial<AddCompanyDTO>,
-    onSuccessCallback?: () => void
+    onSuccessCallback?: (updateCompany: CompanyType) => void
   ) {
     setIsLoading(true)
     try {
-      onSuccessCallback?.()
-      return await updateCompany(id, body)
+      const updatedCompany = await updateCompany(id, body)
+      return onSuccessCallback?.(updatedCompany)
     } catch (error) {
       if (error instanceof ApiError) {
         setError({ message: error.message, fields: error?.fields })

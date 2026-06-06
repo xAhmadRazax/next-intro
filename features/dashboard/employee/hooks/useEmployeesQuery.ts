@@ -277,6 +277,10 @@ export const useEmployeesQuery = () => {
         return item
       }
     )
+
+    router.push(
+      `/dashboard/employees?page=${cachedEmployees.current.meta.currentPage}`
+    )
   }
 
   return {

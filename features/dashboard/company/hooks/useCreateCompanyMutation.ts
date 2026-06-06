@@ -1,5 +1,6 @@
 "use client"
 import { CreateCompanyDto } from "@/app/api/dashboard/companies/dtos/createCompanyDto"
+import { CompanyType } from "@/db/schema"
 import { createCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { useState } from "react"
@@ -12,19 +13,16 @@ export function useCreateCompanyMutation() {
   } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  async function createCompanyHandler({
-    email,
-    logo,
-    name,
-    address,
-  }: CreateCompanyDto) {
+  async function createCompanyHandler(
+    { email, logo, name, address }: CreateCompanyDto,
+    onSuccessCallbackHandler?: (company: CompanyType) => void
+  ) {
     setIsLoading(true)
     try {
-      // onSuccessCallbackHandler?.()
-      return await createCompany({ email, logo, name, address })
-
-      // const params = new URLSearchParams(searchParams)
-      // router.replace(`${pathname}`)
+      const company = await createCompany({ email, logo, name, address })
+      if (company.id) {
+        onSuccessCallbackHandler?.(company)
+      }
     } catch (error) {
       console.log(error instanceof ApiError)
       if (error instanceof ApiError) {
