@@ -4,16 +4,18 @@ import { ColumnDef } from "@tanstack/react-table"
 import Image from "next/image"
 import { TableCell } from "../components/TableCell"
 import { Skeleton } from "@/components/ui/skeleton"
-import { UserType } from "@/types/dashboard.types"
 import { UpdateEmployeeButton } from "./UpdateEmployeeButton"
 import { DeleteEmployeeButton } from "./DeleteEmployeeButton"
 import { ResetEmployeePasswordButton } from "./ResetEmployeePasswordButton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { PublicUserType } from "@/db/schema"
 
 export const employeeColumns = (
   isLoading?: boolean,
-  itemSkip?: number
-): ColumnDef<UserType>[] => [
+  itemSkip?: number,
+  updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void,
+  deleteCachedEmployee?: (employeeId: string) => void
+): ColumnDef<PublicUserType>[] => [
   {
     id: "index",
     header: "#",
@@ -101,11 +103,13 @@ export const employeeColumns = (
           <TableCell className="w-36 break-all whitespace-normal">
             <div className="flex justify-end gap-2">
               <UpdateEmployeeButton
+                updateEmployeeInCache={updateEmployeeInCache}
                 employee={{
+                  ...row.original,
                   id: row.original.id,
                   username: row.original.username,
                   email: row.original.email,
-                  avatar: row.original.avatar ?? undefined,
+                  avatar: row.original.avatar,
                   company: row.original.company,
                   role: row.original.role,
                 }}

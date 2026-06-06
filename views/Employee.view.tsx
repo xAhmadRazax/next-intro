@@ -1,8 +1,4 @@
-import { AddEmployeeButton } from "@/features/dashboard/employee/AddEmployeeButton"
-import { EmployeesTable } from "@/features/dashboard/employee/EmployeesTable"
-import { EmployeesTableSkeleton } from "@/features/dashboard/employee/EmployeesTableSkeleton"
-import { EmployeeTableFiltrationWrapper } from "@/features/dashboard/employee/EmployeeTableFiltrationWrapper"
-import { Suspense } from "react"
+import { EmployeeTableWrapper } from "@/features/dashboard/employee/EmployeeTableWrapper"
 
 export const Employee = () => {
   return (
@@ -14,16 +10,8 @@ export const Employee = () => {
           </h1>
         </header>
         <div className="mx-auto -mt-2 h-0.5 w-1/12 rounded-full bg-accent-foreground/30"></div>
-        <div className="mt-4 flex flex-col lg:px-2">
-          <EmployeeTableFiltrationWrapper />
-          <AddEmployeeButton />
-        </div>
 
-        <div className="flex-1 lg:px-2">
-          <Suspense fallback={<EmployeesTableSkeleton rows={10} />}>
-            <EmployeesTable />
-          </Suspense>
-        </div>
+        <EmployeeTableWrapper />
       </section>
     </>
   )

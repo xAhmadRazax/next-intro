@@ -69,7 +69,9 @@ export const getEmployee = async (id: string): Promise<PublicUserType> => {
   return result
 }
 
-export const addEmployee = async (body: AddEmployeeDTO) => {
+export const addEmployee = async (
+  body: AddEmployeeDTO
+): Promise<PublicUserType> => {
   const formData = new FormData()
 
   formData.append("username", body.username)
@@ -94,7 +96,7 @@ export const addEmployee = async (body: AddEmployeeDTO) => {
 export const updateEmployee = async (
   id: string,
   body: Partial<updateEmployeeDto>
-) => {
+): Promise<PublicUserType> => {
   // remove undefined fields inline
   const cleanBody = Object.fromEntries(
     Object.entries(body).filter(([, value]) => value !== undefined)

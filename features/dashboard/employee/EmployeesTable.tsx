@@ -4,16 +4,24 @@ import { DataTablePaginationWrapper } from "../components/DataTablePaginationWra
 import { TablePagination } from "@/components/TablePagination"
 import { employeeColumns } from "./employee-columns"
 import { EmployeesTableSkeleton } from "./EmployeesTableSkeleton"
-import { useEmployeesQuery } from "./hooks/useEmployeesQuery"
-import { useSearchParams } from "next/navigation"
+import { PublicUserType } from "@/db/schema"
+import { PaginationMeta } from "@/types/pagination.types"
 
-export const EmployeesTable = () => {
-  const { employees: employeeDataWithPagMeta, isLoading } = useEmployeesQuery()
-
-  if (isLoading || !employeeDataWithPagMeta) {
+export const EmployeesTable = ({
+  isLoading,
+  employees,
+  updateEmployeeInCache,
+  deleteCachedEmployee,
+}: {
+  isLoading: boolean
+  employees: { items: PublicUserType[]; meta: PaginationMeta } | null
+  updateEmployeeInCache: (updatedEmployee: PublicUserType) => void
+  deleteCachedEmployee: (employeeId: string) => void
+}) => {
+  if (isLoading || !employees) {
     return <EmployeesTableSkeleton rows={10} />
   }
-  const { employees, meta } = employeeDataWithPagMeta
+  const { items, meta } = employees
 
   return (
     <>
@@ -23,9 +31,11 @@ export const EmployeesTable = () => {
         <DataTable
           columns={employeeColumns(
             false,
-            (+meta.currentPage - 1) * +meta.itemsPerPage
+            (+meta.currentPage - 1) * +meta.itemsPerPage,
+            updateEmployeeInCache,
+            deleteCachedEmployee
           )}
-          data={employees}
+          data={items}
         />
       }
       {meta && meta.totalPages > 1 && (

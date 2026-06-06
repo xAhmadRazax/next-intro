@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/combobox"
 import Form from "@/components/form/Form"
 import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
-import { CompanyType } from "@/db/schema"
+import { CompanyType, PublicUserType } from "@/db/schema"
 import { useFormDialog } from "../hooks/useFormDialog"
 
 interface EmployeeAvatarState {
@@ -22,7 +22,11 @@ interface EmployeeAvatarState {
   imageFile: File | null
 }
 
-export const AddEmployeeForm = () => {
+export const AddEmployeeForm = ({
+  addEmployeeToCache,
+}: {
+  addEmployeeToCache: (employee: PublicUserType) => void
+}) => {
   const [employeeAvatar, setEmployeeAvatar] = useState<EmployeeAvatarState>({
     imageFile: null,
     previewUrl: "",
@@ -95,7 +99,10 @@ export const AddEmployeeForm = () => {
         companyId: selectedCompany!.id,
         avatar: employeeAvatar.imageFile ?? undefined,
       },
-      onSuccess
+      (employee) => {
+        addEmployeeToCache(employee)
+        onSuccess()
+      }
     )
   }
 

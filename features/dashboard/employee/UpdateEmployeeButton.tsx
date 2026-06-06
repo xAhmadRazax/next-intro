@@ -2,14 +2,16 @@ import { Button } from "@/components/ui/button"
 import { UpdateEmployeeForm } from "./UpdateEmployeeForm"
 import { Pencil } from "lucide-react"
 import FormDialog from "../components/FormDialog"
-import { UserType } from "@/db/schema"
+import { PublicUserType } from "@/db/schema"
 
 interface UpdateEmployeeButtonProps {
-  employee: UserType
+  employee: PublicUserType
+  updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void
 }
 
 export const UpdateEmployeeButton = ({
   employee,
+  updateEmployeeInCache,
 }: UpdateEmployeeButtonProps) => {
   return (
     <FormDialog>
@@ -19,7 +21,11 @@ export const UpdateEmployeeButton = ({
         </Button>
       </FormDialog.Trigger>
       <FormDialog.Content>
-        <UpdateEmployeeForm employee={employee} employeeId={employee.id} />
+        <UpdateEmployeeForm
+          employee={employee}
+          employeeId={employee.id}
+          updateEmployeeInCache={updateEmployeeInCache}
+        />
       </FormDialog.Content>
     </FormDialog>
   )

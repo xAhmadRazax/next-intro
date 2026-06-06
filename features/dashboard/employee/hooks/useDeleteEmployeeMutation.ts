@@ -6,10 +6,6 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 export function useDeleteEmployeeMutation() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -20,10 +16,7 @@ export function useDeleteEmployeeMutation() {
     setIsLoading(true)
     try {
       await deleteEmployee(id)
-      onSuccessCallback?.()
-      const params = new URLSearchParams(searchParams)
-
-      router.push(`${pathname}?${params.toString()}`)
+      return onSuccessCallback?.()
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message)

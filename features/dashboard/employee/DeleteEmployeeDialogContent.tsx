@@ -11,15 +11,20 @@ import { useDeleteEmployeeMutation } from "./hooks/useDeleteEmployeeMutation"
 export function DeleteEmployeeDialogContent({
   id,
   name,
+  deleteCachedEmployee,
 }: {
   id: string
   name: string
+  deleteCachedEmployee?: (employeeId: string) => void
 }) {
   const { onSuccess } = useFormDialog()
   const { deleteEmployeeHandler, isLoading } = useDeleteEmployeeMutation()
 
   const deleteHandler = async () => {
-    await deleteEmployeeHandler(id, onSuccess)
+    await deleteEmployeeHandler(id, () => {
+      onSuccess()
+      deleteCachedEmployee?.(id)
+    })
   }
 
   return (
@@ -36,7 +41,7 @@ export function DeleteEmployeeDialogContent({
       <DialogFooter className="gap-2 sm:gap-0">
         <Button
           variant="outline"
-          onClick={() => onSuccess}
+          onClick={() => onSuccess()}
           disabled={isLoading}
         >
           Cancel

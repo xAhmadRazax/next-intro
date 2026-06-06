@@ -1,14 +1,13 @@
 "use client"
 
+import { PublicUserType } from "@/db/schema"
 import { updateEmployee } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { updateEmployeeDto } from "@/types/dashboard.types"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export function useUpdateEmployeeMutation() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<{
     message: string
@@ -18,13 +17,12 @@ export function useUpdateEmployeeMutation() {
   async function updateEmployeeMutation(
     id: string,
     body: Partial<updateEmployeeDto>,
-    onSuccessCallback?: () => void
+    onSuccessCallback?: (employee: PublicUserType) => void
   ) {
     setIsLoading(true)
     try {
-      await updateEmployee(id, body)
-      onSuccessCallback?.()
-      router.refresh()
+      const updatedEmployee = await updateEmployee(id, body)
+      if (updatedEmployee.id) onSuccessCallback?.(updatedEmployee)
     } catch (error) {
       if (error instanceof ApiError) {
         setError({ message: error.message, fields: error?.fields })

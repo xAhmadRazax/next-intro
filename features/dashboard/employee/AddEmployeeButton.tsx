@@ -3,8 +3,13 @@ import { Button } from "@/components/ui/button"
 import { AddEmployeeForm } from "./AddEmployeeForm"
 import { Plus } from "lucide-react"
 import FormDialog from "../components/FormDialog"
+import { PublicUserType } from "@/db/schema"
 
-export const AddEmployeeButton = () => {
+export const AddEmployeeButton = ({
+  addEmployeeToCache,
+}: {
+  addEmployeeToCache: (employee: PublicUserType) => void
+}) => {
   return (
     <FormDialog>
       <FormDialog.Trigger>
@@ -19,7 +24,7 @@ export const AddEmployeeButton = () => {
       </FormDialog.Trigger>
 
       <FormDialog.Content>
-        <AddEmployeeForm />
+        <AddEmployeeForm addEmployeeToCache={addEmployeeToCache} />
       </FormDialog.Content>
     </FormDialog>
   )

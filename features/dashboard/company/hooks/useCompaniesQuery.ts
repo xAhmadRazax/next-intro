@@ -245,31 +245,26 @@ export const useCompaniesQuery = () => {
     }) => {
       try {
         // checking if current page data exist in the pagination if it exist switch current set item to this cached items
+        // and there isnt any filtration set for email and name
         if (
           cachedCompanies.current &&
           cachedCompanies.current.loadedPages.has(+(page ?? 1)) &&
           !name &&
           !email
         ) {
-          const totalPages = Math.ceil(
-            cachedCompanies.current.items.length /
-              cachedCompanies.current.meta.itemsPerPage
-          )
+          // const totalPages = Math.ceil(
+          //   cachedCompanies.current.items.length /
+          //     cachedCompanies.current.meta.itemsPerPage
+          // )
 
-          const start =
-            (pageParams - 1) * cachedCompanies.current.meta.itemsPerPage
+          const start = (page - 1) * cachedCompanies.current.meta.itemsPerPage
           const end = start + cachedCompanies.current.meta.itemsPerPage
-          console.log(
-            totalPages,
-            start,
-            end,
-            cachedCompanies.current.items.slice(start, end)
-          )
+
           setCompanies({
             items: cachedCompanies.current.items.slice(start, end),
             meta: {
               ...cachedCompanies.current.meta,
-              currentPage: pageParams,
+              currentPage: page,
               totalPages: cachedCompanies.current.meta.totalPages ?? 1,
             },
           })
@@ -327,8 +322,6 @@ export const useCompaniesQuery = () => {
     const pageParams = Number(searchParams.get("page"))
     const emailParams = searchParams.get("email")
     const nameParams = searchParams.get("name")
-
-    console.log("yes im being changed")
 
     companiesQueryHandler({
       page: pageParams,

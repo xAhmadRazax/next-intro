@@ -10,6 +10,7 @@ import { useUpdateEmployeeMutation } from "./hooks/useUpdateEmployeeMutation"
 interface UpdateEmployeeFormProps {
   employee: PublicUserType
   employeeId: string
+  updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void
 }
 
 interface EmployeeAvatarState {
@@ -20,10 +21,12 @@ interface EmployeeAvatarState {
 export const UpdateEmployeeForm = ({
   employeeId,
   employee,
+  updateEmployeeInCache,
 }: UpdateEmployeeFormProps) => {
   const {
     updateEmployeeMutation,
     isLoading: isUpdatingEmployee,
+
     clearFieldError,
     error,
   } = useUpdateEmployeeMutation()
@@ -86,7 +89,10 @@ export const UpdateEmployeeForm = ({
         ...fieldsToUpdate,
         avatar: employeeAvatar?.imageFile ?? undefined,
       },
-      onSuccess
+      (updatedEmployee) => {
+        onSuccess()
+        updateEmployeeInCache?.(updatedEmployee)
+      }
     )
   }
 

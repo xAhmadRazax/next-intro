@@ -5,49 +5,41 @@ import { getEmployees } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { PaginationMeta } from "@/types/pagination.types"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 export const useEmployeesQuery = () => {
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setIsError] = useState("")
-  const [employees, setEmployees] = useState<{
-    employees: PublicUserType[]
+
+  const cachedEmployees = useRef<{
+    items: PublicUserType[]
     meta: PaginationMeta
-  } | null>()
+    loadedPages: Set<number>
+    currentPage: number
+  }>({
+    items: [],
+    loadedPages: new Set(),
+    currentPage: 1,
+    meta: {
+      nextPage: null,
+      prevPage: null,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false,
+      currentPage: 1,
+      itemsPerPage: 20,
+    },
+  })
 
-  const employeesQueryHandler = async ({ page = 1 }: { page?: number }) => {
-    setIsLoading(true)
-
-    try {
-      const res = await getEmployees({ page })
-      setEmployees({ employees: res.data, meta: res.meta })
-    } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(error.message)
-        setIsError(error.message)
-        setEmployees({
-          employees: [],
-          meta: {
-            nextPage: null,
-            prevPage: null,
-            totalPages: 1,
-            hasNext: false,
-            hasPrev: false,
-            currentPage: 1,
-            itemsPerPage: 20,
-          },
-        })
-      } else {
-        setIsError("Something went wrong while fetching data")
-        toast.error("Something went wrong while fetching data")
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const [employees, setEmployees] = useState<{
+    items: PublicUserType[]
+    meta: PaginationMeta
+  } | null>(null)
 
   useEffect(() => {
     const employeesQueryHandler = async ({
@@ -64,6 +56,30 @@ export const useEmployeesQuery = () => {
       companyFilter?: string
     }) => {
       // const isMounted = true
+      // read data from cache if it exist and change the current snapshot of items
+      if (
+        cachedEmployees.current &&
+        cachedEmployees.current.loadedPages.has(pageFilter) &&
+        !emailFilter &&
+        !nameFilter &&
+        !companyFilter
+      ) {
+        //  so whats the plan this should hard XDDDD
+
+        const start =
+          (pageFilter - 1) * cachedEmployees.current.meta.itemsPerPage
+        const end = start + cachedEmployees.current.meta.itemsPerPage
+
+        setEmployees({
+          items: cachedEmployees.current.items.slice(start, end),
+          meta: {
+            ...cachedEmployees.current.meta,
+            currentPage: pageFilter,
+            totalPages: cachedEmployees.current.meta.totalPages ?? 1,
+          },
+        })
+        return
+      }
 
       setIsLoading(true)
       try {
@@ -76,7 +92,31 @@ export const useEmployeesQuery = () => {
           },
           signal
         )
-        setEmployees({ employees: res.data, meta: res.meta })
+
+        // caching records when there is not any filters set
+        if (
+          !emailFilter &&
+          !nameFilter &&
+          !companyFilter &&
+          res.data.length > 0
+        ) {
+          cachedEmployees.current = {
+            items: [...cachedEmployees.current.items, ...res.data].sort(
+              (a, b) => {
+                return a.createdAt!.getTime() - b.createdAt!.getTime()
+              }
+            ),
+
+            loadedPages: cachedEmployees.current.loadedPages.add(
+              res.meta.currentPage
+            ),
+
+            meta: res.meta,
+            currentPage: res.meta.currentPage,
+          }
+        }
+
+        setEmployees({ items: res.data, meta: res.meta })
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return
         if (error instanceof ApiError) {
@@ -109,5 +149,142 @@ export const useEmployeesQuery = () => {
     return () => controller.abort()
   }, [searchParams])
 
-  return { employeesQueryHandler, isLoading, error, employees }
+  const deleteCachedEmployee = async (id: string) => {
+    // guard that check for some reason if we have no employee data then
+    // this function wil do nothing
+    if (
+      !cachedEmployees?.current.items ||
+      !cachedEmployees.current.items.length ||
+      !cachedEmployees.current.meta
+    ) {
+      return
+    }
+
+    const filteredCachedEmployees = cachedEmployees?.current?.items.filter(
+      (item) => {
+        console.log(item.id !== id, item.id, id)
+        return item.id !== id
+      }
+    )
+
+    const currentCachedPages = Math.ceil(
+      (filteredCachedEmployees?.length ?? 1) /
+        (cachedEmployees?.current.meta.itemsPerPage ?? 1)
+    )
+
+    const currentPage = cachedEmployees?.current.meta?.currentPage ?? 1
+
+    const itemSnapshotStartIndex =
+      (currentPage - 1) * (cachedEmployees?.current.meta?.itemsPerPage ?? 20)
+
+    const itemSnapshotEndIndex =
+      itemSnapshotStartIndex +
+      (cachedEmployees?.current.meta?.itemsPerPage ?? 20)
+
+    const pageItemSnapshot = filteredCachedEmployees.slice(
+      itemSnapshotStartIndex,
+      itemSnapshotEndIndex
+    )
+
+    let hasNext = (cachedEmployees?.current.meta.totalPages ?? 1) < currentPage
+
+    // handing edge case where we have more than ona page
+    // and any page that are 2+ could have only 1 record
+    if (
+      cachedEmployees.current.meta.currentPage &&
+      cachedEmployees.current.meta.currentPage > 1
+    ) {
+      if (pageItemSnapshot?.length === 0) {
+        setEmployees((prevData) => ({
+          items: prevData?.items ?? [],
+          meta: {
+            currentPage: prevData?.meta.currentPage ?? 1,
+            itemsPerPage: prevData?.meta.itemsPerPage ?? 10,
+            totalPages: (prevData?.meta.totalPages ?? 1) - 1,
+            hasNext: prevData?.meta.hasNext ?? false,
+            hasPrev: prevData?.meta.hasPrev ?? false,
+            nextPage: prevData?.meta.nextPage ?? null, // Explicitly handle nextPage
+            prevPage: prevData?.meta.prevPage ?? null,
+          },
+        }))
+      }
+
+      cachedEmployees.current.loadedPages.delete(
+        cachedEmployees.current.meta.currentPage
+      )
+      hasNext = (cachedEmployees.current?.meta.totalPages ?? 1) < currentPage
+
+      const params = new URLSearchParams(searchParams.toString())
+
+      params.set(
+        "page",
+        (cachedEmployees.current.meta.currentPage > 1
+          ? cachedEmployees.current.meta.currentPage - 1
+          : 1
+        ).toString()
+      )
+
+      cachedEmployees.current.meta.totalPages =
+        cachedEmployees.current.meta.totalPages > 1
+          ? cachedEmployees.current.meta.totalPages - 1
+          : 1
+
+      return router.push(`/dashboard/employees?page=1`)
+    }
+
+    cachedEmployees.current.items = filteredCachedEmployees
+    return setEmployees({
+      items: pageItemSnapshot,
+      meta: {
+        ...cachedEmployees?.current.meta,
+        currentPage: currentPage,
+        hasNext,
+        totalPages: currentCachedPages - 1 > 0 ? currentCachedPages - 1 : 1,
+      },
+    })
+    // })
+    // }
+  }
+
+  const addEmployeeToCache = (employee: PublicUserType) => {
+    if (!employee.id) {
+      return
+    }
+
+    cachedEmployees.current.items.push(employee)
+
+    const totalPages = Math.ceil(
+      cachedEmployees.current.items.length /
+        cachedEmployees.current.meta.itemsPerPage
+    )
+
+    cachedEmployees.current.meta.totalPages = totalPages
+
+    router.push(`/dashboard/employees?page=${employees?.meta.totalPages}`)
+  }
+
+  const updateEmployeeInCache = (employee: PublicUserType) => {
+    if (!employee.id) {
+      return
+    }
+
+    cachedEmployees.current.items = cachedEmployees.current.items.map(
+      (item) => {
+        if (item.id === employee.id) {
+          return employee
+        }
+
+        return item
+      }
+    )
+  }
+
+  return {
+    isLoading,
+    error,
+    employees,
+    addEmployeeToCache,
+    deleteCachedEmployee,
+    updateEmployeeInCache,
+  }
 }

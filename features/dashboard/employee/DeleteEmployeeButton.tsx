@@ -9,11 +9,13 @@ import { DeleteEmployeeDialogContent } from "./DeleteEmployeeDialogContent"
 interface DeleteEmployeeButtonProps {
   id: string
   name: string // Optional: show user name in confirmation
+  deleteCachedEmployee?: (employeeId: string) => void
 }
 
 export const DeleteEmployeeButton = ({
   id,
   name,
+  deleteCachedEmployee,
 }: DeleteEmployeeButtonProps) => {
   return (
     <FormDialog>
@@ -29,7 +31,11 @@ export const DeleteEmployeeButton = ({
       </FormDialog.Trigger>
 
       <DialogContent className="px-6 text-foreground/80">
-        <DeleteEmployeeDialogContent id={id} name={name} />
+        <DeleteEmployeeDialogContent
+          id={id}
+          name={name}
+          deleteCachedEmployee={deleteCachedEmployee}
+        />
       </DialogContent>
     </FormDialog>
   )
