@@ -14,15 +14,15 @@ const navigationRoute = [
   {
     href: "/dashboard/employees",
     label: "Employees",
-    access: "admin",
+    access: ["superAdmin"],
   },
   {
     href: "/dashboard/companies",
     label: "Companies",
-    access: "admin",
+    access: "superAdmin",
   },
 ]
-export const SideBar = ({ isAdmin }: { isAdmin: boolean }) => {
+export const SideBar = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
   const { logout } = useAuthContext()
 
   const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -112,7 +112,7 @@ export const SideBar = ({ isAdmin }: { isAdmin: boolean }) => {
 
           <ul className="mt-4">
             {navigationRoute
-              .filter((link) => link.access === "all" || isAdmin)
+              .filter((link) => link.access === "all" || isSuperAdmin)
               .map((route) => (
                 <li key={route.label}>
                   <SidebarLink href={route.href} label={route.label} />

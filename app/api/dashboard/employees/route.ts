@@ -8,8 +8,9 @@ import { Mailer } from "@/lib/mailer.server"
 import { COMPANY_NAME } from "@/constants/constants"
 import ms, { StringValue } from "ms"
 import { RouteGuard } from "@/lib/routeGuard.server"
+import { PERMISSIONS } from "@/lib/permissions"
 
-export const POST = RouteGuard.requireAuthWithRole(
+export const POST = RouteGuard.requireAuthWithPermission(
   async (req: Request) => {
     const formData = await req.formData()
 
@@ -87,10 +88,10 @@ export const POST = RouteGuard.requireAuthWithRole(
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }
   },
-  ["admin"]
+  PERMISSIONS.USER.CREATE
 )
 
-export const GET = RouteGuard.requireAuthWithRole(
+export const GET = RouteGuard.requireAuthWithPermission(
   async (req: Request) => {
     console.log("im being hit")
     const { searchParams } = new URL(req.url)
@@ -164,5 +165,5 @@ export const GET = RouteGuard.requireAuthWithRole(
       },
     })
   },
-  ["admin"]
+  PERMISSIONS.USER.READ
 )

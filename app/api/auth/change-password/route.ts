@@ -54,28 +54,12 @@ export const PATCH = RouteGuard.requireAuth(async (req: Request) => {
       return Response.json({ error: `Invalid Credentials` }, { status: 401 })
     }
 
-    if (
-      employee.mustChangePassword &&
-      employee.passwordExpiresAt &&
-      Date.now() > employee.passwordExpiresAt.getTime()
-    ) {
-      return Response.json(
-        {
-          error:
-            "Temporary password expired, please contact HR or changed your password",
-        },
-        { status: 403 }
-      )
-    }
-
     const hashedPassword = await TokenUtil.hashPassword(password)
 
     await db
       .update(users)
       .set({
         password: hashedPassword,
-        mustChangePassword: false,
-        passwordExpiresAt: null,
       })
       .where(eq(users.id, employee.id))
 

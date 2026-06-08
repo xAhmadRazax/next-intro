@@ -4,8 +4,10 @@ import { ilike, count, and } from "drizzle-orm"
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { cloudinaryService } from "@/lib/cloudinary.server"
 import { RouteGuard } from "@/lib/routeGuard.server"
+import slugify from "slugify"
+import { PERMISSIONS } from "@/lib/permissions"
 
-export const GET = RouteGuard.requireAuthWithRole(
+export const GET = RouteGuard.requireAuthWithPermission(
   async (req: Request) => {
     const { searchParams } = new URL(req.url)
 
@@ -58,68 +60,66 @@ export const GET = RouteGuard.requireAuthWithRole(
       },
     })
   },
-  ["admin"]
+  PERMISSIONS.COMPANY.READ
 )
 
-export const POST = RouteGuard.requireAuthWithRole(
-  async (req: Request) => {
-    const formData = await req.formData()
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string
-    const address = formData.get("address") as string
-    const logo = formData.get("logo")
-    const logoFile = logo instanceof File ? logo : null
+export const POST = RouteGuard.requireAuth(async (req: Request) => {
+  const formData = await req.formData()
+  const name = formData.get("name") as string
+  const email = formData.get("email") as string
+  const address = formData.get("address") as string
+  const logo = formData.get("logo")
+  const logoFile = logo instanceof File ? logo : null
 
-    let logoObj: { url: string; publicId: string } | null = null
+  let logoObj: { url: string; publicId: string } | null = null
 
-    // validate fields
-    const fields: Record<string, string> = {}
-    if (!email) fields.email = "Email is required"
-    if (!name) fields.name = "Name is required"
-    if (!address) fields.address = "Address is required"
+  // validate fields
+  const fields: Record<string, string> = {}
+  if (!email) fields.email = "Email is required"
+  if (!name) fields.name = "Name is required"
+  if (!address) fields.address = "Address is required"
 
-    if (Object.keys(fields).length > 0) {
-      return Response.json(
-        { error: "Missing required fields", fields },
-        { status: 400 }
-      )
+  if (Object.keys(fields).length > 0) {
+    return Response.json(
+      { error: "Missing required fields", fields },
+      { status: 400 }
+    )
+  }
+
+  try {
+    if (logoFile) {
+      const cloudinaryRes = await cloudinaryService.streamUpload(logoFile)
+      logoObj = {
+        url: cloudinaryRes.url,
+        publicId: cloudinaryRes.publicId,
+      }
     }
 
-    try {
-      if (logoFile) {
-        const cloudinaryRes = await cloudinaryService.streamUpload(logoFile)
-        logoObj = {
-          url: cloudinaryRes.url,
-          publicId: cloudinaryRes.publicId,
-        }
-      }
+    const [company] = await db
+      .insert(companies)
+      .values({
+        name,
+        slug: slugify(name),
+        email,
+        address,
+        logo: logoObj?.url ?? null,
+        logoPublicId: logoObj?.publicId ?? null,
+      })
+      .returning()
 
-      const [company] = await db
-        .insert(companies)
-        .values({
-          name,
-          email,
-          address,
-          logo: logoObj?.url ?? null,
-          logoPublicId: logoObj?.publicId ?? null,
-        })
-        .returning()
-
-      return Response.json(company, { status: 201 })
-    } catch (err: unknown) {
-      if (logoObj?.publicId) {
-        await cloudinaryService.deleteFromCloudinary(logoObj.publicId)
-      }
-
-      const postgresError = handlePostgresError(err)
-      if (postgresError) return postgresError
-
-      if (err instanceof SyntaxError) {
-        return Response.json({ error: "Invalid JSON format" }, { status: 400 })
-      }
-
-      return Response.json({ error: "Internal server error" }, { status: 500 })
+    return Response.json(company, { status: 201 })
+  } catch (err: unknown) {
+    if (logoObj?.publicId) {
+      await cloudinaryService.deleteFromCloudinary(logoObj.publicId)
     }
-  },
-  ["admin"]
-)
+
+    const postgresError = handlePostgresError(err)
+    if (postgresError) return postgresError
+
+    if (err instanceof SyntaxError) {
+      return Response.json({ error: "Invalid JSON format" }, { status: 400 })
+    }
+
+    return Response.json({ error: "Internal server error" }, { status: 500 })
+  }
+})

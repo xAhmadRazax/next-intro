@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core"
 import { companies, CompanyType } from "./company.schema"
 
-export const roleEnum = pgEnum("role", ["admin", "employee"])
+export const roleEnum = pgEnum("role", ["superAdmin", "admin", "employee"])
 
 export const users = pgTable("users", {
   id: uuid(`id`).defaultRandom().primaryKey(),

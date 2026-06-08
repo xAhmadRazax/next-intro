@@ -22,8 +22,6 @@ async function seedAdmin() {
     password: hashed,
     username: adminName,
     role: "admin",
-    mustChangePassword: false,
-    passwordExpiresAt: null,
   })
 
   console.log(`password is ${raw}-`)

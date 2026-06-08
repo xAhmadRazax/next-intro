@@ -39,23 +39,10 @@ export async function POST(req: Request) {
 
     const formattedEmployee = { ...employee.users, company: employee.companies }
 
-    if (
-      formattedEmployee.mustChangePassword &&
-      formattedEmployee.passwordExpiresAt &&
-      formattedEmployee.passwordExpiresAt.getTime() < Date.now()
-    ) {
-      return Response.json(
-        {
-          error:
-            "Temporary password expired, please contact HR of changed your password",
-        },
-        { status: 403 }
-      )
-    }
-
     const jwtToken = await JWT.signJWT({
       id: formattedEmployee.id,
       role: formattedEmployee.role,
+      companySlug: employee.companies?.slug ?? "",
     })
 
     const cookieStore = await cookies()
@@ -63,6 +50,8 @@ export async function POST(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: ms(process.env.JWT_EXPIRY as StringValue),
+      domain:
+        process.env.NODE_ENV === "production" ? ".yourapp.com" : ".localhost",
     })
 
     const { password: userPassword, ...publicUser } = formattedEmployee

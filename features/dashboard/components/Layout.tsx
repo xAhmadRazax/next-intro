@@ -1,15 +1,15 @@
 import { SideBar } from "@/components/Sidebar"
 
 export const DashboardLayout = ({
-  isAdmin = false,
+  isSuperAdmin = false,
   children,
 }: {
-  isAdmin: boolean
+  isSuperAdmin: boolean
   children: React.ReactNode
 }) => {
   return (
     <div className="grid min-h-screen bg-background md:grid-cols-[250px_1fr]">
-      <SideBar isAdmin={isAdmin} />
+      <SideBar isSuperAdmin={isSuperAdmin} />
 
       <main className="flex w-full flex-col">{children}</main>
     </div>

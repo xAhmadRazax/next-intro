@@ -3,7 +3,9 @@ import { uuid, varchar, text, timestamp, pgTable } from "drizzle-orm/pg-core"
 export const companies = pgTable("companies", {
   id: uuid(`id`).defaultRandom().primaryKey(),
   email: varchar("email", { length: 254 }).notNull().unique(),
-  name: varchar("name", { length: 254 }).notNull(),
+  name: varchar("name", { length: 254 }).notNull().unique(),
+  slug: varchar("slug").notNull(),
+
   address: text("address").notNull(),
   logo: text("logo"),
   logoPublicId: text("logo_public_id"),

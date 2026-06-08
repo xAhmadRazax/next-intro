@@ -16,8 +16,6 @@ export default async function Layout({ children }: PropsWithChildren) {
     redirect("/auth/login")
   }
 
-  const isSuperAdmin = payload.role === "superAdmin"
-  return (
-    <DashboardLayout isSuperAdmin={isSuperAdmin}>{children}</DashboardLayout>
-  )
+  const isAdmin = payload.role === "admin"
+  return <DashboardLayout isSuperAdmin={isAdmin}>{children}</DashboardLayout>
 }

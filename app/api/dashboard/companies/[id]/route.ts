@@ -4,8 +4,9 @@ import { eq } from "drizzle-orm"
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { cloudinaryService } from "@/lib/cloudinary.server"
 import { RouteGuard } from "@/lib/routeGuard.server"
+import { PERMISSIONS } from "@/lib/permissions"
 
-export const PATCH = RouteGuard.requireAuthWithRole(
+export const PATCH = RouteGuard.requireAuthWithPermission(
   async (
     req: Request,
     { params }: { params: Promise<{ id: string }> | { id: string } }
@@ -90,10 +91,17 @@ export const PATCH = RouteGuard.requireAuthWithRole(
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }
   },
-  [`admin`]
+  PERMISSIONS.COMPANY.UPDATE,
+  async (_req, context) => {
+    const { id } = await context.params
+
+    return {
+      targetCompanyId: id,
+    }
+  }
 )
 
-export const DELETE = RouteGuard.requireAuthWithRole(
+export const DELETE = RouteGuard.requireAuthWithPermission(
   async (
     req: Request,
     { params }: { params: Promise<{ id: string }> | { id: string } }
@@ -124,5 +132,12 @@ export const DELETE = RouteGuard.requireAuthWithRole(
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }
   },
-  ["admin"]
+  PERMISSIONS.COMPANY.DELETE,
+  async (_req, context) => {
+    const { id } = await context.params
+
+    return {
+      targetCompanyId: id,
+    }
+  }
 )

@@ -3,12 +3,13 @@ import { db } from "@/db"
 import { users } from "@/db/schema"
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { Mailer } from "@/lib/mailer.server"
+import { PERMISSIONS } from "@/lib/permissions"
 import { RouteGuard } from "@/lib/routeGuard.server"
 import { TokenUtil } from "@/lib/token.server"
 import { eq } from "drizzle-orm"
 import ms, { StringValue } from "ms"
 
-export const POST = RouteGuard.requireAuthWithRole(
+export const POST = RouteGuard.requireAuthWithPermission(
   async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
     try {
       const { id } = await params
@@ -29,10 +30,6 @@ export const POST = RouteGuard.requireAuthWithRole(
       })
 
       await db.update(users).set({
-        mustChangePassword: true,
-        passwordExpiresAt: new Date(
-          Date.now() + ms(process.env.TEMP_PASSWORD_EXPIRY as StringValue)
-        ),
         password: hashed,
       })
 
@@ -61,5 +58,17 @@ export const POST = RouteGuard.requireAuthWithRole(
       return Response.json({ error: "Internal server error" }, { status: 500 })
     }
   },
-  ["admin"]
+  PERMISSIONS.USER.RESET_PASSWORD,
+  async (_req, context) => {
+    const { id } = await context.params
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, id),
+      columns: { companyId: true },
+    })
+
+    return {
+      targetCompanyId: user?.companyId ?? undefined,
+    }
+  }
 )
