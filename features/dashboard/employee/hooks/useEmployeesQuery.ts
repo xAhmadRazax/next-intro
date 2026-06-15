@@ -3,9 +3,9 @@
 import { PublicUserType } from "@/db/schema"
 import { getEmployees } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
+import { EmployeeQueryType } from "@/types/dashboard.types"
 import { PaginationMeta } from "@/types/pagination.types"
-import { useSearchParams } from "next/navigation"
-import { useRouter } from "next/router"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -17,7 +17,7 @@ export const useEmployeesQuery = () => {
   const [error, setIsError] = useState("")
 
   const cachedEmployees = useRef<{
-    items: PublicUserType[]
+    items: EmployeeQueryType[]
     meta: PaginationMeta
     loadedPages: Set<number>
     currentPage: number
@@ -37,7 +37,7 @@ export const useEmployeesQuery = () => {
   })
 
   const [employees, setEmployees] = useState<{
-    items: PublicUserType[]
+    items: EmployeeQueryType[]
     meta: PaginationMeta
   } | null>(null)
 
@@ -233,15 +233,21 @@ export const useEmployeesQuery = () => {
     }
 
     cachedEmployees.current.items = filteredCachedEmployees
-    return setEmployees({
-      items: pageItemSnapshot,
-      meta: {
-        ...cachedEmployees?.current.meta,
-        currentPage: currentPage,
-        hasNext,
-        totalPages: currentCachedPages - 1 > 0 ? currentCachedPages - 1 : 1,
-      },
-    })
+
+    console.log(cachedEmployees, pageItemSnapshot)
+    // setEmployees({
+    //   items: pageItemSnapshot,
+    //   meta: {
+    //     ...cachedEmployees?.current.meta,
+    //     currentPage: currentPage,
+    //     hasNext,
+    //     totalPages: currentCachedPages - 1 > 0 ? currentCachedPages - 1 : 1,
+    //   },
+    // })
+
+    return router.push(
+      `/dashboard/employees?page=${cachedEmployees.current.meta.currentPage}`
+    )
     // })
     // }
   }
@@ -260,6 +266,8 @@ export const useEmployeesQuery = () => {
 
     cachedEmployees.current.meta.totalPages = totalPages
 
+    console.log(cachedEmployees)
+
     router.push(`/dashboard/employees?page=${employees?.meta.totalPages}`)
   }
 
@@ -271,16 +279,17 @@ export const useEmployeesQuery = () => {
     cachedEmployees.current.items = cachedEmployees.current.items.map(
       (item) => {
         if (item.id === employee.id) {
-          return employee
+          return { ...item, ...employee, stats: item.stats }
         }
 
         return item
       }
     )
 
-    router.push(
-      `/dashboard/employees?page=${cachedEmployees.current.meta.currentPage}`
-    )
+    // router.push(
+    //   `/dashboard/employees?page=${cachedEmployees.current.meta.currentPage}`
+    // )
+    router.refresh()
   }
 
   return {

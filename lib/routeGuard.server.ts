@@ -3,9 +3,10 @@ import { JWT } from "./JWT.server"
 import { db } from "@/db"
 import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
+import { AuthReqType } from "@/types/authReq.type"
 
 type Handler<TContext = undefined> = (
-  req: Request,
+  req: AuthReqType,
   context: TContext
 ) => Promise<Response>
 
@@ -39,6 +40,8 @@ export class RouteGuard {
           { status: 404 }
         )
       }
+
+      req.user = user
       return handler(req, context)
     }
   }
@@ -84,6 +87,8 @@ export class RouteGuard {
           { status: 403 }
         )
       }
+
+      req.user = user
 
       return handler(req, context)
     }

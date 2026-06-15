@@ -24,7 +24,6 @@ export const CompaniesTable = ({
   removeItemCallback: (id: string) => void
   mutateExistingCompanyCallback: (company: CompanyType) => void
 }) => {
-  ;``
   // const {
   //   companies: companiesDataWithPagMeta,
   //   isLoading,
@@ -39,8 +38,6 @@ export const CompaniesTable = ({
 
   return (
     <>
-      {/* Filter Section - filters by name AND email */}
-      {/* <DataTableFiltration /> */}
       <DataTable
         columns={companyColumns(
           false,

@@ -75,10 +75,12 @@ export const Profile = () => {
               <Label>Email</Label>
               <Input type="email" disabled value={email} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Company</Label>
-              <Input value={user?.company?.email ?? "N/A"} disabled />
-            </div>
+            {user?.role != "admin" && (
+              <div className="flex flex-col gap-1.5">
+                <Label>Company</Label>
+                <Input value={user?.company?.email ?? "N/A"} disabled />
+              </div>
+            )}
             <div className="flex flex-col gap-1.5">
               <Label>Role</Label>
               <div className="flex h-9 items-center">

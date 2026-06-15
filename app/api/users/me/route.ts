@@ -24,27 +24,34 @@ export const POST = RouteGuard.requireAuth(async () => {
 
     const userId = payload.id
 
-    const [res] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .leftJoin(companies, eq(users.companyId, companies.id))
+    // const [res] = await db
+    //   .select()
+    //   .from(users)
+    //   .where(eq(users.id, userId))
+    //   .leftJoin(companies, eq(users.companyId, companies.id))
 
-    if (!res.users) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      with: {
+        company: true,
+        // attendance: true,
+      },
+    })
+
+    if (!user?.id) {
       return Response.json(
         { error: `User with the ${payload.id} does'nt exist` },
         { status: 404 }
       )
     }
 
-    const { password, ...publicUser } = { ...res.users, company: res.companies }
+    const { password, ...publicUser } = user
     void password
     return Response.json({ user: publicUser }, { status: 200 })
   } catch (err) {
     const postgresError = handlePostgresError(err)
     if (postgresError) return postgresError
 
-    console.error(err)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
 })

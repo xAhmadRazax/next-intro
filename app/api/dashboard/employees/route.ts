@@ -92,7 +92,6 @@ export const POST = RouteGuard.requireAuthWithRole(
 
 export const GET = RouteGuard.requireAuthWithRole(
   async (req: Request) => {
-    console.log("im being hit")
     const { searchParams } = new URL(req.url)
 
     const getAll = Boolean(searchParams.get("getAll"))
@@ -115,27 +114,17 @@ export const GET = RouteGuard.requireAuthWithRole(
         ne(users.role, "admin")
       )
 
-    // const [data, [{ total }]] = await Promise.all([
-    //   db.query.users.findMany({
-    //     limit: !getAll ? limit : undefined,
-    //     offset: !getAll ? offset : undefined,
-    //     where: whereClause(users),
-    //     with: { company: true },
-    //     orderBy: (table, { asc, desc }) => [
-    //       order === "asc" ? asc(table.createdAt) : desc(table.createdAt),
-    //     ],
-    //   }),
-    //   db.select({ total: count() }).from(users).where(whereClause(users)),
-    // ])
-
     const [data, [{ total }]] = await Promise.all([
-      db
-        .select()
-        .from(users)
-        .leftJoin(companies, eq(users.companyId, companies.id))
-        .where(whereClause)
-        .limit(limit)
-        .offset(offset),
+      db.query.users.findMany({
+        where: whereClause,
+        with: {
+          attendance: true,
+          company: true,
+        },
+        limit: limit,
+        offset: offset,
+      }),
+
       db
         .select({ total: count() })
         .from(users)
@@ -143,16 +132,60 @@ export const GET = RouteGuard.requireAuthWithRole(
         .where(whereClause),
     ])
 
-    const totalPages = Math.ceil(total / limit)
-    const mapped = data.map(({ users, companies }) => ({
-      ...users,
-      company: companies,
-    }))
+    const formattedData = data.map((employee) => {
+      const attendanceLogs = employee.attendance ?? []
 
-    // console.log("data", data, emailFilter, nameFilter)
+      // total minutes across all completed shifts
+      const totalMins = attendanceLogs.reduce((sum, log) => {
+        if (!log.checkIn || !log.checkOut) return sum
+        return (
+          sum +
+          Math.round(
+            (new Date(log.checkOut).getTime() -
+              new Date(log.checkIn).getTime()) /
+              60000
+          )
+        )
+      }, 0)
+
+      // last activity = most recent checkIn date
+      const lastActivity =
+        attendanceLogs
+          .filter((log) => log.checkIn)
+          .sort(
+            (a, b) =>
+              new Date(b.checkIn!).getTime() - new Date(a.checkIn!).getTime()
+          )
+          .at(0)?.checkIn ?? null
+
+      // total hours formatted
+      const totalHours =
+        totalMins < 60
+          ? `${totalMins}m`
+          : `${Math.floor(totalMins / 60)}h ${totalMins % 60}m`
+
+      return {
+        ...employee,
+        attendance: undefined, // ✅ drop raw logs
+        stats: {
+          totalHours, // "42h 30m"
+          totalMins, // 2550 (raw for sorting)
+          lastActivity: lastActivity
+            ? new Date(lastActivity).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
+            : null, // "Jun 9, 2026"
+          lastActivityRaw: lastActivity, // raw date for sorting
+        },
+      }
+    })
+
+    const totalPages = Math.ceil(total / limit)
 
     return Response.json({
-      data: mapped,
+      data: formattedData,
       meta: {
         itemsPerPage: limit,
         currentPage: page,

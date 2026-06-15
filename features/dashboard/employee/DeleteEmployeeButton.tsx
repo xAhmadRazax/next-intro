@@ -30,7 +30,7 @@ export const DeleteEmployeeButton = ({
         </Button>
       </FormDialog.Trigger>
 
-      <DialogContent className="px-6 text-foreground/80">
+      <DialogContent className="px-6 text-foreground/80 sm:max-w-md">
         <DeleteEmployeeDialogContent
           id={id}
           name={name}

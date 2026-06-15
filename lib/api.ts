@@ -1,8 +1,11 @@
 import { BASEURL } from "@/constants/constants"
-import { CompanyType, PublicUserType } from "@/db/schema"
+import { AttendanceType, CompanyType, PublicUserType } from "@/db/schema"
 import type {
   AddCompanyDTO,
   AddEmployeeDTO,
+  EmployeeAttendance,
+  EmployeeAttendanceQueryType,
+  EmployeeQueryType,
   updateEmployeeDto,
 } from "@/types/dashboard.types"
 import type { PaginationMeta } from "@/types/pagination.types"
@@ -25,7 +28,7 @@ export const getEmployees = async (
     sortBy?: string
   } = {},
   signal?: AbortSignal
-): Promise<{ data: PublicUserType[]; meta: PaginationMeta }> => {
+): Promise<{ data: EmployeeQueryType[]; meta: PaginationMeta }> => {
   // const sortString = order === "desc" ? `-${sortBy}` : sortBy
 
   let baseUrl = `${BASEURL}/dashboard/employees?`
@@ -52,7 +55,7 @@ export const getEmployees = async (
   }
   const result = await res.json()
 
-  console.log(page)
+  console.log(result)
   return result
 }
 
@@ -254,5 +257,73 @@ export const deleteCompany = async (id: string) => {
     throw new ApiError(data.error, data.status)
   }
 
-  return res
+  return res.json()
+}
+
+//  attendance api
+
+export const clockInApi = async (): Promise<{
+  attendance: EmployeeAttendance
+}> => {
+  const res = await fetch(`${BASEURL}/attendance/clockIn`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new ApiError(data.error, data.status)
+  }
+
+  return res.json()
+}
+
+export const clockOutApi = async (): Promise<{
+  attendance: EmployeeAttendance
+}> => {
+  const res = await fetch(`${BASEURL}/attendance/clockOut`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new ApiError(data.error, data.status)
+  }
+
+  return res.json()
+}
+
+export const getUserAttendance = async (
+  signal?: AbortSignal
+): Promise<EmployeeAttendanceQueryType> => {
+  const res = await fetch(`${BASEURL}/attendance`, {
+    headers: { "Content-Type": "application/json" },
+    signal,
+  })
+  if (!res.ok) {
+    const data = await res.json()
+    throw new ApiError(data.error, data.status)
+  }
+
+  return res.json()
+}
+
+export const getEmployeeAttendance = async (
+  id: string,
+  filters: { month: number; year: number },
+  signal?: AbortSignal
+): Promise<EmployeeAttendanceQueryType> => {
+  const res = await fetch(
+    `${BASEURL}/dashboard/employees/${id}/attendance?month=${filters.month + 1}&year=${filters.year}`,
+    {
+      headers: { "Content-Type": "application/json" },
+      signal,
+    }
+  )
+  if (!res.ok) {
+    const data = await res.json()
+    throw new ApiError(data.error, data.status)
+  }
+  const result = res.json()
+  console.log(result)
+  return result
 }

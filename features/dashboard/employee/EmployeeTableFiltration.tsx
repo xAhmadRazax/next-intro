@@ -24,7 +24,7 @@ export const EmployeeTableFiltration = () => {
 
   const { companies: companiesWithPageMeta, isLoading: isLoadingCompanies } =
     useCompaniesQuery()
-  const companies = companiesWithPageMeta?.companies || []
+  const companies = companiesWithPageMeta?.items || []
 
   const [isOpen, setIsOpen] = useState(true)
   const [emailFilter, setEmailFilter] = useState(

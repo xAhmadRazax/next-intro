@@ -77,7 +77,7 @@ export async function POST(
 }
 
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ token: string }> }
 ) {
   try {
@@ -85,6 +85,9 @@ export async function GET(
     if (!token)
       return Response.json({ error: "Token required" }, { status: 400 })
     const hashedToken = TokenUtil.hashToken(token)
+
+    console.log(hashedToken, "hashedToken----------------------------->")
+
     const [tokenRecord] = await db
       .select()
       .from(tokens)

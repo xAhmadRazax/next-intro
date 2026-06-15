@@ -9,6 +9,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core"
 import { companies, CompanyType } from "./company.schema"
+import { attendance } from "./attendance.schema"
 
 export const roleEnum = pgEnum("role", ["admin", "employee"])
 
@@ -16,7 +17,9 @@ export const users = pgTable("users", {
   id: uuid(`id`).defaultRandom().primaryKey(),
   email: varchar("email", { length: 254 }).notNull().unique(),
   username: varchar("username", { length: 254 }).notNull(),
-  companyId: uuid("company_id").references(() => companies.id),
+  companyId: uuid("company_id").references(() => companies.id, {
+    onDelete: "cascade",
+  }),
   role: roleEnum("role").notNull().default("employee"),
   password: text("password"),
 
@@ -41,9 +44,10 @@ export type PublicUserType = Omit<UserType, "password"> & {
 // where ever the FK lives that table will get one()
 //  employees table HAS a foreign key (companyId)
 // So employees BELONGS TO one company → use one()
-export const employeesRelations = relations(users, ({ one }) => ({
+export const employeesRelations = relations(users, ({ one, many }) => ({
   company: one(companies, {
     fields: [users.companyId],
     references: [companies.id],
   }),
+  attendance: many(attendance),
 }))

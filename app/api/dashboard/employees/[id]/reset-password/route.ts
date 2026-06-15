@@ -29,10 +29,6 @@ export const POST = RouteGuard.requireAuthWithRole(
       })
 
       await db.update(users).set({
-        mustChangePassword: true,
-        passwordExpiresAt: new Date(
-          Date.now() + ms(process.env.TEMP_PASSWORD_EXPIRY as StringValue)
-        ),
         password: hashed,
       })
 

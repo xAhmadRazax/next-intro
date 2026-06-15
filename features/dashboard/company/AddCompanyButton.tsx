@@ -23,7 +23,7 @@ export const AddCompanyButton = ({
         </Button>
       </FormDialog.Trigger>
 
-      <FormDialog.Content>
+      <FormDialog.Content className="sm:max-w-md">
         <AddCompanyForm addCompanyCallbackHandler={addCompanyCallbackHandler} />
       </FormDialog.Content>
     </FormDialog>

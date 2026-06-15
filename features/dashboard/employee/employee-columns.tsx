@@ -9,13 +9,15 @@ import { DeleteEmployeeButton } from "./DeleteEmployeeButton"
 import { ResetEmployeePasswordButton } from "./ResetEmployeePasswordButton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { PublicUserType } from "@/db/schema"
+import { EmployeeQueryType } from "@/types/dashboard.types"
+import { ViewEmployeeAttendanceButton } from "./ViewEmployeeAttendanceButton"
 
 export const employeeColumns = (
   isLoading?: boolean,
   itemSkip?: number,
   updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void,
   deleteCachedEmployee?: (employeeId: string) => void
-): ColumnDef<PublicUserType>[] => [
+): ColumnDef<EmployeeQueryType>[] => [
   {
     id: "index",
     header: "#",
@@ -89,6 +91,32 @@ export const employeeColumns = (
   },
 
   {
+    id: "stats.totalHours",
+    header: "Total Working Hours",
+    accessorFn: (row) => row.stats?.totalHours,
+    cell: isLoading
+      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-72" />
+      : ({ row }) => (
+          <TableCell className="w-full max-w-100 break-all whitespace-normal">
+            {row.getValue("stats.totalHours")}
+          </TableCell>
+        ),
+  },
+
+  {
+    id: "stats.lastActivity",
+    header: "Last Activity",
+    accessorFn: (row) => row.stats?.lastActivity,
+    cell: isLoading
+      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-72" />
+      : ({ row }) => (
+          <TableCell className="w-full max-w-100 break-all whitespace-normal">
+            {row.getValue("stats.lastActivity")}
+          </TableCell>
+        ),
+  },
+
+  {
     id: "actions", // ← Add this! Required when not using accessorKey
     header: () => <div className="text-center">Actions</div>,
     cell: isLoading
@@ -100,8 +128,12 @@ export const employeeColumns = (
           </div>
         )
       : ({ row }) => (
-          <TableCell className="w-36 break-all whitespace-normal">
+          <TableCell className="w-auto break-all whitespace-normal">
             <div className="flex justify-end gap-2">
+              <ViewEmployeeAttendanceButton
+                employeeId={row.original.id}
+                employee={row.original}
+              />
               <UpdateEmployeeButton
                 updateEmployeeInCache={updateEmployeeInCache}
                 employee={{

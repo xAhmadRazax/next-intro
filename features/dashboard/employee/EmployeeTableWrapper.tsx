@@ -1,5 +1,6 @@
 "use client"
 
+import { getEmployeeAttendance } from "@/lib/api"
 import { AddEmployeeButton } from "./AddEmployeeButton"
 import { EmployeesTable } from "./EmployeesTable"
 import { EmployeeTableFiltrationWrapper } from "./EmployeeTableFiltrationWrapper"
@@ -13,6 +14,7 @@ export const EmployeeTableWrapper = () => {
     isLoading,
     employees,
   } = useEmployeesQuery()
+
   return (
     <>
       <div className="mt-4 flex flex-col lg:px-2">

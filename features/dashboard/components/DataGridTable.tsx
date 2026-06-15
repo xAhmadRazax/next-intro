@@ -15,17 +15,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
   headerRowStyle?: string
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  wrapperClassName?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  headerRowStyle,
+  wrapperClassName = "",
 }: DataTableProps<TData, TValue>) {
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -35,11 +37,16 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="max-w-[calc(100vw-15px)] overflow-x-auto rounded-sm border md:max-w-[calc(100vw-250px)]">
+    <div
+      className={cn(
+        `max-h-[calc(100vh-120px)] max-w-[calc(100vw-15px)] overflow-x-auto overflow-y-auto rounded-sm border md:max-w-[calc(100vw-250px)]`,
+        wrapperClassName
+      )}
+    >
       <Table className="min-w-150 bg-card">
         <TableHeader className="bg-primary/20">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="">
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead className="py-3 font-bold" key={header.id}>

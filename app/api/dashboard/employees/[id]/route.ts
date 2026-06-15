@@ -88,9 +88,16 @@ export async function DELETE(
   try {
     const { id } = await params
 
+    console.log("id", id)
+
+    // const [deletedEmployee] = await db
+    // .delete(users)
+    // .where(eq(users.id, id))
+    // .returning()
+
     const [deletedEmployee] = await db
       .delete(users)
-      .where(and(eq(users.id, id), ne(users.role, "admin")))
+      .where(eq(users.id, id))
       .returning()
 
     if (!deletedEmployee) {
@@ -102,6 +109,7 @@ export async function DELETE(
       )
     return new Response(null, { status: 204 })
   } catch (err: unknown) {
+    console.log(err)
     const postgresError = handlePostgresError(err)
     if (postgresError) return postgresError
 

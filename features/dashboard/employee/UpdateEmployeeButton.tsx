@@ -20,7 +20,7 @@ export const UpdateEmployeeButton = ({
           <Pencil className="h-4 w-4" />
         </Button>
       </FormDialog.Trigger>
-      <FormDialog.Content>
+      <FormDialog.Content className="sm:max-w-md">
         <UpdateEmployeeForm
           employee={employee}
           employeeId={employee.id}

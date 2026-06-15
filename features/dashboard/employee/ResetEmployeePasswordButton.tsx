@@ -21,7 +21,7 @@ export const ResetEmployeePasswordButton = ({
         </Button>
       </FormDialog.Trigger>
 
-      <FormDialog.Content>
+      <FormDialog.Content className="sm:max-w-md">
         <ResetEmployeePasswordContent id={id} name={name} />
       </FormDialog.Content>
     </FormDialog>

@@ -20,7 +20,7 @@ export const UpdateCompanyButton = ({
           <Pencil className="h-4 w-4" />
         </Button>
       </FormDialog.Trigger>
-      <FormDialog.Content>
+      <FormDialog.Content className="sm:max-w-md">
         <UpdateCompanyForm
           company={company}
           companyId={company.id}

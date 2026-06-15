@@ -29,7 +29,7 @@ export const DeleteCompanyButton = ({
         </Button>
       </FormDialog.Trigger>
 
-      <FormDialog.Content>
+      <FormDialog.Content className="sm:max-w-md">
         <DeleteCompanyDialog
           id={id}
           name={name}

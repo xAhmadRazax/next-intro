@@ -23,7 +23,7 @@ export const AddEmployeeButton = ({
         </Button>
       </FormDialog.Trigger>
 
-      <FormDialog.Content>
+      <FormDialog.Content className="sm:max-w-md">
         <AddEmployeeForm addEmployeeToCache={addEmployeeToCache} />
       </FormDialog.Content>
     </FormDialog>

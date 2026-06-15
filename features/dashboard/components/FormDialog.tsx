@@ -6,6 +6,7 @@ import { FormDialogContext } from "../hooks/useFormDialog"
 
 type TriggerProps = {
   children: React.ReactElement
+  className?: string
 }
 
 function Root({ children }: React.PropsWithChildren) {
@@ -30,7 +31,7 @@ function Root({ children }: React.PropsWithChildren) {
   )
 }
 
-function Trigger({ children }: TriggerProps) {
+function Trigger({ children, className }: TriggerProps) {
   return (
     <div className="flex justify-end">
       <DialogTrigger render={children} />
@@ -38,9 +39,17 @@ function Trigger({ children }: TriggerProps) {
   )
 }
 
-function Content({ children }: React.PropsWithChildren) {
+function Content({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   return (
-    <DialogContent className="px-6 text-foreground/80">
+    <DialogContent
+      className={`max-h-[calc(100vh-120px)] overflow-auto px-6 text-foreground/80 ${className}`}
+    >
       {children}
     </DialogContent>
   )

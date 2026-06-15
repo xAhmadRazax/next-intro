@@ -36,6 +36,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const res = await meApi()
         setUser(res.user)
       } catch (error) {
+        console.log(error)
         // console.error("Failed to fetch user", error)
         setUser(null)
       } finally {

@@ -10,7 +10,7 @@ export const tokenTypeEnums = pgEnum("token_types", [
 export const tokens = pgTable("tokens", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   type: tokenTypeEnums("type").notNull(),
   token: text("token").notNull(),
