@@ -5,15 +5,26 @@ import { AddEmployeeButton } from "./AddEmployeeButton"
 import { EmployeesTable } from "./EmployeesTable"
 import { EmployeeTableFiltrationWrapper } from "./EmployeeTableFiltrationWrapper"
 import { useEmployeesQuery } from "./hooks/useEmployeesQuery"
+import { EmployeeQueryType } from "@/types/dashboard.types"
+import { PaginationMeta } from "@/types/pagination.types"
 
-export const EmployeeTableWrapper = () => {
+export const EmployeeTableWrapper = ({
+  initialFetchedItems,
+  initialFetchedMeta,
+}: {
+  initialFetchedItems: EmployeeQueryType[]
+  initialFetchedMeta: PaginationMeta
+}) => {
   const {
     addEmployeeToCache,
     deleteCachedEmployee,
     updateEmployeeInCache,
     isLoading,
     employees,
-  } = useEmployeesQuery()
+  } = useEmployeesQuery({
+    initialFetchedItems: initialFetchedItems,
+    initialFetchedMeta: initialFetchedMeta,
+  })
 
   return (
     <>

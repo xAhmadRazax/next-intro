@@ -8,7 +8,21 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-export const useCompaniesQuery = () => {
+export const useCompaniesQuery = ({
+  initialFetchedItems = [],
+  initialFetchedMeta = {
+    nextPage: null,
+    prevPage: null,
+    totalPages: 1,
+    hasNext: false,
+    hasPrev: false,
+    currentPage: 1,
+    itemsPerPage: 20,
+  },
+}: {
+  initialFetchedItems?: CompanyType[]
+  initialFetchedMeta?: PaginationMeta
+} = {}) => {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -21,24 +35,16 @@ export const useCompaniesQuery = () => {
     loadedPages: Set<number>
     currentPage: number
   }>({
-    items: [],
-    loadedPages: new Set(),
+    items: initialFetchedItems ?? [],
+    loadedPages: initialFetchedItems ? new Set([1]) : new Set(),
     currentPage: 1,
-    meta: {
-      nextPage: null,
-      prevPage: null,
-      totalPages: 1,
-      hasNext: false,
-      hasPrev: false,
-      currentPage: 1,
-      itemsPerPage: 20,
-    },
+    meta: initialFetchedMeta,
   })
 
   const [companies, setCompanies] = useState<{
     items: CompanyType[]
     meta: PaginationMeta
-  } | null>(null)
+  }>(() => ({ items: initialFetchedItems ?? [], meta: initialFetchedMeta }))
 
   const companiesQueryHandler = async ({ page = 1 }: { page?: number }) => {
     setIsLoading(true)
@@ -246,6 +252,12 @@ export const useCompaniesQuery = () => {
       try {
         // checking if current page data exist in the pagination if it exist switch current set item to this cached items
         // and there isnt any filtration set for email and name
+        console.log(
+          cachedCompanies,
+          cachedCompanies.current.loadedPages.has(1),
+          cachedCompanies.current.loadedPages.has(+(page ?? 1)),
+          page
+        )
         if (
           cachedCompanies.current &&
           cachedCompanies.current.loadedPages.has(+(page ?? 1)) &&
@@ -276,6 +288,7 @@ export const useCompaniesQuery = () => {
           { page, nameFilter: name, emailFilter: email },
           signal
         )
+        console.log("calling on the client")
         // caching main records
         if (!name && !email) {
           const updatedLoadedPages = cachedCompanies?.current.loadedPages
@@ -319,7 +332,7 @@ export const useCompaniesQuery = () => {
     }
 
     const controller = new AbortController()
-    const pageParams = Number(searchParams.get("page"))
+    const pageParams = Number(searchParams.get("page") ?? 1)
     const emailParams = searchParams.get("email")
     const nameParams = searchParams.get("name")
 

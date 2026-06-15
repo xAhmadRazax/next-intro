@@ -46,9 +46,6 @@ export const CompaniesTable = ({
           mutateExistingCompanyCallback
         )}
         data={companies}
-        headerRowStyle={
-          "grid grid-cols-[auto,80px,minmax(150px,1fr),minmax(200px,1.5fr),minmax(200px,2fr)]"
-        }
       />
       {meta && meta.totalPages > 1 && (
         <DataTablePaginationWrapper>

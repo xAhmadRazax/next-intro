@@ -17,7 +17,11 @@ import { useState } from "react"
 import { CompanyType } from "@/db/schema"
 import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
 
-export const EmployeeTableFiltration = () => {
+export const EmployeeTableFiltration = ({
+  disabled = false,
+}: {
+  disabled?: boolean
+}) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathName = usePathname()
@@ -159,6 +163,7 @@ export const EmployeeTableFiltration = () => {
 
           <div className="ms-auto flex w-fit space-x-2">
             <Button
+              disabled={disabled}
               variant="default"
               onClick={onFilterApplyHandler}
               className="flex items-center gap-2"
@@ -168,6 +173,7 @@ export const EmployeeTableFiltration = () => {
             </Button>
 
             <Button
+              disabled={disabled}
               variant="outline"
               className="flex items-center px-4"
               onClick={onClearFilterHandler}

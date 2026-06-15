@@ -1,18 +1,25 @@
 "use client"
-import { Suspense } from "react"
 import { AddCompanyButton } from "./AddCompanyButton"
 import { CompaniesTable } from "./CompaniesTable"
 import { CompanyTableFiltrationWrapper } from "./CompanyTableFiltrationWrapper"
 import { useCompaniesQuery } from "./hooks/useCompaniesQuery"
+import { CompanyType } from "@/db/schema"
+import { PaginationMeta } from "@/types/pagination.types"
 
-export const CompanyTableWrapper = () => {
+export const CompanyTableWrapper = ({
+  initialFetchedItems,
+  initialFetchedMeta,
+}: {
+  initialFetchedItems: CompanyType[]
+  initialFetchedMeta: PaginationMeta
+}) => {
   const {
     companies,
     isLoading,
     addNewCompany,
     removeItem,
     mutateExistingCompany,
-  } = useCompaniesQuery()
+  } = useCompaniesQuery({ initialFetchedItems, initialFetchedMeta })
   return (
     <>
       <div className="mt-4 flex flex-col lg:px-2">

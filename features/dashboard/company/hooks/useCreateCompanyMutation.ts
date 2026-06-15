@@ -23,6 +23,8 @@ export function useCreateCompanyMutation() {
       if (company.id) {
         onSuccessCallbackHandler?.(company)
       }
+
+      return company
     } catch (error) {
       console.log(error instanceof ApiError)
       if (error instanceof ApiError) {

@@ -69,7 +69,7 @@ export const employeeColumns = (
     accessorKey: "email",
     header: "Email",
     cell: isLoading
-      ? () => <Skeleton className="h-8 max-w-90 min-w-75" />
+      ? () => <Skeleton className="h-8 max-w-90 min-w-63" />
       : ({ row }) => (
           <TableCell className="w-full max-w-90 min-w-63 break-all whitespace-normal">
             {row.getValue("email")}
@@ -82,7 +82,7 @@ export const employeeColumns = (
     header: "Company",
     accessorFn: (row) => row.company?.name,
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-72" />
+      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-50" />
       : ({ row }) => (
           <TableCell className="w-full max-w-100 break-all whitespace-normal">
             {row.getValue("company.name")}
@@ -92,12 +92,12 @@ export const employeeColumns = (
 
   {
     id: "stats.totalHours",
-    header: "Total Working Hours",
+    header: "Hours logged",
     accessorFn: (row) => row.stats?.totalHours,
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-72" />
+      ? () => <Skeleton className="h-8 w-full min-w-30" />
       : ({ row }) => (
-          <TableCell className="w-full max-w-100 break-all whitespace-normal">
+          <TableCell className="w-full max-w-30 break-all whitespace-normal">
             {row.getValue("stats.totalHours")}
           </TableCell>
         ),
@@ -108,9 +108,9 @@ export const employeeColumns = (
     header: "Last Activity",
     accessorFn: (row) => row.stats?.lastActivity,
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-72" />
+      ? () => <Skeleton className="h-8 w-full min-w-30" />
       : ({ row }) => (
-          <TableCell className="w-full max-w-100 break-all whitespace-normal">
+          <TableCell className="w-full max-w-30 break-all whitespace-normal">
             {row.getValue("stats.lastActivity")}
           </TableCell>
         ),
@@ -121,7 +121,8 @@ export const employeeColumns = (
     header: () => <div className="text-center">Actions</div>,
     cell: isLoading
       ? () => (
-          <div className="flex w-36 justify-center space-x-2">
+          <div className="flex w-auto justify-center space-x-2">
+            <Skeleton className="h-8 w-8" />
             <Skeleton className="h-8 w-8" />
             <Skeleton className="h-8 w-8" />
             <Skeleton className="h-8 w-8" />

@@ -24,28 +24,34 @@ interface AuthContextType {
 }
 const AuthContext = createContext<AuthContextType | null>(null)
 
-export function AuthProvider({ children }: PropsWithChildren) {
+export function AuthProvider({
+  children,
+  initialUser,
+}: {
+  children: React.ReactNode
+  initialUser?: PublicUserType
+}) {
   const router = useRouter()
-  const [user, setUser] = useState<PublicUserType | null>(null)
+  const [user, setUser] = useState<PublicUserType | null>(initialUser ?? null)
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    const initializeAuth = async () => {
-      setIsLoading(true)
-      try {
-        const res = await meApi()
-        setUser(res.user)
-      } catch (error) {
-        console.log(error)
-        // console.error("Failed to fetch user", error)
-        setUser(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  // useEffect(() => {
+  //   const initializeAuth = async () => {
+  //     setIsLoading(true)
+  //     try {
+  //       const res = await meApi()
+  //       setUser(res.user)
+  //     } catch (error) {
+  //       console.log(error)
+  //       // console.error("Failed to fetch user", error)
+  //       setUser(null)
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
 
-    initializeAuth()
-  }, []) // This won't trigger the warning now
+  //   initializeAuth()
+  // }, []) // This won't trigger the warning now
 
   async function changePassword(currentPassword: string, newPassword: string) {
     setIsLoading(true)

@@ -18,7 +18,6 @@ import {
 import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
-  headerRowStyle?: string
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   wrapperClassName?: string
@@ -39,7 +38,7 @@ export function DataTable<TData, TValue>({
   return (
     <div
       className={cn(
-        `max-h-[calc(100vh-120px)] max-w-[calc(100vw-15px)] overflow-x-auto overflow-y-auto rounded-sm border md:max-w-[calc(100vw-250px)]`,
+        `max-w-[calc(100vw-15px)] overflow-x-auto rounded-sm border md:max-w-[calc(100vw-250px)]`,
         wrapperClassName
       )}
     >

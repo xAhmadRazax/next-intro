@@ -8,7 +8,7 @@ import { PublicUserType } from "@/db/schema"
 export const AddEmployeeButton = ({
   addEmployeeToCache,
 }: {
-  addEmployeeToCache: (employee: PublicUserType) => void
+  addEmployeeToCache?: (employee: PublicUserType) => void
 }) => {
   return (
     <FormDialog>

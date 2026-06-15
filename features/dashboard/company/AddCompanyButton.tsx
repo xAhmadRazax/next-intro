@@ -8,7 +8,7 @@ import { CompanyType } from "@/db/schema"
 export const AddCompanyButton = ({
   addCompanyCallbackHandler,
 }: {
-  addCompanyCallbackHandler: (company: CompanyType) => void
+  addCompanyCallbackHandler?: (company: CompanyType) => void
 }) => {
   return (
     <FormDialog>

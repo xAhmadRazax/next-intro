@@ -7,7 +7,11 @@ import { Search, SlidersHorizontal } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useState } from "react"
 
-export const CompanyTableFiltration = () => {
+export const CompanyTableFiltration = ({
+  disabled = false,
+}: {
+  disabled?: boolean
+}) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathName = usePathname()
@@ -111,6 +115,7 @@ export const CompanyTableFiltration = () => {
 
           <div className="ms-auto flex w-fit space-x-2">
             <Button
+              disabled={disabled}
               variant="default"
               onClick={onFilterApplyHandler}
               className="flex items-center gap-2"
@@ -120,6 +125,7 @@ export const CompanyTableFiltration = () => {
             </Button>
 
             <Button
+              disabled={disabled}
               variant="outline"
               className="flex items-center px-4"
               onClick={onClearFilterHandler}

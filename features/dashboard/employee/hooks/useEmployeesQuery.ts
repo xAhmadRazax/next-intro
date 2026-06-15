@@ -9,7 +9,21 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-export const useEmployeesQuery = () => {
+export const useEmployeesQuery = ({
+  initialFetchedItems = [],
+  initialFetchedMeta = {
+    nextPage: null,
+    prevPage: null,
+    totalPages: 1,
+    hasNext: false,
+    hasPrev: false,
+    currentPage: 1,
+    itemsPerPage: 20,
+  },
+}: {
+  initialFetchedItems?: EmployeeQueryType[]
+  initialFetchedMeta?: PaginationMeta
+}) => {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -22,24 +36,18 @@ export const useEmployeesQuery = () => {
     loadedPages: Set<number>
     currentPage: number
   }>({
-    items: [],
-    loadedPages: new Set(),
+    items: initialFetchedItems ?? [],
+    loadedPages: initialFetchedItems.length > 0 ? new Set([1]) : new Set(),
     currentPage: 1,
-    meta: {
-      nextPage: null,
-      prevPage: null,
-      totalPages: 1,
-      hasNext: false,
-      hasPrev: false,
-      currentPage: 1,
-      itemsPerPage: 20,
-    },
+    meta: initialFetchedMeta,
   })
 
   const [employees, setEmployees] = useState<{
     items: EmployeeQueryType[]
     meta: PaginationMeta
-  } | null>(null)
+  }>(() => {
+    return { items: initialFetchedItems, meta: initialFetchedMeta }
+  })
 
   useEffect(() => {
     const employeesQueryHandler = async ({
@@ -133,7 +141,7 @@ export const useEmployeesQuery = () => {
     }
 
     const controller = new AbortController()
-    const pageFilter = Number(searchParams.get("page"))
+    const pageFilter = Number(searchParams.get("page") ?? 1)
     const emailFilter = searchParams.get("email") ?? undefined
     const nameFilter = searchParams.get("username") ?? undefined
     const companyFilter = searchParams.get("company") ?? undefined

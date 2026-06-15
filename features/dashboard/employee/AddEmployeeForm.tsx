@@ -25,7 +25,7 @@ interface EmployeeAvatarState {
 export const AddEmployeeForm = ({
   addEmployeeToCache,
 }: {
-  addEmployeeToCache: (employee: PublicUserType) => void
+  addEmployeeToCache?: (employee: PublicUserType) => void
 }) => {
   const [employeeAvatar, setEmployeeAvatar] = useState<EmployeeAvatarState>({
     imageFile: null,
@@ -100,7 +100,7 @@ export const AddEmployeeForm = ({
         avatar: employeeAvatar.imageFile ?? undefined,
       },
       (employee) => {
-        addEmployeeToCache(employee)
+        addEmployeeToCache?.(employee)
         onSuccess()
       }
     )

@@ -19,7 +19,7 @@ interface CompanyLogoState {
 export const AddCompanyForm = ({
   addCompanyCallbackHandler,
 }: {
-  addCompanyCallbackHandler: (company: CompanyType) => void
+  addCompanyCallbackHandler?: (company: CompanyType) => void
 }) => {
   const {
     isLoading: isCreatingCompany,
@@ -93,7 +93,7 @@ export const AddCompanyForm = ({
     })
 
     if (newCompanyData) {
-      addCompanyCallbackHandler(newCompanyData)
+      addCompanyCallbackHandler?.(newCompanyData)
       onSuccess()
     }
   }
