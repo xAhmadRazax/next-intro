@@ -1,7 +1,6 @@
 import { db } from "@/db"
 import { companies } from "@/db/schema"
 import { faker } from "@faker-js/faker"
-import slugify from "slugify"
 
 async function seedCompanies(row = 50) {
   // const companyEmail = faker.company.
@@ -10,7 +9,7 @@ async function seedCompanies(row = 50) {
     const companyName = faker.company.name()
     const companyEmail = faker.internet.email()
     const fullAddress = `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()} ${faker.location.zipCode()}, ${faker.location.country()}`
-    const companySlug = slugify(companyName)
+    const companySlug = companyName.trim().split("").join("-")
 
     return {
       email: companyEmail,
