@@ -18,6 +18,7 @@ export async function loginApi({
 
   if (!res.ok) {
     const data = await res.json()
+    console.log(data)
     throw new ApiError(data.error, data.status)
   }
 
