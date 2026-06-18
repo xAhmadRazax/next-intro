@@ -71,7 +71,6 @@ export const PATCH = RouteGuard.requireAuth(async (req: Request) => {
     const postgresError = handlePostgresError(err)
     if (postgresError) return postgresError
 
-    console.error(err)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
 })

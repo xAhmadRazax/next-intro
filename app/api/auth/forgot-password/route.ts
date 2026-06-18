@@ -58,7 +58,6 @@ export async function POST(req: Request) {
     const postgresError = handlePostgresError(err)
     if (postgresError) return postgresError
 
-    console.error(err)
     return Response.json({ error: "Internal server error" }, { status: 500 })
   }
 }

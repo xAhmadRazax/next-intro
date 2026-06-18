@@ -46,32 +46,17 @@ export const useCompaniesQuery = ({
     meta: PaginationMeta
   }>(() => ({ items: initialFetchedItems ?? [], meta: initialFetchedMeta }))
 
-  const companiesQueryHandler = async ({ page = 1 }: { page?: number }) => {
+  const companiesQueryHandler = async ({
+    page = 1,
+    getAll = false,
+  }: {
+    page?: number
+    getAll?: boolean
+  }) => {
     setIsLoading(true)
     try {
-      const res = await getCompanies({ page })
-
-      // if (+page === Number(companies?.currentPage)) {
-      //   console.log("im hand cuffed")
-      //   return
-      // }
-      // setCompanies({ companies: res.data, meta: res.meta })
-
-      // setCompanies((prevCompanies) => {
-      //   if (prevCompanies?.companies && prevCompanies.companies.length > 0) {
-      //     return {
-      //       companies: [...prevCompanies.companies, ...res.data], // Spread both arrays
-      //       meta: res.meta,
-      //       currentPage: page,
-      //     }
-      //   }
-
-      //   return {
-      //     companies: res.data,
-      //     meta: res.meta,
-      //     currentPage: page,
-      //   }
-      // })
+      const res = await getCompanies({ page, getAll: getAll })
+      return res.data
     } catch (error) {
       if (error instanceof ApiError) {
         toast.error(error.message)

@@ -1,4 +1,3 @@
-import { AttendanceType } from "@/db/schema"
 import { clockInApi } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { EmployeeAttendance } from "@/types/dashboard.types"

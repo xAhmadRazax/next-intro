@@ -149,7 +149,7 @@ export const EmployeeAttendanceContent = ({
         </Select>
       </div>
       <AttendanceTable
-        className="max-h-100"
+        className="max-h-50"
         attendance={attendance?.attendance ?? []}
         isLoading={isLoading}
       />

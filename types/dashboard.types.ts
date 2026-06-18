@@ -1,4 +1,4 @@
-import { AttendanceType, PublicUserType } from "@/db/schema"
+import { PublicUserType } from "@/db/schema"
 
 export interface AddEmployeeDTO {
   username: string
@@ -54,20 +54,18 @@ export interface EmployeeAttendanceSummaryType {
     monthName: string
     totalDuration: string
     totalWeekdays: string
-    weekdaysClocked: string
-  }
-  week: {
-    averageDuration: string
-    totalDuration: string
-    totalWeekdays: number
-    weekOffset: string
-    weekRange: { start: Date; end: Date }
     weekdaysClocked: number
-    workedDays: number
   }
 }
 
 export interface EmployeeAttendanceQueryType {
   attendance: EmployeeAttendance[]
   summary: EmployeeAttendanceSummaryType
+}
+
+export interface EmployeeAttendanceStatsType {
+  averageDuration: string
+  monthName: string
+  totalDuration: string
+  weekdaysClocked: number
 }

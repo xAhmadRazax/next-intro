@@ -3,10 +3,12 @@ import { JWT } from "./JWT.server"
 import { db } from "@/db"
 import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
+// import { AuthReqType } from "@/types/authReq.type"
+import { NextResponse } from "next/server"
 import { AuthReqType } from "@/types/authReq.type"
 
 type Handler<TContext = undefined> = (
-  req: AuthReqType,
+  req: Request,
   context: TContext
 ) => Promise<Response>
 
@@ -17,15 +19,20 @@ export class RouteGuard {
       const token = cookiesStore.get("token")?.value
 
       if (!token) {
-        cookiesStore.delete("token")
         return Response.json({ error: "Unauthorized access." }, { status: 401 })
       }
 
       const payload = await JWT.safeVerifyJWT(token)
 
-      if (!payload) {
-        cookiesStore.delete("token")
-        return Response.json({ error: "Unauthorized access." }, { status: 401 })
+      if (!payload || !payload.id) {
+        const res = NextResponse.json(
+          { error: "Unauthorized access." },
+          { status: 401 }
+        )
+
+        res.cookies.delete("token")
+
+        return res
       }
 
       const [user] = await db
@@ -34,15 +41,19 @@ export class RouteGuard {
         .where(eq(users.id, payload.id))
 
       if (!user) {
-        cookiesStore.delete("token")
-        return Response.json(
+        const res = NextResponse.json(
           { error: "user with this id no longer exists." },
           { status: 404 }
         )
+
+        res.cookies.delete("token")
+
+        return res
       }
 
-      req.user = user
-      return handler(req, context)
+      const authReq = req as AuthReqType
+      authReq.user = user
+      return handler(authReq, context)
     }
   }
 
@@ -55,15 +66,27 @@ export class RouteGuard {
       const token = cookiesStore.get("token")?.value
 
       if (!token) {
-        cookiesStore.delete("token")
-        return Response.json({ error: "Unauthorized access." }, { status: 401 })
+        const res = NextResponse.json(
+          { error: "Unauthorized access." },
+          { status: 401 }
+        )
+
+        res.cookies.delete("token")
+
+        return res
       }
 
       const payload = await JWT.safeVerifyJWT(token)
 
       if (!payload) {
-        cookiesStore.delete("token")
-        return Response.json({ error: "Unauthorized access." }, { status: 401 })
+        const res = NextResponse.json(
+          { error: "Unauthorized access." },
+          { status: 401 }
+        )
+
+        res.cookies.delete("token")
+
+        return res
       }
 
       const [user] = await db
@@ -72,11 +95,14 @@ export class RouteGuard {
         .where(eq(users.id, payload.id))
 
       if (!user) {
-        cookiesStore.delete("token")
-        return Response.json(
+        const res = NextResponse.json(
           { error: "user with this id no longer exists." },
           { status: 404 }
         )
+
+        res.cookies.delete("token")
+
+        return res
       }
 
       if (!user.role || !roles.includes(user.role)) {
@@ -88,9 +114,9 @@ export class RouteGuard {
         )
       }
 
-      req.user = user
-
-      return handler(req, context)
+      const authReq = req as AuthReqType
+      authReq.user = user
+      return handler(authReq, context)
     }
   }
 }

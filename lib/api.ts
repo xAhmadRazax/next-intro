@@ -5,6 +5,7 @@ import type {
   AddEmployeeDTO,
   EmployeeAttendance,
   EmployeeAttendanceQueryType,
+  EmployeeAttendanceStatsType,
   EmployeeQueryType,
   updateEmployeeDto,
 } from "@/types/dashboard.types"
@@ -293,12 +294,16 @@ export const clockOutApi = async (): Promise<{
 }
 
 export const getUserAttendance = async (
+  filters: { month: number; year: number },
   signal?: AbortSignal
 ): Promise<EmployeeAttendanceQueryType> => {
-  const res = await fetch(`${BASEURL}/attendance`, {
-    headers: { "Content-Type": "application/json" },
-    signal,
-  })
+  const res = await fetch(
+    `${BASEURL}/attendance?month=${filters.month + 1}&year=${filters.year}`,
+    {
+      headers: { "Content-Type": "application/json" },
+      signal,
+    }
+  )
   if (!res.ok) {
     const data = await res.json()
     throw new ApiError(data.error, data.status)
@@ -319,6 +324,23 @@ export const getEmployeeAttendance = async (
       signal,
     }
   )
+  if (!res.ok) {
+    const data = await res.json()
+    throw new ApiError(data.error, data.status)
+  }
+  const result = res.json()
+  console.log(result)
+  return result
+}
+
+export const getUserAttendanceStats = async (
+  filters?: { month: number; year: number },
+  signal?: AbortSignal
+): Promise<EmployeeAttendanceStatsType> => {
+  const res = await fetch(`${BASEURL}/attendance/stats`, {
+    headers: { "Content-Type": "application/json" },
+    signal,
+  })
   if (!res.ok) {
     const data = await res.json()
     throw new ApiError(data.error, data.status)

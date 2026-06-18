@@ -4,8 +4,9 @@ import { DaysArr, toLocalDateString } from "@/lib/date-util"
 import { RouteGuard } from "@/lib/routeGuard.server"
 import { AuthReqType } from "@/types/authReq.type"
 
-export const POST = RouteGuard.requireAuth(async (req: AuthReqType) => {
-  const user = req.user
+export const POST = RouteGuard.requireAuth(async (req: Request) => {
+  const authRequest = req as AuthReqType
+  const user = authRequest.user
 
   if (!user.companyId) {
     return Response.json(

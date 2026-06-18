@@ -26,11 +26,7 @@ export const GET = RouteGuard.requireAuthWithRole(
       const monthRecords = await db.query.attendance.findMany({
         where: and(
           eq(attendance.userId, id),
-          between(
-            attendance.checkIn,
-            new Date(startOfMonth.toDateString()),
-            new Date(endOfMonth.toDateString())
-          )
+          between(attendance.checkIn, startOfMonth, endOfMonth)
         ),
         orderBy: attendance.checkIn,
       })

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/combobox"
 import { Search, SlidersHorizontal } from "lucide-react"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CompanyType } from "@/db/schema"
 import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
 
@@ -26,9 +26,24 @@ export const EmployeeTableFiltration = ({
   const router = useRouter()
   const pathName = usePathname()
 
-  const { companies: companiesWithPageMeta, isLoading: isLoadingCompanies } =
+  const { companiesQueryHandler, isLoading: isLoadingCompanies } =
     useCompaniesQuery()
-  const companies = companiesWithPageMeta?.items || []
+
+  const [companies, setCompanies] = useState<CompanyType[]>([])
+
+  useEffect(() => {
+    async function fetchAllCompaniesData() {
+      const res = await companiesQueryHandler({ getAll: true })
+
+      console.log(res)
+
+      setCompanies(res ?? [])
+    }
+
+    fetchAllCompaniesData()
+  }, [])
+
+  // const companies = companiesQueryHandler({ getAll: true }) || []
 
   const [isOpen, setIsOpen] = useState(true)
   const [emailFilter, setEmailFilter] = useState(

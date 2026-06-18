@@ -57,8 +57,6 @@ export function useAttendanceQuery(
           )
         }
 
-        console.log(filters, "filters")
-
         if (filters.status !== "All") {
           return setAttendance({
             summary: res.summary,

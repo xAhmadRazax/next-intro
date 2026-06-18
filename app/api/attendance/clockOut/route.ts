@@ -6,9 +6,10 @@ import { RouteGuard } from "@/lib/routeGuard.server"
 import { AuthReqType } from "@/types/authReq.type"
 import { eq, and, isNull, gte, lte } from "drizzle-orm"
 
-export const POST = RouteGuard.requireAuth(async (req: AuthReqType) => {
+export const POST = RouteGuard.requireAuth(async (req: Request) => {
   try {
-    const user = req.user
+    const authReq = req as AuthReqType
+    const user = authReq.user
 
     if (!user.companyId) {
       return Response.json(

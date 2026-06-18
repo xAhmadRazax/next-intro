@@ -11,7 +11,7 @@ import {
 import { useResetPassword } from "./hooks/useResetPassword"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 export function ResetPassword({ token }: { token: string }) {

@@ -56,9 +56,15 @@ export async function POST(
         { status: 404 }
       )
     }
-    db.transaction(async (tx) => {
-      await tx.update(users).set({ password: hashedPassword })
-      await tx.update(tokens).set({ usedAt: new Date() })
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({ password: hashedPassword })
+        .where(eq(users.id, user.id))
+      await tx
+        .update(tokens)
+        .set({ usedAt: new Date() })
+        .where(eq(tokens.id, tokenRec.tokens.id))
     })
     return Response.json(
       {

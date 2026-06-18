@@ -3,9 +3,11 @@ import { DataTable } from "../dashboard/components/DataGridTable"
 import { attendanceColumns } from "./attendance-column"
 
 export const AttendanceTable = ({
+  wrapperClass,
   attendance,
   isLoading,
 }: {
+  wrapperClass?: string
   attendance: EmployeeAttendance[] | null
   isLoading: boolean
 }) => {
@@ -76,7 +78,11 @@ export const AttendanceTable = ({
 
   return (
     <div>
-      <DataTable columns={attendanceColumns(false, 0)} data={attendance} />
+      <DataTable
+        wrapperClassName={wrapperClass}
+        columns={attendanceColumns(false, 0)}
+        data={attendance}
+      />
     </div>
   )
 }

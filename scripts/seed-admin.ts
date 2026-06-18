@@ -24,6 +24,9 @@ async function seedAdmin() {
     role: "admin",
     mustChangePassword: false,
     passwordExpiresAt: null,
+    avatar: "",
+    avatarPublicId: "",
+    companyId: null,
   })
 
   console.log(`password is ${raw}-`)

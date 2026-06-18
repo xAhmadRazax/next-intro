@@ -1,3 +1,4 @@
+"use server"
 import { Geist, Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
@@ -7,7 +8,6 @@ import { ReactQueryProvider } from "@/components/ReactQueryProvider"
 import { AuthProvider } from "@/context/auth.context"
 import { Toaster } from "@/components/ui/sonner"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 import { BASEURL } from "@/constants/constants"
 import { PublicUserType } from "@/db/schema"
 
@@ -26,23 +26,22 @@ export default async function RootLayout({
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value
 
-  if (!token) {
-    redirect("/auth/login")
+  let user: PublicUserType | undefined
+  if (token) {
+    const res = await fetch(`${BASEURL}/users/me`, {
+      headers: {
+        "content-type": "application/json",
+        Cookie: cookieStore.toString(),
+      },
+      method: "POST",
+    })
+
+    if (!res.ok) {
+      console.log("how to show errir")
+    }
+
+    user = ((await res.json()) as { user: PublicUserType })?.user
   }
-
-  const res = await fetch(`${BASEURL}/users/me`, {
-    headers: {
-      "content-type": "application/json",
-      Cookie: cookieStore.toString(),
-    },
-    method: "POST",
-  })
-
-  if (!res.ok) {
-    if (res.status === 401) redirect("/auth/login")
-  }
-
-  const data = (await res.json()) as { user: PublicUserType }
 
   return (
     <html
@@ -56,7 +55,7 @@ export default async function RootLayout({
       )}
     >
       <body>
-        <AuthProvider initialUser={data.user}>
+        <AuthProvider initialUser={user}>
           <ReactQueryProvider>
             <ThemeProvider>{children}</ThemeProvider>
             <Toaster />

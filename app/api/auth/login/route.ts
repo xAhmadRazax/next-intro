@@ -31,27 +31,14 @@ export async function POST(req: Request) {
       .where(eq(users.email, email.toLowerCase()))
       .leftJoin(companies, eq(users.companyId, companies.id))
 
-    const hashedPassword = TokenUtil.hashPassword(password)
-
-    if (!employee || hashedPassword! == password) {
+    if (
+      !employee.users.password ||
+      !(await TokenUtil.comparePassword(password, employee?.users?.password))
+    ) {
       return Response.json({ error: "Invalid credential." }, { status: 401 })
     }
 
     const formattedEmployee = { ...employee.users, company: employee.companies }
-
-    if (
-      formattedEmployee.mustChangePassword &&
-      formattedEmployee.passwordExpiresAt &&
-      formattedEmployee.passwordExpiresAt.getTime() < Date.now()
-    ) {
-      return Response.json(
-        {
-          error:
-            "Temporary password expired, please contact HR of changed your password",
-        },
-        { status: 403 }
-      )
-    }
 
     const jwtToken = await JWT.signJWT({
       id: formattedEmployee.id,
@@ -63,6 +50,7 @@ export async function POST(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: ms(process.env.JWT_EXPIRY as StringValue),
+      path: "/", // BE EXPLICIT!
     })
 
     const { password: userPassword, ...publicUser } = formattedEmployee

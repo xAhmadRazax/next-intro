@@ -3,7 +3,6 @@ import { LogIn, LogOut, CheckCircle2 } from "lucide-react"
 import { useClockIn } from "./hooks/useClockIn"
 import { useClockOut } from "./hooks/useClockOut"
 import { EmployeeAttendance } from "@/types/dashboard.types"
-import { AttendanceType } from "@/db/schema"
 
 export const AttendanceControls = ({
   attendance,
@@ -14,7 +13,6 @@ export const AttendanceControls = ({
   onClockOutHandler?: (param: EmployeeAttendance) => void
   attendance?: EmployeeAttendance
 }) => {
-  console.log("just dance++++++++++++++++++++++++++++")
   const { clockInHandler, isLoading: isClockingIn } = useClockIn()
   const { clockOutHandler, isLoading: isClockingOut } = useClockOut()
 

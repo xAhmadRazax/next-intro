@@ -57,7 +57,7 @@ export async function POST(
 
     const hashedPassword = await TokenUtil.hashPassword(password)
 
-    db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       await tx.update(users).set({ password: hashedPassword })
       await tx.update(tokens).set({ usedAt: new Date() })
     })

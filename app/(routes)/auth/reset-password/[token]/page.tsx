@@ -9,8 +9,6 @@ export default async function Page({
 }) {
   const { token } = await params
 
-  console.log(token, "password token")
-
   if (!token) redirect("/auth/forgot-password?error=invalid_token")
 
   const { isTokenValid } = await isResetPasswordTokenValid(token)

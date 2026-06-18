@@ -21,8 +21,16 @@ export const PATCH = RouteGuard.requireAuthWithRole(
     let logoObj: { url: string; public_Id: string } | null = null
 
     try {
-      if (!name && !email && !address && !logo) {
-        return Response.json({ status: 200 })
+      const fields: Record<string, string> = {}
+      if (!email) fields.email = "Email is required"
+      if (!name) fields.name = "Name is required"
+      if (!address) fields.company = "address is required"
+
+      if (Object.keys(fields).length > 0) {
+        return Response.json(
+          { error: "Missing required fields", fields },
+          { status: 400 }
+        )
       }
 
       const [companyToUpdate] = await db

@@ -1,27 +1,56 @@
-import { AttendanceType } from "@/db/schema"
 import { getUserAttendance } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import {
   EmployeeAttendance,
   EmployeeAttendanceQueryType,
 } from "@/types/dashboard.types"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-export function useAttendanceQuery() {
-  const [attendance, setAttendance] = useState<{
-    totalAttendance: EmployeeAttendanceQueryType
-    todayAttendance?: EmployeeAttendance
-  } | null>(null)
+export function useAttendanceQuery(
+  {
+    initialTotalAttendance,
+  }: {
+    initialTotalAttendance: EmployeeAttendance[]
+  },
+  filters: {
+    month: number
+    year: number
+    status: string
+  }
+) {
+  // const cachedAtte
 
-  const [isLoading, setIsLoading] = useState(true)
+  const cachedAttendance = useRef<{
+    items: Map<string, EmployeeAttendanceQueryType>
+  }>({
+    items:
+      initialTotalAttendance.length > 0
+        ? new Map().set(
+            `${filters.month + 1}-${filters.year}`,
+            initialTotalAttendance
+          )
+        : new Map(),
+  })
+
+  const [attendance, setAttendance] = useState<{
+    totalAttendance: EmployeeAttendance[]
+    todayAttendance?: EmployeeAttendance
+  } | null>({
+    totalAttendance: initialTotalAttendance,
+    todayAttendance: initialTotalAttendance?.find((att) => {
+      return att?.isToday
+    }),
+  })
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const [error, setError] = useState("")
   const onClockIn = (newRecord: EmployeeAttendance) => {
     setAttendance((prev) => {
       if (!prev) return prev
 
-      const updatedAttendance = prev.totalAttendance.attendance.map((day) => {
+      const updatedAttendance = prev.totalAttendance.map((day) => {
         if (day.isToday) {
           return {
             ...day,
@@ -34,10 +63,8 @@ export function useAttendanceQuery() {
         return day
       })
       return {
-        totalAttendance: {
-          ...prev.totalAttendance,
-          attendance: updatedAttendance,
-        },
+        totalAttendance: updatedAttendance,
+
         todayAttendance: newRecord,
       }
     })
@@ -46,7 +73,7 @@ export function useAttendanceQuery() {
     setAttendance((prev) => {
       if (!prev) return prev
 
-      const updatedAttendance = prev.totalAttendance.attendance.map((day) => {
+      const updatedAttendance = prev.totalAttendance.map((day) => {
         if (day.isToday) {
           return {
             ...day,
@@ -58,10 +85,7 @@ export function useAttendanceQuery() {
       }) as EmployeeAttendance[]
 
       return {
-        totalAttendance: {
-          ...prev.totalAttendance,
-          attendance: updatedAttendance,
-        },
+        totalAttendance: updatedAttendance,
         todayAttendance: newRecord,
       }
     })
@@ -75,14 +99,49 @@ export function useAttendanceQuery() {
     }) => {
       setIsLoading(true)
       try {
-        const res = await getUserAttendance(signal)
+        if (
+          cachedAttendance.current.items.has(
+            `${filters.month + 1}-${filters.year}`
+          )
+        ) {
+          setAttendance({
+            totalAttendance:
+              filters?.status !== "All"
+                ? cachedAttendance.current.items
+                    .get(`${filters.month + 1}-${filters.year}`)!
+                    .attendance.filter(
+                      (el) => el.status === filters.status.toLocaleLowerCase()
+                    )
+                : cachedAttendance.current.items.get(
+                    `${filters.month + 1}-${filters.year}`
+                  )!.attendance,
+          })
+        }
+        const res = await getUserAttendance(filters, signal)
 
         const todayAttendance = res?.attendance?.find((att) => {
           return att?.isToday
         })
 
+        if (res.attendance.length > 0) {
+          cachedAttendance.current.items.set(
+            `${filters.month + 1}-${filters.year}`,
+            res
+          )
+        }
+
+        if (filters.status !== "All") {
+          return setAttendance({
+            totalAttendance: res.attendance.filter((el) => {
+              return el.status === filters.status.toLocaleLowerCase()
+            }),
+
+            todayAttendance: todayAttendance ?? undefined,
+          })
+        }
+
         setAttendance({
-          totalAttendance: res,
+          totalAttendance: res.attendance,
           todayAttendance: todayAttendance ?? undefined,
         })
       } catch (error) {
@@ -105,7 +164,7 @@ export function useAttendanceQuery() {
     attendanceQueryHandler(controller)
 
     return () => controller.abort()
-  }, [])
+  }, [filters])
 
   return { attendance, isLoading, error, onClockIn, onClockOut }
 }
