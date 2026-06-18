@@ -1,5 +1,6 @@
 "use client"
 import { PublicUserType } from "@/db/schema"
+import { ApiError } from "@/lib/apiError"
 import { changePasswordApi, loginApi, logoutApi, meApi } from "@/lib/auth-api"
 import { useRouter } from "next/navigation"
 import {
@@ -9,6 +10,7 @@ import {
   useContext,
   useEffect,
 } from "react"
+import { toast } from "sonner"
 
 interface AuthContextType {
   user: PublicUserType | null
@@ -93,11 +95,17 @@ export function AuthProvider({
     setIsLoading(true)
     try {
       const res = await loginApi({ email, password })
-      console.log(res)
       setUser(res.user)
 
       router.replace("/dashboard/profile")
     } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(error.message)
+        // setIsError(error.message)
+      } else {
+        // setIsError("Something went wrong while fetching data")
+        toast.error("Something went wrong while fetching data")
+      }
       console.error("Login failed", error)
     } finally {
       setIsLoading(false)

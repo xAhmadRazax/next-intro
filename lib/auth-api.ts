@@ -1,4 +1,5 @@
 import { BASEURL } from "@/constants/constants"
+import { ApiError } from "./apiError"
 
 export async function loginApi({
   email,
@@ -17,7 +18,7 @@ export async function loginApi({
 
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
 
   return await res.json()
@@ -40,7 +41,7 @@ export async function changePasswordApi({
 
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
 
   return await res.json()
@@ -56,7 +57,7 @@ export async function logoutApi() {
 
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
 }
 
@@ -71,7 +72,7 @@ export async function forgotPasswordApi({ email }: { email: string }) {
 
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
 }
 
@@ -85,7 +86,6 @@ export async function isResetPasswordTokenValid(token: string) {
   if (!res.ok) {
     // const data = await res.json()
     // throw data // throw the actual error object from the server
-    console.log("there is error")
     return { isTokenValid: false }
   }
   return { isTokenValid: true }
@@ -118,7 +118,7 @@ export async function meApi() {
 
   if (!res.ok) {
     const data = await res.json()
-    throw data // throw the actual error object from the server
+    throw new ApiError(data.error, data.status)
   }
 
   return await res.json()
