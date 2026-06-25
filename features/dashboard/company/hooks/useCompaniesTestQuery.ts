@@ -7,7 +7,6 @@ import { PaginationMeta } from "@/types/pagination.types"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
-;("redundant")
 
 export const useCompaniesTestQuery = ({
   initialFetchedItems = [],
