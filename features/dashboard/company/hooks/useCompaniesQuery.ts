@@ -237,12 +237,7 @@ export const useCompaniesQuery = ({
       try {
         // checking if current page data exist in the pagination if it exist switch current set item to this cached items
         // and there isnt any filtration set for email and name
-        console.log(
-          cachedCompanies,
-          cachedCompanies.current.loadedPages.has(1),
-          cachedCompanies.current.loadedPages.has(+(page ?? 1)),
-          page
-        )
+
         if (
           cachedCompanies.current &&
           cachedCompanies.current.loadedPages.has(+(page ?? 1)) &&

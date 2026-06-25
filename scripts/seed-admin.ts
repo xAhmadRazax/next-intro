@@ -11,23 +11,15 @@ async function seedAdmin() {
   if (!adminName) {
     return console.log("ADMIN_NAME Env variable not set")
   }
-  const { raw, hashed } = await TokenUtil.generate({
-    bytesSize: 4,
-    bufferEncoding: "base64",
-    hashMethod: "bcrypt",
-  })
-
+  const hashed = await TokenUtil.hashPassword("1234")
   await db.insert(users).values({
     email: adminEmail.toLowerCase(),
     password: hashed,
-    username: adminName,
+    name: adminName,
     role: "admin",
-    avatar: "",
-    avatarPublicId: "",
-    companyId: null,
   })
 
-  console.log(`password is ${raw}-`)
+  console.log(`password is 1234`)
 }
 
 seedAdmin()

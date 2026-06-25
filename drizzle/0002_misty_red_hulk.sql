@@ -1,1 +1,0 @@
-ALTER TABLE "employees" RENAME COLUMN "text" TO "avatar";

@@ -1,26 +1,32 @@
 import { PublicUserType } from "@/db/schema"
 
 export interface AddEmployeeDTO {
-  username: string
+  name: string
+  password: string
+  phone: string
+  address: string
   email: string
-  companyId: string
+  companyId?: string
+  designation: string
   avatar?: File | undefined
 }
 
-export type updateEmployeeDto = Omit<AddEmployeeDTO, "companyId">
+// export type updateEmployeeDto = Omit<AddEmployeeDTO, "companyId">
 
-export interface CompanyType {
-  id: string
-  email: string
-  name: string
-  address: string
-  logo?: string
-}
+// export interface CompanyType {
+//   id: string
+//   email: string
+//   name: string
+//   address: string
+//   logo?: string
+// }
 
 export interface AddCompanyDTO {
   name: string
   email: string
   address: string
+  password: string
+
   logo?: string | File
 }
 
@@ -33,39 +39,76 @@ export interface EmployeeQueryType extends PublicUserType {
   }
 }
 
-export interface EmployeeAttendance {
+// export interface EmployeeAttendance {
+//   id: string
+//   companyId: string | null
+//   userId: string | null
+//   createdAt: Date | null
+//   checkIn: string | null
+//   checkOut: string | null
+//   day: string
+//   date: string
+//   duration: string | null
+//   isFuture: boolean
+//   isToday: boolean
+//   isWeekend: boolean
+//   status: "pending" | "absent" | "completed" | "weekend" | "active"
+// }
+// export interface EmployeeAttendanceSummaryType {
+//   month: {
+//     averageDuration: string
+//     monthName: string
+//     totalDuration: string
+//     totalWeekdays: string
+//     weekdaysClocked: number
+//   }
+// }
+
+// export interface EmployeeAttendanceQueryType {
+//   attendance: EmployeeAttendance[]
+//   summary: EmployeeAttendanceSummaryType
+// }
+
+// export interface EmployeeAttendanceStatsType {
+//   averageDuration: string
+//   monthName: string
+//   totalDuration: string
+//   weekdaysClocked: number
+// }
+
+// export interface DepartmentsWithRolesType extends DepartmentType {
+//   roles: JobTitleType[]
+// }
+
+// export interface CreateProjectDto {
+//   projectName: string
+//   description: string
+//   startDate: Date
+//   endDate: Date
+//   ProjectManagerId?: string
+// }
+
+export type CompanyType = {
   id: string
-  companyId: string | null
-  userId: string | null
-  createdAt: Date | null
-  checkIn: string | null
-  checkOut: string | null
-  day: string
-  date: string
-  duration: string | null
-  isFuture: boolean
-  isToday: boolean
-  isWeekend: boolean
-  status: "pending" | "absent" | "completed" | "weekend" | "active"
-}
-export interface EmployeeAttendanceSummaryType {
-  month: {
-    averageDuration: string
-    monthName: string
-    totalDuration: string
-    totalWeekdays: string
-    weekdaysClocked: number
-  }
+  name: string
+  email: string
+  address: string
+  role: string
+  logo: string
+  createdAt: Date
+  updatedAt: Date
 }
 
-export interface EmployeeAttendanceQueryType {
-  attendance: EmployeeAttendance[]
-  summary: EmployeeAttendanceSummaryType
-}
-
-export interface EmployeeAttendanceStatsType {
-  averageDuration: string
-  monthName: string
-  totalDuration: string
-  weekdaysClocked: number
+export type EmployeeType = {
+  id: string
+  name: string
+  email: string
+  address: string
+  role: string
+  avatar: string
+  designation: string
+  phone: string
+  company: CompanyType
+  createdAt: Date
+  updatedAt: Date
 }

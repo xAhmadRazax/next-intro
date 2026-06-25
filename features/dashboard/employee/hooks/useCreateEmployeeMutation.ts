@@ -14,16 +14,29 @@ export function useCreateEmployeeMutation() {
   const [isLoading, setIsLoading] = useState(false)
 
   async function createEmployeeHandler(
-    { email, username, avatar, companyId }: AddEmployeeDTO,
+    {
+      email,
+      name,
+      avatar,
+      companyId,
+      address,
+      designation,
+      password,
+      phone,
+    }: AddEmployeeDTO,
     onSuccessCallbackHandler?: (employee: PublicUserType) => void
   ) {
     setIsLoading(true)
     try {
       const newEmployee = await addEmployee({
         email,
-        username,
         avatar,
         companyId,
+        address,
+        designation,
+        name,
+        password,
+        phone,
       })
 
       if (newEmployee.id) onSuccessCallbackHandler?.(newEmployee)

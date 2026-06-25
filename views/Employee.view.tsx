@@ -1,4 +1,4 @@
-import { getEmployees } from "@/lib/api"
+// import { getEmployees } from "@/lib/api"
 import { EmployeeTableWrapper } from "@/features/dashboard/employee/EmployeeTableWrapper"
 import { Suspense } from "react"
 import { EmployeeQueryType } from "@/types/dashboard.types"
@@ -20,10 +20,13 @@ export const Employee = async () => {
   if (!res.ok) {
     const data = await res.json()
   }
+
   const result = (await res.json()) as {
     data: EmployeeQueryType[]
     meta: PaginationMeta
   }
+
+  // console.log(result)
 
   return (
     <>

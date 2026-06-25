@@ -111,7 +111,10 @@ export const useEmployeesQuery = ({
           cachedEmployees.current = {
             items: [...cachedEmployees.current.items, ...res.data].sort(
               (a, b) => {
-                return a.createdAt!.getTime() - b.createdAt!.getTime()
+                return (
+                  new Date(a.createdAt!).getTime() -
+                  new Date(b.createdAt!).getTime()
+                )
               }
             ),
 
@@ -126,6 +129,7 @@ export const useEmployeesQuery = ({
 
         setEmployees({ items: res.data, meta: res.meta })
       } catch (error) {
+        console.log("error in the employee query", error)
         if (error instanceof DOMException && error.name === "AbortError") return
         if (error instanceof ApiError) {
           toast.error(error.message)

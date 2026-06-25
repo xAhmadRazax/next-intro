@@ -1,0 +1,26 @@
+
+> next-dashboard@0.0.1 db:migrate
+> drizzle-kit migrate
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/Users/ahmad/Desktop/new-projects/next-dashboard/drizzle.config.ts'
+Using 'pg' driver for database querying
+[⣷] applying migrations...(node:29767) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+    at deprecatedSslModeWarning (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg-connection-string/index.js:216:13)
+    at parse (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg-connection-string/index.js:143:11)
+    at new ConnectionParameters (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg/lib/connection-parameters.js:60:42)
+    at new Client (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg/lib/client.js:43:33)
+    at BoundPool.newClient (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg-pool/index.js:241:20)
+    at BoundPool.connect (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg-pool/index.js:235:10)
+    at BoundPool.query (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/pg-pool/index.js:449:10)
+    at <anonymous> (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/src/node-postgres/session.ts:149:27)
+    at NodePgPreparedQuery.queryWithCache (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/src/pg-core/session.ts:71:18)
+    at <anonymous> (/Users/ahmad/Desktop/new-projects/next-dashboard/node_modules/src/node-postgres/session.ts:148:18)
+[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣟] applying migrations...[2K[1G[⡿] applying migrations...[2K[1G[⢿] applying migrations...[2K[1G[⣻] applying migrations...[2K[1G[⣽] applying migrations...[2K[1G[⣷] applying migrations...[2K[1G[⣯] applying migrations...[2K[1G[⣯] applying migrations...

@@ -52,7 +52,7 @@ export class RouteGuard {
       }
 
       const authReq = req as AuthReqType
-      authReq.user = user
+      authReq.user! = user
       return handler(authReq, context)
     }
   }
@@ -62,6 +62,7 @@ export class RouteGuard {
     roles: string[]
   ): Handler<TContext> {
     return async (req, context) => {
+      console.log("guard is being hit ")
       const cookiesStore = await cookies()
       const token = cookiesStore.get("token")?.value
 
@@ -89,10 +90,18 @@ export class RouteGuard {
         return res
       }
 
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, payload.id))
+      // const [user] = await db
+      // .select()
+      // .from(users)
+      // .where(eq(users.id, payload.id))
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, payload.id),
+        with: {
+          company: true,
+          employee: true,
+        },
+      })
 
       if (!user) {
         const res = NextResponse.json(

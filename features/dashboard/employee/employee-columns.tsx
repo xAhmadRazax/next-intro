@@ -36,13 +36,13 @@ export const employeeColumns = (
   },
 
   {
-    accessorKey: "avatar",
+    accessorKey: "employee.avatar",
     header: "Avatar",
     cell: isLoading
       ? () => <Skeleton className="h-10 w-10 rounded-full" />
       : ({ row }) => {
-          const avatar = row.getValue("avatar") as string
-          const name = row.original.username
+          const avatar = row.original.employee?.avatar as string
+          const name = row.original.name
 
           return (
             <Avatar>
@@ -54,13 +54,13 @@ export const employeeColumns = (
   },
 
   {
-    accessorKey: "username",
+    accessorKey: "name",
     header: "Name",
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-75 min-w-50" />
+      ? () => <Skeleton className="h-8 w-full max-w-75 min-w-30" />
       : ({ row }) => (
           <TableCell className="w-full max-w-75 min-w-38 break-all whitespace-normal">
-            {row.getValue("username")}
+            {row.getValue("name")}
           </TableCell>
         ),
   },
@@ -71,7 +71,7 @@ export const employeeColumns = (
     cell: isLoading
       ? () => <Skeleton className="h-8 max-w-90 min-w-63" />
       : ({ row }) => (
-          <TableCell className="w-full max-w-90 min-w-63 break-all whitespace-normal">
+          <TableCell className="w-full max-w-60 min-w-63 break-all whitespace-normal">
             {row.getValue("email")}
           </TableCell>
         ),
@@ -82,39 +82,69 @@ export const employeeColumns = (
     header: "Company",
     accessorFn: (row) => row.company?.name,
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-50" />
+      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-30" />
       : ({ row }) => (
-          <TableCell className="w-full max-w-100 break-all whitespace-normal">
+          <TableCell className="w-full max-w-100 min-w-30 break-all whitespace-normal">
             {row.getValue("company.name")}
           </TableCell>
         ),
   },
 
   {
-    id: "stats.totalHours",
-    header: "Hours logged",
-    accessorFn: (row) => row.stats?.totalHours,
+    id: "employee.address",
+    header: "Address",
+    accessorFn: (row) => row.employee?.address,
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full min-w-30" />
+      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-30" />
       : ({ row }) => (
-          <TableCell className="w-full max-w-30 break-all whitespace-normal">
-            {row.getValue("stats.totalHours")}
+          <TableCell className="w-full max-w-100 min-w-30 break-all whitespace-normal">
+            {row.getValue("employee.address")}
           </TableCell>
         ),
   },
 
   {
-    id: "stats.lastActivity",
-    header: "Last Activity",
-    accessorFn: (row) => row.stats?.lastActivity,
+    id: "employee.designation",
+    header: "Role",
+    accessorFn: (row) => row.employee?.designation,
     cell: isLoading
-      ? () => <Skeleton className="h-8 w-full min-w-30" />
+      ? () => <Skeleton className="h-8 w-full max-w-100 min-w-30" />
       : ({ row }) => (
-          <TableCell className="w-full max-w-30 break-all whitespace-normal">
-            {row.getValue("stats.lastActivity")}
+          <TableCell className="w-full max-w-100 min-w-30 break-all whitespace-normal">
+            {(row.getValue("employee.designation") as string)
+              .split("-")
+              .join(" ")}
           </TableCell>
         ),
   },
+
+  // {
+  //   id: "stats.totalHours",
+  //   header: "Hours logged",
+  //   accessorFn: (row) => row.stats?.totalHours,
+  //   cell: isLoading
+  //     ? () => <Skeleton className="h-8 w-full min-w-30" />
+  //     : ({ row }) => (
+  //         <TableCell className="w-full max-w-30 break-all whitespace-normal">
+  //           {row.getValue("stats.totalHours") === "0m"
+  //             ? "___"
+  //             : row.getValue("stats.totalHours")}
+  //         </TableCell>
+  //       ),
+  // },
+
+  // {
+  //   id: "stats.lastActivity",
+  //   header: "Last Activity",
+  //   accessorFn: (row) => row.stats?.lastActivity,
+  //   cell: isLoading
+  //     ? () => <Skeleton className="h-8 w-full min-w-30" />
+  //     : ({ row }) => (
+  //         <TableCell className="w-full max-w-30 break-all whitespace-normal">
+  //           {row.getValue("stats.lastActivity") ?? "___"}
+  //         </TableCell>
+  //       ),
+  // },
 
   {
     id: "actions", // ← Add this! Required when not using accessorKey
@@ -140,20 +170,20 @@ export const employeeColumns = (
                 employee={{
                   ...row.original,
                   id: row.original.id,
-                  username: row.original.username,
+                  name: row.original.name,
                   email: row.original.email,
-                  avatar: row.original.avatar,
+                  // avatar: row.original.employee?.address,
                   company: row.original.company,
                   role: row.original.role,
                 }}
               />
               <DeleteEmployeeButton
                 id={row.original.id}
-                name={row.original.username}
+                name={row.original.name}
               />
               <ResetEmployeePasswordButton
                 id={row.original.id}
-                name={row.original.username}
+                name={row.original.name}
               />
             </div>
           </TableCell>

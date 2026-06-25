@@ -1,13 +1,21 @@
 import { BASEURL } from "@/constants/constants"
-import { AttendanceType, CompanyType, PublicUserType } from "@/db/schema"
+import {
+  // AttendanceType,
+  CompanyType,
+  // DepartmentType,
+  // ProjectType,
+  PublicUserType,
+} from "@/db/schema"
 import type {
   AddCompanyDTO,
   AddEmployeeDTO,
-  EmployeeAttendance,
-  EmployeeAttendanceQueryType,
-  EmployeeAttendanceStatsType,
+  // CreateProjectDto,
+  // DepartmentsWithRolesType,
+  // EmployeeAttendance,
+  // EmployeeAttendanceQueryType,
+  // EmployeeAttendanceStatsType,
   EmployeeQueryType,
-  updateEmployeeDto,
+  // updateEmployeeDto,
 } from "@/types/dashboard.types"
 import type { PaginationMeta } from "@/types/pagination.types"
 import { ApiError } from "./apiError"
@@ -43,8 +51,6 @@ export const getEmployees = async (
   if (usernameFilter) baseUrl = `${baseUrl}username=${usernameFilter}&`
   if (companyFilter) baseUrl = `${baseUrl}company=${companyFilter}&`
 
-  console.log("url", baseUrl)
-
   const res = await fetch(baseUrl, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -60,27 +66,31 @@ export const getEmployees = async (
   return result
 }
 
-export const getEmployee = async (id: string): Promise<PublicUserType> => {
-  const res = await fetch(`${BASEURL}/dashboard/employee/${id}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  })
-  if (!res.ok) {
-    const data = await res.json()
-    throw data // throw the actual error object from the server
-  }
-  const result = await res.json()
-  return result
-}
+// export const getEmployee = async (id: string): Promise<PublicUserType> => {
+//   const res = await fetch(`${BASEURL}/dashboard/employee/${id}`, {
+//     method: "GET",
+//     headers: { "Content-Type": "application/json" },
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw data // throw the actual error object from the server
+//   }
+//   const result = await res.json()
+//   return result
+// }
 
 export const addEmployee = async (
   body: AddEmployeeDTO
 ): Promise<PublicUserType> => {
   const formData = new FormData()
 
-  formData.append("username", body.username)
+  formData.append("name", body.name)
   formData.append("email", body.email)
-  formData.append("companyId", body.companyId)
+  formData.append("password", body.password)
+  formData.append("phone", body.phone)
+  formData.append("designation", body.designation)
+  formData.append("address", body.address)
+  formData.append("companyId", body?.companyId ?? "")
   if (body.avatar) {
     formData.append("avatar", body.avatar)
   }
@@ -210,6 +220,7 @@ export const createCompany = async (
   formData.append("name", body.name)
   formData.append("email", body.email)
   formData.append("address", body.address)
+  formData.append("password", body.password)
   if (body.logo) formData.append("logo", body.logo)
 
   const res = await fetch(`${BASEURL}/dashboard/companies`, {
@@ -263,54 +274,54 @@ export const deleteCompany = async (id: string) => {
 
 //  attendance api
 
-export const clockInApi = async (): Promise<{
-  attendance: EmployeeAttendance
-}> => {
-  const res = await fetch(`${BASEURL}/attendance/clockIn`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  })
-  if (!res.ok) {
-    const data = await res.json()
-    throw new ApiError(data.error, data.status)
-  }
+// export const clockInApi = async (): Promise<{
+//   attendance: EmployeeAttendance
+// }> => {
+//   const res = await fetch(`${BASEURL}/attendance/clockIn`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
 
-  return res.json()
-}
+//   return res.json()
+// }
 
-export const clockOutApi = async (): Promise<{
-  attendance: EmployeeAttendance
-}> => {
-  const res = await fetch(`${BASEURL}/attendance/clockOut`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  })
-  if (!res.ok) {
-    const data = await res.json()
-    throw new ApiError(data.error, data.status)
-  }
+// export const clockOutApi = async (): Promise<{
+//   attendance: EmployeeAttendance
+// }> => {
+//   const res = await fetch(`${BASEURL}/attendance/clockOut`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
 
-  return res.json()
-}
+//   return res.json()
+// }
 
-export const getUserAttendance = async (
-  filters: { month: number; year: number },
-  signal?: AbortSignal
-): Promise<EmployeeAttendanceQueryType> => {
-  const res = await fetch(
-    `${BASEURL}/attendance?month=${filters.month + 1}&year=${filters.year}`,
-    {
-      headers: { "Content-Type": "application/json" },
-      signal,
-    }
-  )
-  if (!res.ok) {
-    const data = await res.json()
-    throw new ApiError(data.error, data.status)
-  }
+// export const getUserAttendance = async (
+//   filters: { month: number; year: number },
+//   signal?: AbortSignal
+// ): Promise<EmployeeAttendanceQueryType> => {
+//   const res = await fetch(
+//     `${BASEURL}/attendance?month=${filters.month + 1}&year=${filters.year}`,
+//     {
+//       headers: { "Content-Type": "application/json" },
+//       signal,
+//     }
+//   )
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
 
-  return res.json()
-}
+//   return res.json()
+// }
 
 export const getEmployeeAttendance = async (
   id: string,
@@ -333,19 +344,77 @@ export const getEmployeeAttendance = async (
   return result
 }
 
-export const getUserAttendanceStats = async (
-  filters?: { month: number; year: number },
-  signal?: AbortSignal
-): Promise<EmployeeAttendanceStatsType> => {
-  const res = await fetch(`${BASEURL}/attendance/stats`, {
-    headers: { "Content-Type": "application/json" },
-    signal,
-  })
-  if (!res.ok) {
-    const data = await res.json()
-    throw new ApiError(data.error, data.status)
-  }
-  const result = res.json()
-  console.log(result)
-  return result
-}
+// export const getUserAttendanceStats = async (
+//   filters?: { month: number; year: number },
+//   signal?: AbortSignal
+// ): Promise<EmployeeAttendanceStatsType> => {
+//   const res = await fetch(`${BASEURL}/attendance/stats`, {
+//     headers: { "Content-Type": "application/json" },
+//     signal,
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
+//   const result = res.json()
+//   console.log(result)
+//   return result
+// }
+
+//–––––––––––departments
+
+// export const getDepartmentsWithRoles = async (
+//   signal?: AbortSignal
+// ): Promise<DepartmentsWithRolesType[]> => {
+//   const res = await fetch(`${BASEURL}/dashboard/departments`, {
+//     headers: { "Content-Type": "application/json" },
+//     signal,
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
+//   const result = res.json()
+//   console.log(result)
+//   return result
+// }
+
+// _____________________ projects
+
+// export const getProjectsApi = async ({
+//   page = 1,
+//   itemsPerPage = 20,
+//   signal,
+// }: {
+//   page?: number
+//   itemsPerPage?: number
+//   signal?: AbortSignal
+// }): Promise<ProjectType[]> => {
+//   const res = await fetch(`${BASEURL}/dashboard/projects`, {
+//     headers: { "Content-Type": "application/json" },
+//     signal,
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
+//   const result = res.json()
+//   console.log(result)
+//   return result
+// }
+
+// export const createProjectApi = async (
+//   createProjectDto: CreateProjectDto
+// ): Promise<ProjectType> => {
+//   const res = await fetch(`${BASEURL}/dashboard/projects`, {
+//     method: "POST",
+//     body: JSON.stringify({ createProjectDto }),
+//     headers: { "Content-Type": "application/json" },
+//   })
+//   if (!res.ok) {
+//     const data = await res.json()
+//     throw new ApiError(data.error, data.status)
+//   }
+//   const result = res.json()
+//   return result
+// }

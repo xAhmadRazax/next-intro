@@ -37,11 +37,13 @@ export default async function RootLayout({
     })
 
     if (!res.ok) {
-      console.log("how to show errir")
+      console.log("how to show error")
     }
 
     user = ((await res.json()) as { user: PublicUserType })?.user
   }
+
+  console.log("user", user)
 
   return (
     <html

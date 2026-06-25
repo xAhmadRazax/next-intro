@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { Textarea } from "../ui/textarea"
 
 function Root({ children, ...props }: React.ComponentProps<"form">) {
   return (
@@ -40,6 +41,10 @@ function FormInput(props: React.ComponentProps<typeof Input>) {
   return <Input {...props} />
 }
 
+function FormTextarea(props: React.ComponentProps<typeof Textarea>) {
+  return <Textarea {...props} />
+}
+
 function Actions({ children }: React.PropsWithChildren) {
   return <div className="mt-4 flex justify-end gap-2">{children}</div>
 }
@@ -56,6 +61,7 @@ const Form = Object.assign(Root, {
   Field,
   Label: FormLabel,
   Input: FormInput,
+  Textarea: FormTextarea,
   Actions,
   Submit,
 })

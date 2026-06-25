@@ -9,26 +9,31 @@ const navigationRoute = [
   {
     href: "/dashboard/profile",
     label: "Profile",
-    access: "all",
+    access: ["all"],
+  },
+  {
+    href: "/dashboard/projects",
+    label: "Projects",
+    access: ["company"],
   },
   {
     href: "/dashboard/attendance",
     label: "Attendance",
-    access: "employee",
+    access: ["employee"],
   },
   {
     href: "/dashboard/employees",
     label: "Employees",
-    access: "admin",
+    access: ["admin", "company"],
   },
   {
     href: "/dashboard/companies",
     label: "Companies",
-    access: "admin",
+    access: ["admin"],
   },
 ]
 export const SideBar = ({ role }: { role: string }) => {
-  const { logout } = useAuthContext()
+  const { logout, user } = useAuthContext()
 
   const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -74,15 +79,17 @@ export const SideBar = ({ role }: { role: string }) => {
 
           {/* mobile side bar */}
           <ul className="mt-4">
-            {navigationRoute.map((link) => (
-              <li key={`mobile-${link.label}`}>
-                <SidebarLink
-                  href={link.href}
-                  label={link.label}
-                  onClick={() => setIsOpen(false)}
-                />
-              </li>
-            ))}
+            {navigationRoute
+              .filter(
+                (link) =>
+                  link.access.includes("all") ||
+                  link.access.includes(user?.role ?? "")
+              )
+              .map((route) => (
+                <li key={route.label}>
+                  <SidebarLink href={route.href} label={route.label} />
+                </li>
+              ))}
 
             <li key={"logout"}>
               <SidebarLink
@@ -117,7 +124,11 @@ export const SideBar = ({ role }: { role: string }) => {
 
           <ul className="mt-4">
             {navigationRoute
-              .filter((link) => link.access === "all" || role === link.access)
+              .filter(
+                (link) =>
+                  link.access.includes("all") ||
+                  link.access.includes(user?.role ?? "")
+              )
               .map((route) => (
                 <li key={route.label}>
                   <SidebarLink href={route.href} label={route.label} />

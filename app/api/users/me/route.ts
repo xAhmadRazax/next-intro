@@ -14,6 +14,7 @@ export const POST = RouteGuard.requireAuth(async (req) => {
       where: eq(users.id, userId.id),
       with: {
         company: true,
+        employee: true,
         // attendance: true,
       },
     })

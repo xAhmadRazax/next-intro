@@ -33,6 +33,7 @@ export const AddCompanyForm = ({
   const emailError = error?.fields?.email
   const nameError = error?.fields?.name
   const addressError = error?.fields?.address
+  const passwordError = error?.fields?.error
 
   const [companyLogo, setCompanyLogo] = useState<CompanyLogoState>({
     image: null,
@@ -83,12 +84,14 @@ export const AddCompanyForm = ({
     const name = formData.get("name") as string
     const email = formData.get("email") as string
     const address = formData.get("address") as string
+    const password = formData.get("password") as string
     // get the file upload
 
     const newCompanyData = await createCompanyHandler({
       email,
       name,
       address,
+      password,
       logo: companyLogo?.image ?? undefined,
     })
 
@@ -146,6 +149,26 @@ export const AddCompanyForm = ({
             disabled={isCreatingCompany}
           />
           {nameError && <p className="text-sm text-destructive">{nameError}</p>}
+        </Form.Field>
+        <Form.Field>
+          <Form.Label htmlFor="password">Password</Form.Label>
+
+          <Form.Input
+            onFocus={() => {
+              if (passwordError) {
+                clearFieldError("password")
+              }
+            }}
+            id={"password"}
+            name="password"
+            className={`${passwordError ? "ring-destructive" : ""}`}
+            placeholder="******"
+            required
+            disabled={isCreatingCompany}
+          />
+          {passwordError && (
+            <p className="text-sm text-destructive">{passwordError}</p>
+          )}
         </Form.Field>
 
         <Form.Field>

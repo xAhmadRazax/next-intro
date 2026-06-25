@@ -1,12 +1,14 @@
 import { uuid, varchar, text, timestamp, pgTable } from "drizzle-orm/pg-core"
+import { PublicUserType, UserType } from "./user.schema"
 
 export const companies = pgTable("companies", {
   id: uuid(`id`).defaultRandom().primaryKey(),
-  email: varchar("email", { length: 254 }).notNull().unique(),
-  name: varchar("name", { length: 254 }).notNull(),
-  address: text("address").notNull(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
   logo: text("logo"),
-  logoPublicId: text("logo_public_id"),
+  // logoPublicId: text("logo_public_id"),
+
+  address: text("address"),
 
   createdAt: timestamp("created_at", {
     withTimezone: true,
@@ -18,4 +20,6 @@ export const companies = pgTable("companies", {
   }).$onUpdate(() => new Date()),
 })
 
-export type CompanyType = typeof companies.$inferSelect
+export type CompanyType = PublicUserType & {
+  company: typeof companies.$inferSelect
+}

@@ -8,9 +8,11 @@
 
 import { BASEURL } from "@/constants/constants"
 import { CompanyType } from "@/db/schema"
+// import { CompanyType } from "@/db/schema"
 import { CompaniesTableSkeleton } from "@/features/dashboard/company/CompaniesTableSkeleton"
 import { CompanyTableWrapper } from "@/features/dashboard/company/CompanyTableWrapper"
 import { PaginationMeta } from "@/types/pagination.types"
+// import { PaginationMeta } from "@/types/pagination.types"
 import { cookies } from "next/headers"
 import { Suspense } from "react"
 
@@ -34,7 +36,7 @@ export const Company = async () => {
     meta: PaginationMeta
   }
 
-  console.log("data on the server")
+  console.log(companiesData, "companies")
 
   return (
     <>

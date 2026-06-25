@@ -79,11 +79,13 @@ export const companyColumns = (
     header: "Address",
     cell: isLoading
       ? () => <Skeleton className="h-8 max-w-100 min-w-80" />
-      : ({ row }) => (
-          <TableCell className="w-full max-w-100 min-w-72 break-all whitespace-normal">
-            {row.getValue("address")}
-          </TableCell>
-        ),
+      : ({ row }) => {
+          return (
+            <TableCell className="w-full max-w-100 min-w-72 break-all whitespace-normal">
+              {row.original.company.address ?? "___"}
+            </TableCell>
+          )
+        },
   },
 
   {
@@ -106,8 +108,8 @@ export const companyColumns = (
                   id: row.original.id,
                   name: row.original.name,
                   email: row.original.email,
-                  address: row.original.address,
-                  logo: row.original.logo,
+                  // address: row.original.address,
+                  // logo: row.original.logo,
                 }}
               />
               <DeleteCompanyButton

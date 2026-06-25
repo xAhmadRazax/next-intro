@@ -11,7 +11,7 @@ export default async function Layout({ children }: PropsWithChildren) {
   }
 
   const payload = await JWT.safeVerifyJWT(token)
-  if (!payload || payload.role !== "admin") {
+  if (!payload || payload.role == "employee") {
     redirect("/dashboard/profile")
   }
 

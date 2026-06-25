@@ -150,12 +150,34 @@ export const UpdateEmployeeForm = ({
         </Form.Field>
 
         <Form.Field>
-          <Form.Label htmlFor="company">company</Form.Label>
+          <Form.Label htmlFor="company">Company</Form.Label>
 
           <Form.Input
             id="company"
             name="company"
             defaultValue={employee.company!.name ?? ""}
+            disabled={true}
+          />
+        </Form.Field>
+
+        <Form.Field>
+          <Form.Label htmlFor="department">Department</Form.Label>
+
+          <Form.Input
+            id="department"
+            name="department"
+            defaultValue={employee.department!.name ?? "___"}
+            disabled={true}
+          />
+        </Form.Field>
+
+        <Form.Field>
+          <Form.Label htmlFor="jobTitle">Role</Form.Label>
+
+          <Form.Input
+            id="jobTitle"
+            name="jobTitle"
+            defaultValue={employee.jobTitle!.name ?? ""}
             disabled={true}
           />
         </Form.Field>

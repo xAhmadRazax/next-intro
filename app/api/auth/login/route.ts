@@ -25,24 +25,30 @@ export async function POST(req: Request) {
       )
     }
 
-    const [employee] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email.toLowerCase()))
-      .leftJoin(companies, eq(users.companyId, companies.id))
+    // const [employee] = await db
+    //   .select()
+    //   .from(users)
+    //   .where(eq(users.email, email.toLowerCase()))
+    //   .leftJoin(companies, eq(users.companyId, companies.id))
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email.toLowerCase()),
+      with: {
+        company: true,
+        employee: true,
+      },
+    })
 
     if (
-      !employee.users.password ||
-      !(await TokenUtil.comparePassword(password, employee?.users?.password))
+      !user?.id ||
+      !(await TokenUtil.comparePassword(password, user?.password))
     ) {
       return Response.json({ error: "Invalid credential." }, { status: 401 })
     }
 
-    const formattedEmployee = { ...employee.users, company: employee.companies }
-
     const jwtToken = await JWT.signJWT({
-      id: formattedEmployee.id,
-      role: formattedEmployee.role,
+      id: user.id,
+      role: user.role,
     })
 
     const cookieStore = await cookies()
@@ -53,7 +59,7 @@ export async function POST(req: Request) {
       path: "/", // BE EXPLICIT!
     })
 
-    const { password: userPassword, ...publicUser } = formattedEmployee
+    const { password: userPassword, ...publicUser } = user
     void userPassword
 
     return Response.json({ user: publicUser }, { status: 200 })

@@ -1,6 +1,6 @@
 "use client"
 
-import { getEmployeeAttendance } from "@/lib/api"
+// import { getEmployeeAttendance } from "@/lib/api"
 import { AddEmployeeButton } from "./AddEmployeeButton"
 import { EmployeesTable } from "./EmployeesTable"
 import { EmployeeTableFiltrationWrapper } from "./EmployeeTableFiltrationWrapper"

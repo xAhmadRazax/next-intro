@@ -1,10 +1,12 @@
 "use client"
+import { CompanyType } from "@/db/schema"
 import { AddCompanyButton } from "./AddCompanyButton"
-import { CompaniesTable } from "./CompaniesTable"
 import { CompanyTableFiltrationWrapper } from "./CompanyTableFiltrationWrapper"
 import { useCompaniesQuery } from "./hooks/useCompaniesQuery"
-import { CompanyType } from "@/db/schema"
 import { PaginationMeta } from "@/types/pagination.types"
+import { Suspense } from "react"
+import { CompaniesTableSkeleton } from "./CompaniesTableSkeleton"
+import { CompaniesTable } from "./CompaniesTable"
 
 export const CompanyTableWrapper = ({
   initialFetchedItems,
@@ -28,14 +30,14 @@ export const CompanyTableWrapper = ({
       </div>
 
       <div className="flex-1 lg:px-2">
-        {/* <Suspense fallback={<CompaniesTableSkeleton rows={10} />}> */}
-        <CompaniesTable
-          isLoading={isLoading}
-          companiesDataWithPagMeta={companies}
-          removeItemCallback={removeItem}
-          mutateExistingCompanyCallback={mutateExistingCompany}
-        />
-        {/* </Suspense> */}
+        <Suspense fallback={<CompaniesTableSkeleton rows={10} />}>
+          <CompaniesTable
+            isLoading={isLoading}
+            companiesDataWithPagMeta={companies}
+            removeItemCallback={removeItem}
+            mutateExistingCompanyCallback={mutateExistingCompany}
+          />
+        </Suspense>
       </div>
     </>
   )

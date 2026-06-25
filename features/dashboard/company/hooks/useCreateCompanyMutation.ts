@@ -1,5 +1,5 @@
 "use client"
-import { CreateCompanyDto } from "@/app/api/dashboard/companies/dtos/createCompanyDto"
+import { CreateCompanyDto } from "@/app/api/backup/dashboard/companies/dtos/createCompanyDto"
 import { CompanyType } from "@/db/schema"
 import { createCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
@@ -14,12 +14,18 @@ export function useCreateCompanyMutation() {
   const [isLoading, setIsLoading] = useState(false)
 
   async function createCompanyHandler(
-    { email, logo, name, address }: CreateCompanyDto,
+    { email, logo, name, address, password }: CreateCompanyDto,
     onSuccessCallbackHandler?: (company: CompanyType) => void
   ) {
     setIsLoading(true)
     try {
-      const company = await createCompany({ email, logo, name, address })
+      const company = await createCompany({
+        email,
+        logo,
+        name,
+        address,
+        password,
+      })
       if (company.id) {
         onSuccessCallbackHandler?.(company)
       }

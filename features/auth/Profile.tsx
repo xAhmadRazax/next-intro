@@ -29,7 +29,8 @@ export const Profile = () => {
     changePassword(currentPassword, newPassword)
   }
 
-  const username = user?.username ?? "N/A"
+  const isCompanyAdmin = user?.role === "company"
+  const username = user?.name ?? "N/A"
   const email = user?.email ?? "N/A"
   return (
     <section className="mx-auto flex w-full max-w-[95%] min-w-0 flex-1 flex-col gap-4 px-2 xl:max-w-350">
@@ -51,13 +52,13 @@ export const Profile = () => {
           {/* Avatar */}
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={user?.avatar ?? undefined} />
+              <AvatarImage src={user?.employee?.avatar ?? undefined} />
               <AvatarFallback className="text-lg">
-                {user?.username?.slice(0, 2).toUpperCase()}
+                {user?.name?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-1">
-              <p className="font-medium">{user?.username}</p>
+              <p className="font-medium">{user?.name}</p>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
               <Button variant="outline" size="sm" className="mt-1 w-fit">
                 Change photo
@@ -68,19 +69,19 @@ export const Profile = () => {
           {/* Fields */}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <Label>Username</Label>
+              <Label>{isCompanyAdmin ? "Company" : "Username"}</Label>
               <Input value={username} disabled />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Email</Label>
               <Input type="email" disabled value={email} />
             </div>
-            {user?.role != "admin" && (
-              <div className="flex flex-col gap-1.5">
-                <Label>Company</Label>
-                <Input value={user?.company?.email ?? "N/A"} disabled />
-              </div>
-            )}
+            {/* {user?.role != "admin" && ( */}
+            {/* <div className="flex flex-col gap-1.5"> */}
+            {/* <Label>Company</Label> */}
+            {/* <Input value={user?.company?.email ?? "N/A"} disabled /> */}
+            {/* </div> */}
+            {/* )} */}
             <div className="flex flex-col gap-1.5">
               <Label>Role</Label>
               <div className="flex h-9 items-center">

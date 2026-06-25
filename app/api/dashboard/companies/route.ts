@@ -1,12 +1,99 @@
 import { db } from "@/db"
-import { companies } from "@/db/schema"
-import { ilike, count, and } from "drizzle-orm"
+import { companies, users } from "@/db/schema"
 import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
-import { cloudinaryService } from "@/lib/cloudinary.server"
-import { RouteGuard } from "@/lib/routeGuard.server"
+import { TokenUtil } from "@/lib/token.server"
+import { and, count, eq, ilike, isNull } from "drizzle-orm"
 
-export const GET = RouteGuard.requireAuthWithRole(
-  async (req: Request) => {
+export const POST = async (req: Request) => {
+  try {
+    const formData = await req.formData()
+
+    const name = formData.get("name") as string
+    const address = formData.get("address") as string
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const logo = formData.get("logo")
+    const logoFile = logo instanceof File ? logo : null
+
+    const errorFields: Record<string, string> = {}
+
+    if (!name) {
+      errorFields.name = "Name is Required."
+    }
+    if (!address) {
+      errorFields.address = "Address is Required."
+    }
+    if (!email) {
+      errorFields.email = "Email is Required."
+    }
+    if (!password) {
+      errorFields.password = "Password is Required."
+    }
+
+    if (Object.keys(errorFields).length > 0) {
+      return Response.json(
+        { error: "Missing required fields", errorFields },
+        { status: 400 }
+      )
+    }
+
+    const hashed = await TokenUtil.hashPassword(password)
+
+    const [company] = await db
+      .insert(companies)
+      .values({
+        email,
+        name,
+        address: address,
+      })
+      .returning()
+
+    const [createdUser] = await db
+      .insert(users)
+      .values({
+        email: email.toLocaleLowerCase(),
+        name,
+        companyId: company.id,
+        role: "company",
+        password: hashed,
+      })
+      .returning()
+
+    const userWithAllData = await db.query.users.findFirst({
+      where: eq(users.id, createdUser.id),
+      with: {
+        company: true,
+      },
+      columns: {
+        password: false,
+      },
+    })
+
+    return Response.json(userWithAllData, { status: 201 })
+  } catch (error) {
+    console.log(error)
+    const postgresError = handlePostgresError(error)
+    if (postgresError) return postgresError
+
+    // Handle JSON parsing error
+    if (error instanceof SyntaxError) {
+      return Response.json({ error: "Invalid JSON format" }, { status: 400 })
+    }
+
+    return Response.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export const GET = async (req: Request) => {
+  try {
+    // const companies = await db.query.users.findMany({
+    //   where: and(isNull(users.employeeId), isNotNull(users.companyId)),
+    //   with: {
+    //     company: true,
+    //   },
+    // })
+
+    // return Response.json(companies, { status: 201 })
     const { searchParams } = new URL(req.url)
 
     const getAll = Boolean(searchParams.get("getAll"))
@@ -18,31 +105,32 @@ export const GET = RouteGuard.requireAuthWithRole(
 
     const offset = (page - 1) * limit
 
-    type CompanyType = typeof companies
-
-    const whereClause = (table: CompanyType) =>
-      and(
-        emailFilter ? ilike(table.email, `%${emailFilter}%`) : undefined,
-        nameFilter ? ilike(table.name, `%${nameFilter}%`) : undefined
-      )
-
+    const whereClause = and(
+      emailFilter ? ilike(users.email, `%${emailFilter}%`) : undefined,
+      nameFilter ? ilike(users.name, `%${nameFilter}%`) : undefined,
+      isNull(users.employeeId),
+      eq(users.role, "company")
+    )
     const [data, [{ total }]] = await Promise.all([
-      db.query.companies.findMany({
-        columns: getAll ? { name: true, id: true } : undefined,
+      db.query.users.findMany({
+        columns: getAll
+          ? { name: true, id: true, password: false }
+          : { password: false },
         limit: !getAll ? limit : undefined,
         offset: !getAll ? offset : undefined,
-        where: whereClause(companies),
+        where: whereClause,
+        with: {
+          company: true,
+        },
         // orderBy: (table, { asc, desc }) => [
         //   order === "asc" ? asc(table.createdAt) : desc(table.createdAt),
         // ],
         orderBy: (companies, { asc }) => [asc(companies.createdAt)],
       }),
-      db
-        .select({ total: count() })
-        .from(companies)
-        .where(whereClause(companies)),
+      db.select({ total: count() }).from(users).where(whereClause),
     ])
 
+    // console.log(data, "companies")
     const totalPages = Math.ceil(total / limit)
 
     return Response.json({
@@ -57,69 +145,16 @@ export const GET = RouteGuard.requireAuthWithRole(
         totalPages,
       },
     })
-  },
-  ["admin"]
-)
+  } catch (error) {
+    console.log(error)
+    const postgresError = handlePostgresError(error)
+    if (postgresError) return postgresError
 
-export const POST = RouteGuard.requireAuthWithRole(
-  async (req: Request) => {
-    const formData = await req.formData()
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string
-    const address = formData.get("address") as string
-    const logo = formData.get("logo")
-    const logoFile = logo instanceof File ? logo : null
-
-    let logoObj: { url: string; publicId: string } | null = null
-
-    // validate fields
-    const fields: Record<string, string> = {}
-    if (!email) fields.email = "Email is required"
-    if (!name) fields.name = "Name is required"
-    if (!address) fields.address = "Address is required"
-
-    if (Object.keys(fields).length > 0) {
-      return Response.json(
-        { error: "Missing required fields", fields },
-        { status: 400 }
-      )
+    // Handle JSON parsing error
+    if (error instanceof SyntaxError) {
+      return Response.json({ error: "Invalid JSON format" }, { status: 400 })
     }
 
-    try {
-      if (logoFile) {
-        const cloudinaryRes = await cloudinaryService.streamUpload(logoFile)
-        logoObj = {
-          url: cloudinaryRes.url,
-          publicId: cloudinaryRes.publicId,
-        }
-      }
-
-      const [company] = await db
-        .insert(companies)
-        .values({
-          name,
-          email,
-          address,
-          logo: logoObj?.url ?? null,
-          logoPublicId: logoObj?.publicId ?? null,
-        })
-        .returning()
-
-      return Response.json(company, { status: 201 })
-    } catch (err: unknown) {
-      if (logoObj?.publicId) {
-        await cloudinaryService.deleteFromCloudinary(logoObj.publicId)
-      }
-
-      const postgresError = handlePostgresError(err)
-      if (postgresError) return postgresError
-
-      if (err instanceof SyntaxError) {
-        return Response.json({ error: "Invalid JSON format" }, { status: 400 })
-      }
-
-      return Response.json({ error: "Internal server error" }, { status: 500 })
-    }
-  },
-  ["admin"]
-)
+    return Response.json({ error: "Internal server error" }, { status: 500 })
+  }
+}

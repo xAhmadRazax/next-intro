@@ -9,11 +9,11 @@ export const attendance = pgTable("attendance", {
     onDelete: "cascade",
   }),
   userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-  checkIn: timestamp("check-in", {
+  checkIn: timestamp("check_in", {
     withTimezone: true,
     mode: "date",
   }),
-  checkOut: timestamp("check-out", {
+  checkOut: timestamp("check_out", {
     withTimezone: true,
     mode: "date",
   }),
