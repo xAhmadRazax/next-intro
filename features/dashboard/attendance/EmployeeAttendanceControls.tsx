@@ -4,7 +4,7 @@ import { useClockIn } from "./hooks/useClockIn"
 import { useClockOut } from "./hooks/useClockOut"
 import { EmployeeAttendance } from "@/types/dashboard.types"
 
-export const AttendanceControls = ({
+export const EmployeeAttendanceControls = ({
   attendance,
   onClockInHandler,
   onClockOutHandler,

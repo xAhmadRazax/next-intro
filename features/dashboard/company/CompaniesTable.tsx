@@ -6,8 +6,8 @@ import { DataTablePaginationWrapper } from "../components/DataTablePaginationWra
 import { TablePagination } from "@/components/TablePagination"
 import { useCompaniesQuery } from "./hooks/useCompaniesQuery"
 import { CompaniesTableSkeleton } from "./CompaniesTableSkeleton"
-import { CompanyType } from "@/db/schema"
 import { PaginationMeta } from "@/types/pagination.types"
+import { CompanyType } from "@/types/dashboard.types"
 
 export const CompaniesTable = ({
   isLoading,

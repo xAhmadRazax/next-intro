@@ -11,12 +11,12 @@ export function useDeleteEmployeeMutation() {
 
   async function deleteEmployeeHandler(
     id: string,
-    onSuccessCallback?: () => void
+    onSuccessCallback?: (id: string) => void
   ) {
     setIsLoading(true)
     try {
       await deleteEmployee(id)
-      return onSuccessCallback?.()
+      return onSuccessCallback?.(id)
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message)

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { UpdateCompanyForm } from "./UpdateCompanyForm"
 import FormDialog from "../components/FormDialog"
 import { Pencil } from "lucide-react"
-import { CompanyType } from "@/db/schema"
+import { CompanyType } from "@/types/dashboard.types"
 
 interface UpdateCompanyButtonProps {
   company: CompanyType

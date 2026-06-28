@@ -4,7 +4,6 @@ import { handlePostgresError } from "@/lib/drizzle-error-handler.server"
 import { RouteGuard } from "@/lib/routeGuard.server"
 import { TokenUtil } from "@/lib/token.server"
 import { AuthReqType } from "@/types/authReq.type"
-import { CompanyType } from "@/types/dashboard.types"
 import { and, eq, ilike, isNotNull, count } from "drizzle-orm"
 
 export const POST = RouteGuard.requireAuthWithRole(
@@ -20,7 +19,6 @@ export const POST = RouteGuard.requireAuthWithRole(
     if (user.role === "company" && user.companyId) {
       companyId = user.companyId
     }
-
     const formData = await req.formData()
 
     const name = formData.get("name") as string
@@ -29,8 +27,8 @@ export const POST = RouteGuard.requireAuthWithRole(
     const password = formData.get("password") as string
     const designation = formData.get("designation") as string
     const phone = formData.get("phone") as string
+    companyId = companyId ?? (formData.get("companyId") as string)
 
-    console.log(name, "usernams")
     //   const departmentId = formData.get("departmentId") as string
     //   const roleId = formData.get("roleId") as string
     const avatar = formData.get("avatar") as File
@@ -55,6 +53,8 @@ export const POST = RouteGuard.requireAuthWithRole(
       const [employee] = await db
         .insert(employees)
         .values({
+          email,
+          name,
           address,
           designation,
           phone,
@@ -81,7 +81,18 @@ export const POST = RouteGuard.requireAuthWithRole(
         },
       })
 
-      return Response.json(user, { status: 201 })
+      const formattedUser = {
+        id: employee.id,
+        name: user?.name,
+        email: user?.email,
+        address: employee?.address,
+        phone: employee?.phone,
+        designation: employee?.designation,
+        createdAt: employee.createdAt,
+        updatedAt: employee.updatedAt,
+        company: user?.company,
+      }
+      return Response.json(formattedUser, { status: 201 })
     } catch (error: unknown) {
       const postgresError = handlePostgresError(error)
       if (postgresError) return postgresError
@@ -178,7 +189,17 @@ export const GET = RouteGuard.requireAuthWithRole(
         //     : `${Math.floor(totalMins / 60)}h ${totalMins % 60}m`
 
         return {
-          ...employee,
+          // ...employee,
+          id: employee.employee?.id,
+          name: employee.name,
+          email: employee.email,
+          address: employee.employee?.address,
+          avatar: employee.employee?.avatar,
+          phone: employee.employee?.phone,
+          company: employee.company,
+          designation: employee.employee?.designation,
+          createdAt: employee.employee?.createdAt,
+          updatedAt: employee.employee?.updatedAt,
           // attendance: undefined, // ✅ drop raw logs
           stats: {
             // totalHours, // "42h 30m"

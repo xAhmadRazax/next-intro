@@ -4,7 +4,7 @@ import { useFormDialog } from "../hooks/useFormDialog"
 import { useState } from "react"
 import Image from "next/image"
 import { useUpdateCompanyMutation } from "./hooks/useUpdateCompanyMutation"
-import { CompanyType } from "@/db/schema"
+import { CompanyType } from "@/types/dashboard.types"
 
 interface CompanyLogoState {
   image: File | null

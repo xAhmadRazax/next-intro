@@ -4,7 +4,6 @@ import { CompanyType } from "@/db/schema"
 import { getCompanies } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
 import { PaginationMeta } from "@/types/pagination.types"
-import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -23,9 +22,11 @@ export const useCompaniesTestQuery = ({
   initialFetchedItems?: CompanyType[]
   initialFetchedMeta?: PaginationMeta
 } = {}) => {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
+  const [queryParams, setQueryParams] = useState({
+    page: 1,
+    name: "",
+    email: "",
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setIsError] = useState("")
 
@@ -108,17 +109,6 @@ export const useCompaniesTestQuery = ({
     )
 
     let hasNext = (cachedCompanies?.current.meta.totalPages ?? 1) < currentPage
-    console.log(
-      "current total Page",
-      currentCachedPages,
-      "currentPAge",
-      currentPage,
-      "item start",
-      itemSnapshotStartIndex,
-      "item end",
-      itemSnapshotEndIndex,
-      pageItemSnapshot
-    )
 
     // handing edge case where we have more than ona page
     // and any page that are 2+ could have only 1 record
@@ -152,23 +142,10 @@ export const useCompaniesTestQuery = ({
         cachedCompanies.current.meta.currentPage
       )
       hasNext = (cachedCompanies.current?.meta.totalPages ?? 1) < currentPage
-
-      const params = new URLSearchParams(searchParams.toString())
-
-      params.set(
-        "page",
-        (cachedCompanies.current.meta.currentPage > 1
-          ? cachedCompanies.current.meta.currentPage - 1
-          : 1
-        ).toString()
-      )
-
-      cachedCompanies.current.meta.totalPages =
-        cachedCompanies.current.meta.totalPages > 1
-          ? cachedCompanies.current.meta.totalPages - 1
-          : 1
-
-      return router.push(`/dashboard/companies?page=1`)
+      setQueryParams((prev) => ({
+        ...prev,
+        page: prev.page - 1 >= 1 ? prev.page - 1 : 1,
+      }))
     }
 
     cachedCompanies.current.items = filteredCachedCompanies
@@ -181,6 +158,7 @@ export const useCompaniesTestQuery = ({
         totalPages: currentCachedPages - 1 > 0 ? currentCachedPages - 1 : 1,
       },
     })
+
     // })
     // }
   }
@@ -199,7 +177,18 @@ export const useCompaniesTestQuery = ({
 
     cachedCompanies.current.meta.totalPages = totalPages
 
-    router.push(`/dashboard/companies?page=${companies?.meta.totalPages}`)
+    const start =
+      (queryParams.page - 1) * cachedCompanies.current.meta.itemsPerPage
+    const end = start + cachedCompanies.current.meta.itemsPerPage
+
+    setCompanies({
+      items: cachedCompanies.current.items.slice(start, end),
+      meta: {
+        ...cachedCompanies.current.meta,
+        currentPage: queryParams.page,
+        totalPages: cachedCompanies.current.meta.totalPages ?? 1,
+      },
+    })
   }
 
   const mutateExistingCompany = (company: CompanyType) => {
@@ -215,10 +204,6 @@ export const useCompaniesTestQuery = ({
 
         return item
       }
-    )
-
-    router.push(
-      `/dashboard/companies?page=${cachedCompanies.current.meta.currentPage}`
     )
   }
 
@@ -312,9 +297,9 @@ export const useCompaniesTestQuery = ({
     }
 
     const controller = new AbortController()
-    const pageParams = Number(searchParams.get("page") ?? 1)
-    const emailParams = searchParams.get("email")
-    const nameParams = searchParams.get("name")
+    const pageParams = queryParams.page
+    const emailParams = queryParams.email
+    const nameParams = queryParams.name
 
     companiesQueryHandler({
       page: pageParams,
@@ -324,7 +309,7 @@ export const useCompaniesTestQuery = ({
     })
 
     return () => controller.abort()
-  }, [searchParams])
+  }, [queryParams])
 
   const getCurrentPageCompanies = () => {
     // if (!companies?.meta)
@@ -340,6 +325,18 @@ export const useCompaniesTestQuery = ({
     // }
   }
 
+  const updatePage = (page: number) => {
+    setQueryParams((prev) => ({ ...prev, page }))
+  }
+
+  const updateFilters = (filters: { name?: string; email?: string }) => {
+    setQueryParams((prev) => ({
+      ...prev,
+      ...filters,
+      page: 1,
+    }))
+  }
+
   return {
     companiesQueryHandler,
     isLoading,
@@ -349,5 +346,8 @@ export const useCompaniesTestQuery = ({
     removeItem,
     addNewCompany,
     mutateExistingCompany,
+    updatePage,
+    updateFilters,
+    filters: { name: queryParams.name, email: queryParams.email },
   }
 }

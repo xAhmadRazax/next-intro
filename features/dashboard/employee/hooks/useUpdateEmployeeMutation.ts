@@ -1,9 +1,8 @@
 "use client"
 
-import { PublicUserType } from "@/db/schema"
 import { updateEmployee } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
-import { updateEmployeeDto } from "@/types/dashboard.types"
+import { EmployeeType, updateEmployeeDto } from "@/types/dashboard.types"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -17,7 +16,7 @@ export function useUpdateEmployeeMutation() {
   async function updateEmployeeMutation(
     id: string,
     body: Partial<updateEmployeeDto>,
-    onSuccessCallback?: (employee: PublicUserType) => void
+    onSuccessCallback?: (employee: EmployeeType) => void
   ) {
     setIsLoading(true)
     try {

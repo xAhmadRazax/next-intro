@@ -1,6 +1,6 @@
 import { EmployeeAttendance } from "@/types/dashboard.types"
-import { DataTable } from "../dashboard/components/DataGridTable"
-import { attendanceColumns } from "./attendance-column"
+import { DataTable } from "../components/DataGridTable"
+import { attendanceColumns } from "./employee-attendance-column"
 
 export const AttendanceTable = ({
   wrapperClass,

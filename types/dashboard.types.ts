@@ -1,17 +1,22 @@
 import { PublicUserType } from "@/db/schema"
 
 export interface AddEmployeeDTO {
-  name: string
   password: string
-  phone: string
-  address: string
-  email: string
   companyId?: string
-  designation: string
   avatar?: File | undefined
+  name: string
+  email: string
+  address: string
+  designation: string
+  phone: string
+  company?: CompanyType
 }
 
-// export type updateEmployeeDto = Omit<AddEmployeeDTO, "companyId">
+export type updateEmployeeDto = Omit<AddEmployeeDTO, "companyId"> & {
+  id: string
+  updatedAt: Date
+  createdAt: Date
+}
 
 // export interface CompanyType {
 //   id: string
@@ -39,42 +44,42 @@ export interface EmployeeQueryType extends PublicUserType {
   }
 }
 
-// export interface EmployeeAttendance {
-//   id: string
-//   companyId: string | null
-//   userId: string | null
-//   createdAt: Date | null
-//   checkIn: string | null
-//   checkOut: string | null
-//   day: string
-//   date: string
-//   duration: string | null
-//   isFuture: boolean
-//   isToday: boolean
-//   isWeekend: boolean
-//   status: "pending" | "absent" | "completed" | "weekend" | "active"
-// }
-// export interface EmployeeAttendanceSummaryType {
-//   month: {
-//     averageDuration: string
-//     monthName: string
-//     totalDuration: string
-//     totalWeekdays: string
-//     weekdaysClocked: number
-//   }
-// }
+export interface EmployeeAttendance {
+  id: string
+  companyId: string | null
+  userId: string | null
+  createdAt: Date | null
+  checkIn: string | null
+  checkOut: string | null
+  day: string
+  date: string
+  duration: string | null
+  isFuture: boolean
+  isToday: boolean
+  isWeekend: boolean
+  status: "pending" | "absent" | "completed" | "weekend" | "active"
+}
+export interface EmployeeAttendanceSummaryType {
+  month: {
+    averageDuration: string
+    monthName: string
+    totalDuration: string
+    totalWeekdays: string
+    weekdaysClocked: number
+  }
+}
 
-// export interface EmployeeAttendanceQueryType {
-//   attendance: EmployeeAttendance[]
-//   summary: EmployeeAttendanceSummaryType
-// }
+export interface EmployeeAttendanceQueryType {
+  attendance: EmployeeAttendance[]
+  summary: EmployeeAttendanceSummaryType
+}
 
-// export interface EmployeeAttendanceStatsType {
-//   averageDuration: string
-//   monthName: string
-//   totalDuration: string
-//   weekdaysClocked: number
-// }
+export interface EmployeeAttendanceStatsType {
+  averageDuration: string
+  monthName: string
+  totalDuration: string
+  weekdaysClocked: number
+}
 
 // export interface DepartmentsWithRolesType extends DepartmentType {
 //   roles: JobTitleType[]
@@ -108,7 +113,7 @@ export type EmployeeType = {
   avatar: string
   designation: string
   phone: string
-  company: CompanyType
+  company?: CompanyType
   createdAt: Date
   updatedAt: Date
 }

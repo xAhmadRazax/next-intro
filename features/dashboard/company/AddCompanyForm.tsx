@@ -6,7 +6,7 @@ import { useState } from "react"
 import { uploadImage } from "@/lib/cloudinaryv1.utils"
 import Image from "next/image"
 import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
-import { CompanyType } from "@/db/schemas/company.schema"
+import { CompanyType } from "@/types/dashboard.types"
 // import { useCreateCompanyMutation } from "./hooks/useCreateCompanyMutation"
 
 interface CompanyLogoState {

@@ -1,5 +1,4 @@
 "use client"
-import { CompanyType } from "@/db/schema"
 import { AddCompanyButton } from "./AddCompanyButton"
 import { CompanyTableFiltrationWrapper } from "./CompanyTableFiltrationWrapper"
 import { useCompaniesQuery } from "./hooks/useCompaniesQuery"
@@ -7,6 +6,7 @@ import { PaginationMeta } from "@/types/pagination.types"
 import { Suspense } from "react"
 import { CompaniesTableSkeleton } from "./CompaniesTableSkeleton"
 import { CompaniesTable } from "./CompaniesTable"
+import { CompanyType } from "@/types/dashboard.types"
 
 export const CompanyTableWrapper = ({
   initialFetchedItems,

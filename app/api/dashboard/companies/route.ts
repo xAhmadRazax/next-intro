@@ -59,7 +59,7 @@ export const POST = async (req: Request) => {
       })
       .returning()
 
-    const userWithAllData = await db.query.users.findFirst({
+    const companyData = await db.query.users.findFirst({
       where: eq(users.id, createdUser.id),
       with: {
         company: true,
@@ -69,7 +69,25 @@ export const POST = async (req: Request) => {
       },
     })
 
-    return Response.json(userWithAllData, { status: 201 })
+    // ✅ Check if data exists
+    if (!companyData || !companyData.company) {
+      return Response.json(
+        { error: "Failed to create company" },
+        { status: 500 }
+      )
+    }
+    return Response.json(
+      {
+        id: companyData.id,
+        name: companyData.name,
+        email: companyData.email,
+        address: companyData.company.address,
+        logo: companyData.company.logo,
+        createdAt: companyData.company.createdAt,
+        updatedAt: companyData.company.updatedAt,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.log(error)
     const postgresError = handlePostgresError(error)
@@ -96,7 +114,7 @@ export const GET = async (req: Request) => {
     // return Response.json(companies, { status: 201 })
     const { searchParams } = new URL(req.url)
 
-    const getAll = Boolean(searchParams.get("getAll"))
+    const getAll = Boolean(searchParams.get("getAll")) ?? false
     const page = Number(searchParams.get("page") || 1)
     const limit = Number(searchParams.get("limit") || 20)
     const emailFilter = searchParams.get("email") || ""
@@ -113,8 +131,8 @@ export const GET = async (req: Request) => {
     )
     const [data, [{ total }]] = await Promise.all([
       db.query.users.findMany({
-        columns: getAll
-          ? { name: true, id: true, password: false }
+        columns: !!getAll
+          ? { name: true, email: true, id: true, password: false }
           : { password: false },
         limit: !getAll ? limit : undefined,
         offset: !getAll ? offset : undefined,
@@ -133,8 +151,19 @@ export const GET = async (req: Request) => {
     // console.log(data, "companies")
     const totalPages = Math.ceil(total / limit)
 
+    const formattedData = data.map((item) => ({
+      id: item.company?.id,
+      name: item.company?.name,
+      logo: item.company?.logo,
+      email: item.company?.email,
+      address: item.company?.address,
+      createdAt: item.company?.createdAt,
+      updatedAt: item.company?.updatedAt,
+      role: "company",
+    }))
+
     return Response.json({
-      data,
+      companies: formattedData,
       meta: {
         itemsPerPage: limit,
         currentPage: page,

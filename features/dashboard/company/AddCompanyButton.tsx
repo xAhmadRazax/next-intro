@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import FormDialog from "../components/FormDialog"
 import { Plus } from "lucide-react"
 import { AddCompanyForm } from "./AddCompanyForm"
-import { CompanyType } from "@/db/schema"
+import { CompanyType } from "@/types/dashboard.types"
 
 export const AddCompanyButton = ({
   addCompanyCallbackHandler,

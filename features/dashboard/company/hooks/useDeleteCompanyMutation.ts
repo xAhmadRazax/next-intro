@@ -17,6 +17,7 @@ export function useDeleteCompanyMutation() {
       await deleteCompany(id)
       onSuccessCallback?.()
     } catch (error) {
+      console.log(error)
       if (error instanceof ApiError) {
         setError(error.message)
         toast.error(error.message)

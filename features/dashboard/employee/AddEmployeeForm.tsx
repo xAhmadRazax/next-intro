@@ -13,8 +13,7 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import Form from "@/components/form/Form"
-// import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
-import { CompanyType, PublicUserType } from "@/db/schema"
+import { useCompaniesQuery } from "../company/hooks/useCompaniesQuery"
 import { useFormDialog } from "../hooks/useFormDialog"
 import {
   Select,
@@ -23,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { CompanyType, EmployeeType } from "@/types/dashboard.types"
+import { useAuthContext } from "@/context/auth.context"
 
 interface EmployeeAvatarState {
   previewUrl: string
@@ -32,8 +33,10 @@ interface EmployeeAvatarState {
 export const AddEmployeeForm = ({
   addEmployeeToCache,
 }: {
-  addEmployeeToCache?: (employee: PublicUserType) => void
+  addEmployeeToCache?: (employee: EmployeeType) => void
 }) => {
+  const { user } = useAuthContext()
+
   const {
     createEmployeeHandler: createEmployeeMutation,
     error,
@@ -41,8 +44,8 @@ export const AddEmployeeForm = ({
     clearFieldError,
   } = useCreateEmployeeMutation()
 
-  // const { companiesQueryHandler, isLoading: isLoadingCompanies } =
-  //   useCompaniesQuery()
+  const { companiesQueryHandler, isLoading: isLoadingCompanies } =
+    useCompaniesQuery()
 
   const { onSuccess } = useFormDialog()
 
@@ -52,42 +55,43 @@ export const AddEmployeeForm = ({
   })
   const [employeeAvatarError, setEmployeeAvatarError] = useState<string>("")
 
-  // const [companies, setCompanies] = useState<CompanyType[] | null>(null)
-  // const [selectedCompany, setSelectedCompany] = useState<CompanyType | null>(
-  // null
-  // )
+  const [companies, setCompanies] = useState<CompanyType[] | null>(null)
+  const [selectedCompany, setSelectedCompany] = useState<CompanyType | null>(
+    null
+  )
 
   // const [selectedDepartment, setSelectedDepartment] =
   // useState<DepartmentsWithRolesType | null>(null)
 
   // const [selectedRole, setSelectedRole] = useState<JobTitleType | null>(null)
 
-  // useEffect(() => {
-  //   async function fetchAllCompaniesData() {
-  //     const res = await companiesQueryHandler({ getAll: true })
+  useEffect(() => {
+    async function fetchAllCompaniesData() {
+      const res = await companiesQueryHandler({ getAll: true })
 
-  //     console.log(res)
+      console.log(res)
 
-  //     setCompanies(res ?? [])
-  //   }
+      setCompanies(res ?? [])
+    }
 
-  //   fetchAllCompaniesData()
-  // }, [])
+    fetchAllCompaniesData()
+  }, [])
+
   const emailError = error?.fields?.email
   const nameError = error?.fields?.name
-  // const companyError = error?.fields?.company
+  const companyError = error?.fields?.company
   const passwordError = error?.fields?.password
   // const departmentError = error?.fields?.department
   const designationError = error?.fields?.designation
   const phoneError = error?.fields?.phone
   const addressError = error?.fields?.address
 
-  // const handleCompanySelect = (company: CompanyType | null) => {
-  //   if (!company) {
-  //     return
-  //   }
-  //   setSelectedCompany(company)
-  // }
+  const handleCompanySelect = (company: CompanyType | null) => {
+    if (!company) {
+      return
+    }
+    setSelectedCompany(company)
+  }
 
   // const handleDepartmentSelect = (
   //   department: DepartmentsWithRolesType | null
@@ -139,16 +143,8 @@ export const AddEmployeeForm = ({
     const phone = formData.get("phone") as string
     const address = formData.get("address") as string
 
-    console.log({
-      email,
-      name,
-      password,
-      designation,
-      phone,
-      address,
-      // companyId: selectedCompany!.id,
-      avatar: employeeAvatar.imageFile ?? undefined,
-    })
+    console.log("company", selectedCompany)
+
     createEmployeeMutation(
       {
         email,
@@ -157,7 +153,7 @@ export const AddEmployeeForm = ({
         designation,
         phone,
         address,
-        // companyId: selectedCompany!.id,
+        companyId: selectedCompany?.id || undefined,
         avatar: employeeAvatar.imageFile ?? undefined,
       },
       (employee) => {
@@ -288,39 +284,41 @@ export const AddEmployeeForm = ({
         {/* end of password */}
 
         {/* company input */}
-        {/* <Form.Field>
-          <Form.Label htmlFor="company">Company</Form.Label>
-          <Combobox
-            id="company"
-            disabled={isLoadingCompanies || isCreatingEmployee}
-            items={companies ?? []}
-            itemToStringLabel={(company: CompanyType) => company.name}
-            onValueChange={(company) => handleCompanySelect(company)}
-            required
-          >
-            <ComboboxInput placeholder="Search companies..." />
-            <ComboboxContent>
-              <ComboboxEmpty>No companies found.</ComboboxEmpty>
-              <ComboboxList
-                className={`${true ? "ring-1 ring-destructive" : ""}`}
-                onFocus={() => {
-                  if (companyError) {
-                    clearFieldError("company")
-                  }
-                }}
-              >
-                {(company: CompanyType) => (
-                  <ComboboxItem key={company.id} value={company}>
-                    {company.name}
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
-          {companyError && (
-            <p className="text-sm text-destructive">{companyError}</p>
-          )}
-        </Form.Field> */}
+        {user?.role && user?.role === "admin" && (
+          <Form.Field>
+            <Form.Label htmlFor="company">Company</Form.Label>
+            <Combobox
+              id="company"
+              disabled={isLoadingCompanies || isCreatingEmployee}
+              items={companies ?? []}
+              itemToStringLabel={(company: CompanyType) => company.name}
+              onValueChange={(company) => handleCompanySelect(company)}
+              required
+            >
+              <ComboboxInput placeholder="Search companies..." />
+              <ComboboxContent>
+                <ComboboxEmpty>No companies found.</ComboboxEmpty>
+                <ComboboxList
+                  className={`${true ? "ring-1 ring-destructive" : ""}`}
+                  onFocus={() => {
+                    if (companyError) {
+                      clearFieldError("company")
+                    }
+                  }}
+                >
+                  {(company: CompanyType) => (
+                    <ComboboxItem key={company.id} value={company}>
+                      {company.name}
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
+            {companyError && (
+              <p className="text-sm text-destructive">{companyError}</p>
+            )}
+          </Form.Field>
+        )}
         {/* end of company input */}
 
         {/* address */}

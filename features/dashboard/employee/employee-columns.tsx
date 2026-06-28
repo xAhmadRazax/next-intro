@@ -9,15 +9,15 @@ import { DeleteEmployeeButton } from "./DeleteEmployeeButton"
 import { ResetEmployeePasswordButton } from "./ResetEmployeePasswordButton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { PublicUserType } from "@/db/schema"
-import { EmployeeQueryType } from "@/types/dashboard.types"
+import { EmployeeQueryType, EmployeeType } from "@/types/dashboard.types"
 import { ViewEmployeeAttendanceButton } from "./ViewEmployeeAttendanceButton"
 
 export const employeeColumns = (
   isLoading?: boolean,
   itemSkip?: number,
-  updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void,
+  updateEmployeeInCache?: (updatedEmployee: EmployeeType) => void,
   deleteCachedEmployee?: (employeeId: string) => void
-): ColumnDef<EmployeeQueryType>[] => [
+): ColumnDef<EmployeeType>[] => [
   {
     id: "index",
     header: "#",
@@ -41,7 +41,7 @@ export const employeeColumns = (
     cell: isLoading
       ? () => <Skeleton className="h-10 w-10 rounded-full" />
       : ({ row }) => {
-          const avatar = row.original.employee?.avatar as string
+          const avatar = row.original.avatar as string
           const name = row.original.name
 
           return (
@@ -93,7 +93,7 @@ export const employeeColumns = (
   {
     id: "employee.address",
     header: "Address",
-    accessorFn: (row) => row.employee?.address,
+    accessorFn: (row) => row.address,
     cell: isLoading
       ? () => <Skeleton className="h-8 w-full max-w-100 min-w-30" />
       : ({ row }) => (
@@ -106,7 +106,7 @@ export const employeeColumns = (
   {
     id: "employee.designation",
     header: "Role",
-    accessorFn: (row) => row.employee?.designation,
+    accessorFn: (row) => row?.designation,
     cell: isLoading
       ? () => <Skeleton className="h-8 w-full max-w-100 min-w-30" />
       : ({ row }) => (
@@ -173,13 +173,14 @@ export const employeeColumns = (
                   name: row.original.name,
                   email: row.original.email,
                   // avatar: row.original.employee?.address,
-                  company: row.original.company,
+                  company: row.original?.company ?? undefined,
                   role: row.original.role,
                 }}
               />
               <DeleteEmployeeButton
                 id={row.original.id}
                 name={row.original.name}
+                deleteCachedEmployee={deleteCachedEmployee}
               />
               <ResetEmployeePasswordButton
                 id={row.original.id}

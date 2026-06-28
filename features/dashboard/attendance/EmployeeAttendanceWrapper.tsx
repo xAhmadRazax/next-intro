@@ -2,9 +2,9 @@
 import dynamic from "next/dynamic"
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { AttendanceStats } from "./AttendanceStats"
-import { AttendanceTable } from "./AttendanceTable"
-import { AttendanceControls } from "./AttendanceControls"
+import { EmployeeAttendanceStats } from "./EmployeeAttendanceStats"
+import { AttendanceTable } from "./EmployeeAttendanceTable"
+import { EmployeeAttendanceControls } from "./EmployeeAttendanceControls"
 import { useAttendanceQuery } from "./hooks/useAttendanceQuery"
 import {
   EmployeeAttendance,
@@ -22,11 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useAttendanceStatsQuery } from "./hooks/useAttendanceStatsQuery"
-const AttendanceClock = dynamic(() => import("./AttendanceClock"), {
-  ssr: false,
-})
+const EmployeeAttendanceClock = dynamic(
+  () => import("./EmployeeAttendanceClock"),
+  {
+    ssr: false,
+  }
+)
 
-export const AttendanceWrapper = ({
+export const EmployeeAttendanceWrapper = ({
   initialTotalAttendance,
   initialAttendanceSummary,
 }: {
@@ -66,10 +69,10 @@ export const AttendanceWrapper = ({
         <CardContent className="flex flex-col items-center justify-center gap-4 space-x-8">
           {!isLoading && (
             <>
-              <AttendanceClock />
+              <EmployeeAttendanceClock />
 
               {
-                <AttendanceControls
+                <EmployeeAttendanceControls
                   onClockInHandler={onClockIn}
                   onClockOutHandler={(param: EmployeeAttendance) => {
                     onClockOut(param)
@@ -78,7 +81,7 @@ export const AttendanceWrapper = ({
                   attendance={attendance?.todayAttendance || undefined}
                 />
               }
-              <AttendanceStats
+              <EmployeeAttendanceStats
                 isLoading={isLoadingAttendanceStats || isLoading}
                 attendanceSummary={attendanceStats}
               />

@@ -5,7 +5,9 @@ export const employees = pgTable("employees", {
   avatar: text("avatar"),
   //   avatarPublicId: text("logo_public_id"),
   address: text("address"),
-  designation: text("designation"),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  designation: text("designation").notNull(),
   phone: text("phone"),
   createdAt: timestamp("created_at", {
     withTimezone: true,

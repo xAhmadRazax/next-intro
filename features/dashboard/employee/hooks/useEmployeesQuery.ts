@@ -3,7 +3,7 @@
 import { PublicUserType } from "@/db/schema"
 import { getEmployees } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
-import { EmployeeQueryType } from "@/types/dashboard.types"
+import { EmployeeQueryType, EmployeeType } from "@/types/dashboard.types"
 import { PaginationMeta } from "@/types/pagination.types"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
@@ -21,7 +21,7 @@ export const useEmployeesQuery = ({
     itemsPerPage: 20,
   },
 }: {
-  initialFetchedItems?: EmployeeQueryType[]
+  initialFetchedItems?: EmployeeType[]
   initialFetchedMeta?: PaginationMeta
 }) => {
   const searchParams = useSearchParams()
@@ -31,7 +31,7 @@ export const useEmployeesQuery = ({
   const [error, setIsError] = useState("")
 
   const cachedEmployees = useRef<{
-    items: EmployeeQueryType[]
+    items: EmployeeType[]
     meta: PaginationMeta
     loadedPages: Set<number>
     currentPage: number
@@ -43,265 +43,235 @@ export const useEmployeesQuery = ({
   })
 
   const [employees, setEmployees] = useState<{
-    items: EmployeeQueryType[]
+    items: EmployeeType[]
     meta: PaginationMeta
   }>(() => {
     return { items: initialFetchedItems, meta: initialFetchedMeta }
   })
 
   useEffect(() => {
-    const employeesQueryHandler = async ({
-      pageFilter = 1,
-      nameFilter = "",
-      emailFilter = "",
-      companyFilter = "",
-      signal,
-    }: {
-      signal?: AbortSignal
-      pageFilter?: number
-      nameFilter?: string
-      emailFilter?: string
-      companyFilter?: string
-    }) => {
-      // const isMounted = true
-      // read data from cache if it exist and change the current snapshot of items
-      if (
-        cachedEmployees.current &&
-        cachedEmployees.current.loadedPages.has(pageFilter) &&
-        !emailFilter &&
-        !nameFilter &&
-        !companyFilter
-      ) {
-        //  so whats the plan this should hard XDDDD
+    const controller = new AbortController()
 
-        const start =
-          (pageFilter - 1) * cachedEmployees.current.meta.itemsPerPage
-        const end = start + cachedEmployees.current.meta.itemsPerPage
+    const fetchEmployees = async () => {
+      const page = Number(searchParams.get("page") ?? 1)
+      const name = searchParams.get("username") ?? ""
+      const email = searchParams.get("email") ?? ""
+      const company = searchParams.get("company") ?? ""
+      const hasFilters = !!(name || email || company)
 
-        setEmployees({
-          items: cachedEmployees.current.items.slice(start, end),
-          meta: {
-            ...cachedEmployees.current.meta,
-            currentPage: pageFilter,
-            totalPages: cachedEmployees.current.meta.totalPages ?? 1,
-          },
-        })
-        return
-      }
-
-      setIsLoading(true)
       try {
-        const res = await getEmployees(
+        // Check cache for non-filtered requests
+        if (!hasFilters && cachedEmployees.current.loadedPages.has(page)) {
+          const { items, meta } = cachedEmployees.current
+          const itemsPerPage = meta.itemsPerPage
+          const start = (page - 1) * itemsPerPage
+          const end = start + itemsPerPage
+
+          setEmployees({
+            items: items.slice(start, end),
+            meta: {
+              ...meta,
+              currentPage: page,
+            },
+          })
+          return
+        }
+
+        setIsLoading(true)
+
+        const response = await getEmployees(
           {
-            page: pageFilter,
-            usernameFilter: nameFilter,
-            emailFilter,
-            companyFilter,
+            page,
+            usernameFilter: name || undefined,
+            emailFilter: email || undefined,
+            companyFilter: company || undefined,
           },
-          signal
+          controller.signal
         )
 
-        // caching records when there is not any filters set
-        if (
-          !emailFilter &&
-          !nameFilter &&
-          !companyFilter &&
-          res.data.length > 0
-        ) {
+        // Cache only non-filtered results with data
+        if (!hasFilters && response.data.length > 0) {
+          const { data, meta } = response
+          const currentItems = cachedEmployees.current.items || []
+
+          // Merge and deduplicate items
+
+          const itemMap = new Map<string, EmployeeType>()
+
+          // Add existing items
+          currentItems.forEach((item) => {
+            if (item.id) itemMap.set(item.id, item)
+          })
+
+          // Add/overwrite with new items
+          data.forEach((item) => {
+            if (item.id) itemMap.set(item.id, item)
+          })
+
+          // Convert back to array and sort by createdAt
+          const mergedItems = Array.from(itemMap.values()).sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+            return dateA - dateB
+          })
+
           cachedEmployees.current = {
-            items: [...cachedEmployees.current.items, ...res.data].sort(
-              (a, b) => {
-                return (
-                  new Date(a.createdAt!).getTime() -
-                  new Date(b.createdAt!).getTime()
-                )
-              }
-            ),
-
-            loadedPages: cachedEmployees.current.loadedPages.add(
-              res.meta.currentPage
-            ),
-
-            meta: res.meta,
-            currentPage: res.meta.currentPage,
+            items: mergedItems,
+            loadedPages: new Set([
+              ...cachedEmployees.current.loadedPages,
+              meta.currentPage,
+            ]),
+            meta: meta,
+            currentPage: meta.currentPage,
           }
         }
 
-        setEmployees({ items: res.data, meta: res.meta })
+        setEmployees({
+          items: response.data,
+          meta: response.meta,
+        })
       } catch (error) {
-        console.log("error in the employee query", error)
-        if (error instanceof DOMException && error.name === "AbortError") return
-        if (error instanceof ApiError) {
-          toast.error(error.message)
-          setIsError(error.message)
-        } else {
-          setIsError("Something went wrong while fetching data")
-          toast.error("Something went wrong while fetching data")
+        // Ignore abort errors
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return
         }
+
+        console.error("Error fetching employees:", error)
+
+        const errorMessage =
+          error instanceof ApiError
+            ? error.message
+            : "Failed to fetch employees"
+
+        setIsError(errorMessage)
+        toast.error(errorMessage)
       } finally {
-        // if (isMounted)
         setIsLoading(false)
       }
     }
 
-    const controller = new AbortController()
-    const pageFilter = Number(searchParams.get("page") ?? 1)
-    const emailFilter = searchParams.get("email") ?? undefined
-    const nameFilter = searchParams.get("username") ?? undefined
-    const companyFilter = searchParams.get("company") ?? undefined
-
-    employeesQueryHandler({
-      pageFilter,
-      emailFilter,
-      companyFilter,
-      nameFilter,
-      signal: controller.signal,
-    })
+    fetchEmployees()
 
     return () => controller.abort()
   }, [searchParams])
 
   const deleteCachedEmployee = async (id: string) => {
-    // guard that check for some reason if we have no employee data then
-    // this function wil do nothing
     if (
-      !cachedEmployees?.current.items ||
-      !cachedEmployees.current.items.length ||
+      !cachedEmployees.current.items?.length ||
       !cachedEmployees.current.meta
     ) {
       return
     }
 
-    const filteredCachedEmployees = cachedEmployees?.current?.items.filter(
-      (item) => {
-        console.log(item.id !== id, item.id, id)
-        return item.id !== id
-      }
+    const { meta, items } = cachedEmployees.current
+    const itemsPerPage = meta.itemsPerPage
+    const currentPage = meta.currentPage
+
+    // Filter out the removed item
+    const filteredItems = items.filter((item) => item.id !== id)
+
+    // Calculate new total pages
+    const newTotalPages = Math.max(
+      1,
+      Math.ceil(filteredItems.length / itemsPerPage)
     )
 
-    const currentCachedPages = Math.ceil(
-      (filteredCachedEmployees?.length ?? 1) /
-        (cachedEmployees?.current.meta.itemsPerPage ?? 1)
-    )
+    // Determine the page to display after removal
+    let newPage = currentPage
+    if (currentPage > newTotalPages) {
+      newPage = newTotalPages // Go to last page if current page is now empty
+    }
 
-    const currentPage = cachedEmployees?.current.meta?.currentPage ?? 1
+    // Calculate the slice for the new current page
+    const startIndex = (newPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const pageItems = filteredItems.slice(startIndex, endIndex)
 
-    const itemSnapshotStartIndex =
-      (currentPage - 1) * (cachedEmployees?.current.meta?.itemsPerPage ?? 20)
+    // Update cache
+    cachedEmployees.current.items = filteredItems
+    cachedEmployees.current.meta = {
+      ...meta,
+      currentPage: newPage,
+      totalPages: newTotalPages,
+      hasNext: newPage < newTotalPages,
+      hasPrev: newPage > 1,
+      nextPage: newPage < newTotalPages ? newPage + 1 : null,
+      prevPage: newPage > 1 ? newPage - 1 : null,
+    }
 
-    const itemSnapshotEndIndex =
-      itemSnapshotStartIndex +
-      (cachedEmployees?.current.meta?.itemsPerPage ?? 20)
+    // Update state
+    setEmployees({
+      items: pageItems,
+      meta: cachedEmployees.current.meta,
+    })
 
-    const pageItemSnapshot = filteredCachedEmployees.slice(
-      itemSnapshotStartIndex,
-      itemSnapshotEndIndex
-    )
-
-    let hasNext = (cachedEmployees?.current.meta.totalPages ?? 1) < currentPage
-
-    // handing edge case where we have more than ona page
-    // and any page that are 2+ could have only 1 record
-    if (
-      cachedEmployees.current.meta.currentPage &&
-      cachedEmployees.current.meta.currentPage > 1
-    ) {
-      if (pageItemSnapshot?.length === 0) {
-        setEmployees((prevData) => ({
-          items: prevData?.items ?? [],
-          meta: {
-            currentPage: prevData?.meta.currentPage ?? 1,
-            itemsPerPage: prevData?.meta.itemsPerPage ?? 10,
-            totalPages: (prevData?.meta.totalPages ?? 1) - 1,
-            hasNext: prevData?.meta.hasNext ?? false,
-            hasPrev: prevData?.meta.hasPrev ?? false,
-            nextPage: prevData?.meta.nextPage ?? null, // Explicitly handle nextPage
-            prevPage: prevData?.meta.prevPage ?? null,
-          },
-        }))
-      }
-
-      cachedEmployees.current.loadedPages.delete(
-        cachedEmployees.current.meta.currentPage
-      )
-      hasNext = (cachedEmployees.current?.meta.totalPages ?? 1) < currentPage
-
+    // Navigate if page changed
+    if (newPage !== currentPage) {
       const params = new URLSearchParams(searchParams.toString())
-
-      params.set(
-        "page",
-        (cachedEmployees.current.meta.currentPage > 1
-          ? cachedEmployees.current.meta.currentPage - 1
-          : 1
-        ).toString()
-      )
-
-      cachedEmployees.current.meta.totalPages =
-        cachedEmployees.current.meta.totalPages > 1
-          ? cachedEmployees.current.meta.totalPages - 1
-          : 1
-
-      return router.push(`/dashboard/employees?page=1`)
+      params.set("page", newPage.toString())
+      router.push(`/dashboard/employees?page=${newPage}`)
     }
-
-    cachedEmployees.current.items = filteredCachedEmployees
-
-    console.log(cachedEmployees, pageItemSnapshot)
-    // setEmployees({
-    //   items: pageItemSnapshot,
-    //   meta: {
-    //     ...cachedEmployees?.current.meta,
-    //     currentPage: currentPage,
-    //     hasNext,
-    //     totalPages: currentCachedPages - 1 > 0 ? currentCachedPages - 1 : 1,
-    //   },
-    // })
-
-    return router.push(
-      `/dashboard/employees?page=${cachedEmployees.current.meta.currentPage}`
-    )
-    // })
-    // }
   }
 
-  const addEmployeeToCache = (employee: PublicUserType) => {
+  const addEmployeeToCache = (employee: EmployeeType) => {
+    if (!employee.id) return
+
+    const { meta, items } = cachedEmployees.current
+    const { itemsPerPage, currentPage } = meta
+
+    // Add to cache
+    const updatedItems = [...items, employee]
+    cachedEmployees.current.items = updatedItems
+
+    // Recalculate total pages from cached items
+    const newTotalPages = Math.max(
+      1,
+      Math.ceil(updatedItems.length / itemsPerPage)
+    )
+
+    // Re-slice the same current page — no navigation
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const pageItems = updatedItems.slice(startIndex, endIndex)
+
+    const newMeta: PaginationMeta = {
+      ...meta,
+      totalPages: newTotalPages,
+      hasNext: currentPage < newTotalPages,
+      hasPrev: currentPage > 1,
+      nextPage: currentPage < newTotalPages ? currentPage + 1 : null,
+      prevPage: currentPage > 1 ? currentPage - 1 : null,
+    }
+
+    cachedEmployees.current.meta = newMeta
+    cachedEmployees.current.loadedPages.add(currentPage)
+    setEmployees({ items: pageItems, meta: newMeta })
+  }
+
+  const updateEmployeeInCache = (employee: EmployeeType) => {
     if (!employee.id) {
       return
     }
 
-    cachedEmployees.current.items.push(employee)
+    const { items } = cachedEmployees.current
 
-    const totalPages = Math.ceil(
-      cachedEmployees.current.items.length /
-        cachedEmployees.current.meta.itemsPerPage
-    )
-
-    cachedEmployees.current.meta.totalPages = totalPages
-
-    console.log(cachedEmployees)
-
-    router.push(`/dashboard/employees?page=${employees?.meta.totalPages}`)
-  }
-
-  const updateEmployeeInCache = (employee: PublicUserType) => {
-    if (!employee.id) {
-      return
-    }
-
-    cachedEmployees.current.items = cachedEmployees.current.items.map(
-      (item) => {
-        if (item.id === employee.id) {
-          return { ...item, ...employee, stats: item.stats }
-        }
-
-        return item
+    // updating the item
+    const updatedItems = items.map((item) => {
+      if (item.id === employee.id) {
+        return employee
       }
-    )
 
-    // router.push(
-    //   `/dashboard/employees?page=${cachedEmployees.current.meta.currentPage}`
-    // )
-    router.refresh()
+      // updating items in the cache
+      cachedEmployees.current.items = updatedItems
+
+      // updating state
+      setEmployees((prev) => ({
+        ...prev,
+        items: updatedItems,
+      }))
+
+      return item
+    })
   }
 
   return {

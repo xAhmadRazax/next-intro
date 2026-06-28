@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 
-export default function AttendanceClock() {
+export default function EmployeeAttendanceClock() {
   const [time, setTime] = useState(new Date())
 
   useEffect(() => {

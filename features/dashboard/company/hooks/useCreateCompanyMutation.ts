@@ -1,8 +1,8 @@
 "use client"
 import { CreateCompanyDto } from "@/app/api/backup/dashboard/companies/dtos/createCompanyDto"
-import { CompanyType } from "@/db/schema"
 import { createCompany } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
+import { CompanyType } from "@/types/dashboard.types"
 import { useState } from "react"
 import { toast } from "sonner"
 

@@ -1,12 +1,5 @@
 import { relations } from "drizzle-orm"
-import {
-  uuid,
-  varchar,
-  text,
-  timestamp,
-  pgTable,
-  pgEnum,
-} from "drizzle-orm/pg-core"
+import { uuid, text, timestamp, pgTable, pgEnum } from "drizzle-orm/pg-core"
 import { employees, EmployeeType } from "./employee.schema"
 import { companies, CompanyType } from "./company.schema"
 // import { companies, CompanyType } from "./company.schema"

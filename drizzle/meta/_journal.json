@@ -50,6 +50,20 @@
       "when": 1782327079689,
       "tag": "0006_thin_otto_octavius",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1782587001921,
+      "tag": "0007_classy_siren",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782595202183,
+      "tag": "0008_true_ogun",
+      "breakpoints": true
     }
   ]
 }

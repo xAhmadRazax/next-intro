@@ -7,10 +7,10 @@
 // import { Suspense } from "react"
 
 import { BASEURL } from "@/constants/constants"
-import { CompanyType } from "@/db/schema"
 // import { CompanyType } from "@/db/schema"
 import { CompaniesTableSkeleton } from "@/features/dashboard/company/CompaniesTableSkeleton"
 import { CompanyTableWrapper } from "@/features/dashboard/company/CompanyTableWrapper"
+import { CompanyType } from "@/types/dashboard.types"
 import { PaginationMeta } from "@/types/pagination.types"
 // import { PaginationMeta } from "@/types/pagination.types"
 import { cookies } from "next/headers"
@@ -32,7 +32,7 @@ export const Company = async () => {
     const data = await res.json()
   }
   const companiesData = (await res.json()) as {
-    data: CompanyType[]
+    companies: CompanyType[]
     meta: PaginationMeta
   }
 
@@ -52,7 +52,7 @@ export const Company = async () => {
           fallback={<CompaniesTableSkeleton rows={20} showFilter={true} />}
         >
           <CompanyTableWrapper
-            initialFetchedItems={companiesData.data}
+            initialFetchedItems={companiesData.companies}
             initialFetchedMeta={companiesData.meta}
           />
         </Suspense>

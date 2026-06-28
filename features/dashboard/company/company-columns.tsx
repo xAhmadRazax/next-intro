@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { UpdateCompanyButton } from "./UpdateCompanyButton"
 import { DeleteCompanyButton } from "./DeleteCompanyButton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CompanyType } from "@/db/schema"
+import { CompanyType } from "@/types/dashboard.types"
 
 export const companyColumns = (
   isLoading?: boolean,
@@ -82,7 +82,7 @@ export const companyColumns = (
       : ({ row }) => {
           return (
             <TableCell className="w-full max-w-100 min-w-72 break-all whitespace-normal">
-              {row.original.company.address ?? "___"}
+              {row.original.address ?? "___"}
             </TableCell>
           )
         },
@@ -108,8 +108,8 @@ export const companyColumns = (
                   id: row.original.id,
                   name: row.original.name,
                   email: row.original.email,
-                  // address: row.original.address,
-                  // logo: row.original.logo,
+                  address: row.original.address,
+                  logo: row.original.logo,
                 }}
               />
               <DeleteCompanyButton

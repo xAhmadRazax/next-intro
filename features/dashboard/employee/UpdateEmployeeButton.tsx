@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button"
 import { UpdateEmployeeForm } from "./UpdateEmployeeForm"
 import { Pencil } from "lucide-react"
 import FormDialog from "../components/FormDialog"
-import { PublicUserType } from "@/db/schema"
+import { EmployeeType } from "@/types/dashboard.types"
 
 interface UpdateEmployeeButtonProps {
-  employee: PublicUserType
-  updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void
+  employee: EmployeeType
+  updateEmployeeInCache?: (updatedEmployee: EmployeeType) => void
 }
 
 export const UpdateEmployeeButton = ({

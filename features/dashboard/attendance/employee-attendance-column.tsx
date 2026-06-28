@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { AttendanceType } from "@/db/schema"
 import { EmployeeAttendance } from "@/types/dashboard.types"
 import { ColumnDef } from "@tanstack/react-table"
-import { TableCell } from "../dashboard/components/TableCell"
+import { TableCell } from "../components/TableCell"
 
 export const attendanceColumns = (
   isLoading?: boolean,

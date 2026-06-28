@@ -20,6 +20,4 @@ export const companies = pgTable("companies", {
   }).$onUpdate(() => new Date()),
 })
 
-export type CompanyType = PublicUserType & {
-  company: typeof companies.$inferSelect
-}
+export type CompanyType = typeof companies.$inferSelect

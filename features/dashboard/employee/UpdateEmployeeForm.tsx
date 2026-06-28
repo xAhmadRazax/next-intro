@@ -6,11 +6,19 @@ import Image from "next/image"
 import { PublicUserType } from "@/db/schema"
 import { useFormDialog } from "../hooks/useFormDialog"
 import { useUpdateEmployeeMutation } from "./hooks/useUpdateEmployeeMutation"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { EmployeeType } from "@/types/dashboard.types"
 
 interface UpdateEmployeeFormProps {
-  employee: PublicUserType
+  employee: EmployeeType
   employeeId: string
-  updateEmployeeInCache?: (updatedEmployee: PublicUserType) => void
+  updateEmployeeInCache?: (updatedEmployee: EmployeeType) => void
 }
 
 interface EmployeeAvatarState {
@@ -38,12 +46,18 @@ export const UpdateEmployeeForm = ({
   const { onSuccess } = useFormDialog()
   const [employeeAvatarError, setEmployeeAvatarError] = useState<string>("")
 
-  const username = employee?.username ?? ""
+  const username = employee?.name ?? ""
   const email = employee?.email ?? ""
   const avatar = employee?.avatar ?? ""
+  const designation = employee?.designation
+  const address = employee.address
+  const phone = employee?.phone
 
-  const usernameError = error?.fields?.userName
+  const usernameError = error?.fields?.name
   const emailError = error?.fields?.email
+  const designationError = error?.fields?.designation
+  const addressError = error?.fields?.address
+  const phoneError = error?.fields?.phone
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -74,6 +88,9 @@ export const UpdateEmployeeForm = ({
 
     const updatedUsername = formData.get("username") as string
     const updatedEmail = formData.get("email") as string
+    const updatedAddress = formData.get("address") as string
+    const updatedPhone = formData.get("phone") as string
+    const updatedDesignation = formData.get("designation") as string
 
     const fieldsToUpdate: Record<string, string> = {}
     if (updatedUsername !== username) {
@@ -81,6 +98,15 @@ export const UpdateEmployeeForm = ({
     }
     if (updatedEmail !== email) {
       fieldsToUpdate.email = updatedEmail
+    }
+    if (updatedAddress !== address) {
+      fieldsToUpdate.address = updatedAddress
+    }
+    if (updatedPhone !== phone) {
+      fieldsToUpdate.phone = updatedPhone
+    }
+    if (updatedDesignation !== designation) {
+      fieldsToUpdate.designation = updatedDesignation
     }
 
     await updateEmployeeMutation(
@@ -128,7 +154,7 @@ export const UpdateEmployeeForm = ({
         </Form.Field>
 
         <Form.Field>
-          <Form.Label htmlFor="username">Username</Form.Label>
+          <Form.Label htmlFor="username">Name</Form.Label>
 
           <Form.Input
             id="username"
@@ -149,6 +175,51 @@ export const UpdateEmployeeForm = ({
           )}
         </Form.Field>
 
+        {/* phone */}
+        <Form.Field>
+          <Form.Label htmlFor="phone">Phone</Form.Label>
+
+          <Form.Input
+            type="tel"
+            name="phone"
+            placeholder="03xx123456789"
+            required
+            disabled={isUpdatingEmployee}
+            className={`${phoneError ? "ring-1 ring-destructive" : ""}`}
+            onFocus={() => {
+              if (phoneError) {
+                clearFieldError("phone")
+              }
+            }}
+          />
+          {phoneError && (
+            <p className="text-sm text-destructive">{phoneError}</p>
+          )}
+        </Form.Field>
+        {/* end of password */}
+
+        {/* address */}
+        <Form.Field>
+          <Form.Label htmlFor="address">Address</Form.Label>
+
+          <Form.Input
+            name="address"
+            placeholder="address"
+            required
+            disabled={isUpdatingEmployee}
+            className={`${addressError ? "ring-1 ring-destructive" : ""}`}
+            onFocus={() => {
+              if (addressError) {
+                clearFieldError("address")
+              }
+            }}
+          />
+          {addressError && (
+            <p className="text-sm text-destructive">{addressError}</p>
+          )}
+        </Form.Field>
+        {/* end of password */}
+
         <Form.Field>
           <Form.Label htmlFor="company">Company</Form.Label>
 
@@ -161,25 +232,31 @@ export const UpdateEmployeeForm = ({
         </Form.Field>
 
         <Form.Field>
-          <Form.Label htmlFor="department">Department</Form.Label>
+          <Form.Label htmlFor="designation">Designation</Form.Label>
 
-          <Form.Input
-            id="department"
-            name="department"
-            defaultValue={employee.department!.name ?? "___"}
-            disabled={true}
-          />
-        </Form.Field>
+          <Select
+            name="designation"
+            defaultValue={employee.designation}
+            required
+            disabled={isUpdatingEmployee}
+          >
+            <SelectTrigger
+              className={`w-full ${designationError ? "ring-1 ring-destructive" : ""}`}
+            >
+              <SelectValue placeholder="Select employee designation" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="frontend-dev">
+                Frontend Developer {/* Display text here */}
+              </SelectItem>
+              <SelectItem value="backend-dev">Backend Developer</SelectItem>
+              <SelectItem value="project-manager">Project Manager</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Form.Field>
-          <Form.Label htmlFor="jobTitle">Role</Form.Label>
-
-          <Form.Input
-            id="jobTitle"
-            name="jobTitle"
-            defaultValue={employee.jobTitle!.name ?? ""}
-            disabled={true}
-          />
+          {designationError && (
+            <p className="text-sm text-destructive">{designationError}</p>
+          )}
         </Form.Field>
 
         <Form.Field>

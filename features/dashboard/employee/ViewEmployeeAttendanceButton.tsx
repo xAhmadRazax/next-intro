@@ -1,21 +1,21 @@
 import { Button } from "@/components/ui/button"
-import { Eye } from "lucide-react"
+import { CalendarDays } from "lucide-react"
 import FormDialog from "../components/FormDialog"
 import { EmployeeAttendanceContent } from "./EmployeeAttendanceContent"
-import { PublicUserType } from "@/db/schema"
+import { EmployeeType } from "@/types/dashboard.types"
 
 export const ViewEmployeeAttendanceButton = ({
   employeeId,
   employee,
 }: {
   employeeId: string
-  employee: PublicUserType
+  employee: EmployeeType
 }) => {
   return (
     <FormDialog>
       <FormDialog.Trigger className="max-w-auto">
         <Button variant="ghost" title="View Employee Attendance" size="icon">
-          <Eye className="h-5 w-5" />
+          <CalendarDays className="h-5 w-5" />
         </Button>
       </FormDialog.Trigger>
       <FormDialog.Content className="max-w-[calc(100vw-15px)] md:max-w-fit">

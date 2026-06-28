@@ -1,5 +1,5 @@
 import { EmployeeAttendanceStatsType } from "@/types/dashboard.types"
-export const AttendanceStats = ({
+export const EmployeeAttendanceStats = ({
   attendanceSummary,
   isLoading,
 }: {

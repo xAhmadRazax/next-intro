@@ -1,7 +1,7 @@
 // import { getEmployees } from "@/lib/api"
 import { EmployeeTableWrapper } from "@/features/dashboard/employee/EmployeeTableWrapper"
 import { Suspense } from "react"
-import { EmployeeQueryType } from "@/types/dashboard.types"
+import { EmployeeType } from "@/types/dashboard.types"
 import { PaginationMeta } from "@/types/pagination.types"
 import { BASEURL } from "@/constants/constants"
 import { cookies } from "next/headers"
@@ -22,7 +22,7 @@ export const Employee = async () => {
   }
 
   const result = (await res.json()) as {
-    data: EmployeeQueryType[]
+    data: EmployeeType[]
     meta: PaginationMeta
   }
 

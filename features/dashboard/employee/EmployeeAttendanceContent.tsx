@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { useAttendanceQuery } from "./hooks/useAttendanceQuery"
+import { useAttendanceQuery } from "./attendance/useAttendanceQuery"
 import { AttendanceTable } from "./EmployeeAttendanceTable"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Calendar } from "@/components/ui/calendar"
@@ -15,13 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { EmployeeType } from "@/types/dashboard.types"
 
 export const EmployeeAttendanceContent = ({
   employee,
   employeeId,
 }: {
   employeeId: string
-  employee: PublicUserType
+  employee: EmployeeType
 }) => {
   const [filters, setFilters] = useState<{
     month: number
@@ -44,11 +45,11 @@ export const EmployeeAttendanceContent = ({
           <Avatar className="h-14 w-14">
             <AvatarImage src={employee?.avatar ?? undefined} />
             <AvatarFallback className="text-lg">
-              {employee?.username?.slice(0, 2).toUpperCase()}
+              {employee?.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium">{employee?.username}</p>
+            <p className="font-medium">{employee?.name}</p>
             <p className="text-sm text-muted-foreground">{employee?.email}</p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               Joined{" "}

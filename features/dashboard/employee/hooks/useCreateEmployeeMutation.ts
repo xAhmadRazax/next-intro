@@ -1,8 +1,7 @@
 "use client"
-import { PublicUserType } from "@/db/schema"
 import { addEmployee } from "@/lib/api"
 import { ApiError } from "@/lib/apiError"
-import { AddEmployeeDTO } from "@/types/dashboard.types"
+import { AddEmployeeDTO, EmployeeType } from "@/types/dashboard.types"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -24,7 +23,7 @@ export function useCreateEmployeeMutation() {
       password,
       phone,
     }: AddEmployeeDTO,
-    onSuccessCallbackHandler?: (employee: PublicUserType) => void
+    onSuccessCallbackHandler?: (employee: EmployeeType) => void
   ) {
     setIsLoading(true)
     try {
@@ -39,8 +38,11 @@ export function useCreateEmployeeMutation() {
         phone,
       })
 
+      console.log(newEmployee, "new employee")
+
       if (newEmployee.id) onSuccessCallbackHandler?.(newEmployee)
     } catch (error) {
+      console.log(error)
       console.log(error instanceof ApiError)
       if (error instanceof ApiError) {
         setError({ message: error.message, fields: error?.fields })

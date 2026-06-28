@@ -4,8 +4,8 @@ import { DataTablePaginationWrapper } from "../components/DataTablePaginationWra
 import { TablePagination } from "@/components/TablePagination"
 import { employeeColumns } from "./employee-columns"
 import { EmployeesTableSkeleton } from "./EmployeesTableSkeleton"
-import { PublicUserType } from "@/db/schema"
 import { PaginationMeta } from "@/types/pagination.types"
+import { EmployeeType } from "@/types/dashboard.types"
 
 export const EmployeesTable = ({
   isLoading,
@@ -14,8 +14,8 @@ export const EmployeesTable = ({
   deleteCachedEmployee,
 }: {
   isLoading: boolean
-  employees: { items: PublicUserType[]; meta: PaginationMeta } | null
-  updateEmployeeInCache: (updatedEmployee: PublicUserType) => void
+  employees: { items: EmployeeType[]; meta: PaginationMeta } | null
+  updateEmployeeInCache: (updatedEmployee: EmployeeType) => void
   deleteCachedEmployee: (employeeId: string) => void
 }) => {
   if (isLoading || !employees) {

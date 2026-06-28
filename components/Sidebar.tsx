@@ -31,6 +31,11 @@ const navigationRoute = [
     label: "Companies",
     access: ["admin"],
   },
+  {
+    href: "/dashboard/companies-state",
+    label: "CompaniesWithLocalState",
+    access: ["admin"],
+  },
 ]
 export const SideBar = ({ role }: { role: string }) => {
   const { logout, user } = useAuthContext()
